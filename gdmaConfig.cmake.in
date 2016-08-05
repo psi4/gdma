@@ -1,19 +1,133 @@
-set(GDMA_CONFIG_PATH ${CMAKE_CURRENT_LIST_DIR})
+# gdmaConfig.cmake
+# ------------------
+#
+# GDMA cmake module.
+# This module sets the following variables in your project:
+#
+# ::
+#
+##   gdma_FOUND - true if gdma and all required components found on the system
+##   gdma_VERSION - gdma version in format Major.Minor.Release
+##   gdma_INCLUDE_DIRS - Directories where gdma header is located.
+##   gdma_INCLUDE_DIR - same as DIRS
+##XXXgdma_DEFINITIONS: Definitions necessary to use XXX.h
+##   gdma_LIBRARIES - gdma library to link against.
+##   gdma_LIBRARY - same as LIBRARIES
+#
+#
+# Available components: shared static
+#
+# ::
+#
+#   shared - search for only shared library
+#   static - search for only static library
+#
+#
+# Exported targets:
+#
+# ::
+#
+##   int - main libint and libderiv libraries
+#
+#
+# Suggested usage:
+#
+# ::
+#
+##   find_package(libint)
+##   find_package(libint 1.1.6 EXACT CONFIG REQUIRED COMPONENTS shared 6)
+#
+#
+# The following variables can be set to guide the search for this package:
+#
+# ::
+#
+#   gdma_DIR - CMake variable, set to directory containing this Config file
+#   CMAKE_PREFIX_PATH - CMake variable, set to root directory of this package
+#   PATH - environment variable, set to bin directory of this package
 
-find_library(GDMA_LIBRARY NAMES gdma PATHS ${GDMA_CONFIG_PATH}/lib 
-             NO_DEFAULT_PATH)
-find_path(GDMA_INCLUDE_DIR NAMES GDMA/GDMA_MANGLE.h 
-          PATHS ${GDMA_CONFIG_PATH}/include NO_DEFAULT_PATH)
+@PACKAGE_INIT@
 
-if(${GDMA_LIBRARY} MATCHES GDMA_LIBRARY-NOTFOUND OR
-   ${GDMA_INCLUDE_DIR} MATCHES GDMA_INCLUDE_DIR-NOTFOUND)
-   set(gdma_FOUND FALSE)
-   set(GDMA_FOUND FALSE)
+set(PACKAGE_NAME gdma)
+set (_valid_components
+    static
+    shared
+)
+###
+#set(GDMA_LIBRARIES ${GDMA_LIBRARY} @CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES@)
+###
+
+
+# find includes
+find_path(_temp_gdma_h
+          NAMES GDMA/GDMA_MANGLE.h
+          PATHS ${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@
+          NO_DEFAULT_PATH)
+if(_temp_gdma_h)
+    set(${PACKAGE_NAME}_INCLUDE_DIR "${_temp_gdma_h}")
+    set(${PACKAGE_NAME}_INCLUDE_DIRS ${${PACKAGE_NAME}_INCLUDE_DIR})
+else()
+    set(${PACKAGE_NAME}_FOUND 0)
+    if(NOT CMAKE_REQUIRED_QUIET)
+        message(STATUS "gdmaConfig missing component: header (gdma: ${_temp_gdma_h})")
+    endif()
 endif()
-add_library(gdma INTERFACE)
-set(GDMA_LIBRARIES ${GDMA_LIBRARY} @CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES@)
-target_link_libraries(gdma INTERFACE ${GDMA_LIBRARIES})
-set(GDMA_INCLUDE_DIRS ${GDMA_INCLUDE_DIR})
-target_include_directories(gdma INTERFACE ${GDMA_INCLUDE_DIRS})
-set(gdma_FOUND TRUE)
-set(GDMA_FOUND TRUE)
+
+# find library: shared, static, or whichever
+set(_hold_library_suffixes ${CMAKE_FIND_LIBRARY_SUFFIXES})
+list(FIND ${PACKAGE_NAME}_FIND_COMPONENTS "shared" _seek_shared)
+list(FIND ${PACKAGE_NAME}_FIND_COMPONENTS "static" _seek_static)
+if(_seek_shared GREATER -1)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
+elseif(_seek_static GREATER -1)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+find_library(_temp_gdma
+             NAMES gdma
+             PATHS ${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@
+             NO_DEFAULT_PATH)
+if(_temp_gdma)
+    set(${PACKAGE_NAME}_LIBRARY "${_temp_gdma}")
+    if(_seek_shared GREATER -1)
+        set(${PACKAGE_NAME}_shared_FOUND 1)
+    elseif(_seek_static GREATER -1)
+        set(${PACKAGE_NAME}_static_FOUND 1)
+    endif()
+else()
+    if(_seek_shared GREATER -1)
+        if(NOT CMAKE_REQUIRED_QUIET)
+            message(STATUS "gdmaConfig missing component: shared library (gdma: ${_temp_gdma})")
+        endif()
+    elseif(_seek_static GREATER -1)
+        if(NOT CMAKE_REQUIRED_QUIET)
+            message(STATUS "gdmaConfig missing component: static library (gdma: ${_temp_gdma})")
+        endif()
+    else()
+        set(${PACKAGE_NAME}_FOUND 0)
+        if(NOT CMAKE_REQUIRED_QUIET)
+            message(STATUS "gdmaConfig missing component: library (gdma: ${_temp_gdma})")
+        endif()
+    endif()
+endif()
+set(CMAKE_FIND_LIBRARY_SUFFIXES ${_hold_library_suffixes})
+set(${PACKAGE_NAME}_LIBRARIES ${${PACKAGE_NAME}_LIBRARY})
+
+#include("${CMAKE_CURRENT_LIST_DIR}/${PACKAGE_NAME}Targets.cmake")
+check_required_components(${PACKAGE_NAME})
+
+## don't include targets if this file is being picked up by another
+##   project which has already built this as a subproject
+#if(${PACKAGE_NAME}_FOUND AND NOT TARGET ${PACKAGE_NAME})
+#    add_library(gdma INTERFACE)
+#    target_include_directories(gdma INTERFACE ${${PACKAGE_NAME}_INCLUDE_DIRS})
+#    target_link_libraries(gdma INTERFACE ${${PACKAGE_NAME}_LIBRARIES})
+#endif()
+
+#-----------------------------------------------------------------------------
+# Don't include targets if this file is being picked up by another
+# project which has already built this as a subproject
+#-----------------------------------------------------------------------------
+if (${PACKAGE_NAME}_FOUND AND NOT TARGET ${PACKAGE_NAME})
+    include("${CMAKE_CURRENT_LIST_DIR}/${PACKAGE_NAME}Targets.cmake")
+endif ()
+
