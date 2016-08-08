@@ -112,22 +112,13 @@ endif()
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${_hold_library_suffixes})
 set(${PACKAGE_NAME}_LIBRARIES ${${PACKAGE_NAME}_LIBRARY})
 
-#include("${CMAKE_CURRENT_LIST_DIR}/${PACKAGE_NAME}Targets.cmake")
 check_required_components(${PACKAGE_NAME})
-
-## don't include targets if this file is being picked up by another
-##   project which has already built this as a subproject
-#if(${PACKAGE_NAME}_FOUND AND NOT TARGET ${PACKAGE_NAME})
-#    add_library(gdma INTERFACE)
-#    target_include_directories(gdma INTERFACE ${${PACKAGE_NAME}_INCLUDE_DIRS})
-#    target_link_libraries(gdma INTERFACE ${${PACKAGE_NAME}_LIBRARIES})
-#endif()
 
 #-----------------------------------------------------------------------------
 # Don't include targets if this file is being picked up by another
 # project which has already built this as a subproject
 #-----------------------------------------------------------------------------
-if (${PACKAGE_NAME}_FOUND AND NOT TARGET ${PACKAGE_NAME})
+if(NOT TARGET ${PACKAGE_NAME}::${PACKAGE_NAME})
     include("${CMAKE_CURRENT_LIST_DIR}/${PACKAGE_NAME}Targets.cmake")
-endif ()
+endif()
 

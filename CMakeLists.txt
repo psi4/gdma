@@ -27,43 +27,54 @@ include(GNUInstallDirs)
 include(FortranCInterface)
 include(CMakePackageConfigHelpers)
 
-# <<<  Build & Install  >>>
+set(PN ${PROJECT_NAME})
 
-FortranCInterface_HEADER(GDMA_MANGLE.h MACRO_NAMESPACE "GDMA_MANGLE_"
-                                       SYMBOL_NAMESPACE "GDMA_MANGLE_")
-set(raw_sources_list atom_grids.f90 
-                     dma.f90 
-                     gdma.f90 
-                     input.F90  
+# <<<  Build  >>>
+
+FortranCInterface_HEADER(GDMA_MANGLE.h
+                         MACRO_NAMESPACE "GDMA_MANGLE_"
+                         SYMBOL_NAMESPACE "GDMA_MANGLE_")
+set(raw_sources_list atom_grids.f90
+                     dma.f90
+                     gdma.f90
+                     input.F90
                      timing.F90)
 set(src_prefix "src/")
 string(REGEX REPLACE "([^;]+)" "${src_prefix}\\1" sources_list "${raw_sources_list}")
 
 # STATIC/SHARED on below governed by BUILD_SHARED_LIBS
 add_library(gdma ${sources_list})
-target_link_libraries(gdma ${LIBC_INTERJECT})
 set_target_properties(gdma PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_FPIC})
+target_link_libraries(gdma PRIVATE ${LIBC_INTERJECT})
+
+# <<<  Install  >>>
 
 install(FILES ${CMAKE_BINARY_DIR}/GDMA_MANGLE.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/GDMA)
 install(TARGETS gdma
-        EXPORT "${PROJECT_NAME}Targets"
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+        EXPORT "${PN}Targets"
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+# <<<  Export Interface  >>>
+
+target_compile_definitions(gdma INTERFACE USING_${PN})
+target_include_directories(gdma INTERFACE
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/GDMA>)
 
 # <<<  Export Config  >>>
 
-set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/cmake/${PROJECT_NAME}")
-configure_package_config_file(${PROJECT_NAME}Config.cmake.in
-                              "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/cmake/${PN}")
+configure_package_config_file(${PN}Config.cmake.in
+                              "${CMAKE_CURRENT_BINARY_DIR}/${PN}Config.cmake"
                               INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR})
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PN}ConfigVersion.cmake
                                  VERSION 2.2.06
                                  COMPATIBILITY SameMajorVersion)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PN}Config.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/${PN}ConfigVersion.cmake
         DESTINATION ${CMAKECONFIG_INSTALL_DIR})
-install(EXPORT "${PROJECT_NAME}Targets"
-        NAMESPACE "${PROJECT_NAME}::"
+install(EXPORT "${PN}Targets"
+        NAMESPACE "${PN}::"
         DESTINATION ${CMAKECONFIG_INSTALL_DIR})
 
