@@ -45,7 +45,9 @@ string(REGEX REPLACE "([^;]+)" "${src_prefix}\\1" sources_list "${raw_sources_li
 # STATIC/SHARED on below governed by BUILD_SHARED_LIBS
 add_library(gdma ${sources_list})
 set_target_properties(gdma PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_FPIC})
-target_link_libraries(gdma PRIVATE ${LIBC_INTERJECT})
+if(${BUILD_SHARED_LIBS})
+    target_link_libraries(gdma PRIVATE ${LIBC_INTERJECT})
+endif()
 
 # <<<  Install  >>>
 

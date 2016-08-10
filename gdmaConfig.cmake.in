@@ -6,13 +6,13 @@
 #
 # ::
 #
-##   gdma_FOUND - true if gdma and all required components found on the system
-##   gdma_VERSION - gdma version in format Major.Minor.Release
-##   gdma_INCLUDE_DIRS - Directories where gdma header is located.
-##   gdma_INCLUDE_DIR - same as DIRS
-##XXXgdma_DEFINITIONS: Definitions necessary to use XXX.h
-##   gdma_LIBRARIES - gdma library to link against.
-##   gdma_LIBRARY - same as LIBRARIES
+#   gdma_FOUND - true if gdma and all required components found on the system
+#   gdma_VERSION - gdma version in format Major.Minor.Release
+#   gdma_INCLUDE_DIRS - Directories where gdma header is located.
+#   gdma_INCLUDE_DIR - same as DIRS
+#   gdma_DEFINITIONS: Definitions necessary to use gdma, namely USING_gdma.
+#   gdma_LIBRARIES - gdma library to link against.
+#   gdma_LIBRARY - same as LIBRARIES
 #
 #
 # Available components: shared static
@@ -27,15 +27,19 @@
 #
 # ::
 #
-##   int - main libint and libderiv libraries
+# If gdma is found, this module defines the following :prop_tgt:`IMPORTED`
+# target. Note that if gdma library is static, importing project must
+# declare Fortran as a language in order to populate the link libs. ::
+#
+#   gdma::gdma - the main gdma library with header, defs, & linker lang attached.
 #
 #
 # Suggested usage:
 #
 # ::
 #
-##   find_package(libint)
-##   find_package(libint 1.1.6 EXACT CONFIG REQUIRED COMPONENTS shared 6)
+#   find_package(gdma)
+#   find_package(gdma 2.2.06 EXACT CONFIG REQUIRED COMPONENTS static)
 #
 #
 # The following variables can be set to guide the search for this package:
