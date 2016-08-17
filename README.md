@@ -6,7 +6,7 @@ Anthony Stone's GDMA (http://www-stone.ch.cam.ac.uk/programs.html) wrapped in CM
 This is the GDMA project (http://www-stone.ch.cam.ac.uk/programs.html) by
 Prof. Anthony J. Stone of Cambridge University.
 
-GDMA is written in Fortran. It has source and manual are available at the above 
+GDMA is written in Fortran. It has source and manual are available at the above
 website and, as distributed, builds with `make`.
 
 ### This Repository
@@ -31,10 +31,16 @@ This codebase was copied from upstream (above website) at 2.2.06.
 ```bash
 cmake -H. -Bobjdir
 cd objdir && make
-make install 
+make install
 ```
 
-The build is also responsive to static/shared toggle `BUILD_SHARED_LIBS`, the install location `CMAKE_INSTALL_PREFIX`, and, of course, `CMAKE_Fortran_COMPILER`, `CMAKE_C_COMPILER`, and `CMAKE_Fortran_FLAGS`. See [CMakeLists.txt](CMakeLists.txt) for options details. All these build options should be passed as `cmake -DOPTION`.
+The build is also responsive to
+
+* static/shared toggle `BUILD_SHARED_LIBS`
+* install location `CMAKE_INSTALL_PREFIX`
+* of course, `CMAKE_Fortran_COMPILER`, `CMAKE_C_COMPILER`, and `CMAKE_Fortran_FLAGS`
+
+See [CMakeLists.txt](CMakeLists.txt) for options details. All these build options should be passed as `cmake -DOPTION`.
 
 #### Detecting
 
@@ -50,5 +56,6 @@ See [gdmaConfig.cmake.in](gdmaConfig.cmake.in) for details of how to detect the 
 After `find_package(gdma ...)`,
 
 * test if package found with `if(${gdma_FOUND})` or `if(TARGET gdma::gdma)`
-* link to library (establishes dependency), including header and definitions configuration with `target_link_libraries(gdma_interface gdma::gdma)`
-* compile target applying `-DUSING_gdma` definition using `target_compile_definitions(versioned_code PRIVATE $<TARGET_PROPERTY:gdma::gdma,INTERFACE_COMPILE_DEFINITIONS>)`
+* link to library (establishes dependency), including header and definitions configuration with `target_link_libraries(mytarget gdma::gdma)`
+* include header files using `target_include_directories(mytarget PRIVATE $<TARGET_PROPERTY:gdma::gdma,INTERFACE_INCLUDE_DIRECTORIES>)`
+* compile target applying `-DUSING_gdma` definition using `target_compile_definitions(mytarget PRIVATE $<TARGET_PROPERTY:gdma::gdma,INTERFACE_COMPILE_DEFINITIONS>)`
