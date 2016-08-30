@@ -61,7 +61,7 @@ install(TARGETS gdma
 
 target_compile_definitions(gdma INTERFACE USING_${PN})
 target_include_directories(gdma INTERFACE
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/GDMA>)
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # <<<  Export Config  >>>
 
