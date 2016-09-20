@@ -51,7 +51,7 @@ endif()
 # <<<  Install  >>>
 
 install(FILES ${CMAKE_BINARY_DIR}/GDMA_MANGLE.h
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/GDMA)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GDMA)
 install(TARGETS gdma
         EXPORT "${PN}Targets"
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -65,7 +65,8 @@ target_include_directories(gdma INTERFACE
 
 # <<<  Export Config  >>>
 
-set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/cmake/${PN}")
+    # explicit "share" not "DATADIR" for CMake search path
+set(CMAKECONFIG_INSTALL_DIR "share/cmake/${PN}")
 configure_package_config_file(${PN}Config.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/${PN}Config.cmake"
                               INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR})
