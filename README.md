@@ -49,7 +49,7 @@ This project installs with `gdmaConfig.cmake`, `gdmaConfigVersion.cmake`, and `g
 * `find_package(gdma)` - find any gdma libraries and headers
 * `find_package(gdma 2.2.06 EXACT CONFIG REQUIRED COMPONENTS static)` - find gdma exactly version 2.2.06 built with static libraries or die trying
 
-See [gdmaConfig.cmake.in](gdmaConfig.cmake.in) for details of how to detect the Config file and what CMake variables and targets are exported to your project.
+See [gdmaConfig.cmake.in](cmake/gdmaConfig.cmake.in) for details of how to detect the Config file and what CMake variables and targets are exported to your project.
 
 #### Using
 
