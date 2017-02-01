@@ -1,24 +1,31 @@
+cmake_policy(SET CMP0048 NEW)  # project_VERSION* variables populated from project(... VERSION x.x.x) string
+project(gdma
+        VERSION 2.2.06
+        LANGUAGES Fortran C)
+set(gdma_AUTHORS      "Anthony J. Stone")
+set(gdma_DESCRIPTION  "Gaussian Distributed Multipole Analysis")
+set(gdma_URL          "http://www-stone.ch.cam.ac.uk/programs.html")
+#set(gdma_LICENSE)
+
 cmake_minimum_required(VERSION 3.0)
-project(gdma LANGUAGES Fortran C)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 ################################### Options ####################################
-include(Psi4Macros)
+include(psi4OptionsTools)
 option_with_default(CMAKE_BUILD_TYPE "Build type" Release)
 option_with_print(BUILD_SHARED_LIBS "Build final library as shared, not static" OFF)
 option_with_default(BUILD_FPIC "Libraries will be compiled with position independent code" ON)
 if(${BUILD_SHARED_LIBS} AND NOT ${BUILD_FPIC})
     message(FATAL_ERROR "BUILD_SHARED_LIBS ON and BUILD_FPIC OFF are incompatible, as shared library requires position independent code")
 endif()
+option_with_print(ENABLE_OPENMP "Enable threadsafe linking to OpenMP parallelized programs." ON)
 option_with_print(ENABLE_GENERIC "Enable mostly static linking in shared library" OFF)
 option_with_flags(ENABLE_XHOST "Enable processor-specific optimization" ON
                     "-xHost" "-march=native")
-# CODE_COVERAGE should be tested and probably propagated to external projects
-#option_with_flags(ENABLE_CODE_COVERAGE "Enables details on code coverage" OFF
-#                    "-ftest-coverage")
 
 ######################### Process & Validate Options ###########################
 include(autocmake_safeguards)
+include(autocmake_omp)
 include(autocmake_static_library)
 
 ################################# Main Project #################################
@@ -46,6 +53,10 @@ add_library(gdma ${sources_list})
 set_target_properties(gdma PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_FPIC})
 if(${BUILD_SHARED_LIBS})
     target_link_libraries(gdma PRIVATE ${LIBC_INTERJECT})
+
+    if(APPLE)
+        set_target_properties(gdma PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+    endif()
 endif()
 
 # <<<  Install  >>>
@@ -71,8 +82,8 @@ configure_package_config_file(cmake/${PN}Config.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/${PN}Config.cmake"
                               INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR})
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PN}ConfigVersion.cmake
-                                 VERSION 2.2.06
-                                 COMPATIBILITY SameMajorVersion)
+                                 VERSION ${${PN}_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PN}Config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PN}ConfigVersion.cmake
         DESTINATION ${CMAKECONFIG_INSTALL_DIR})
