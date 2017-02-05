@@ -5,7 +5,7 @@ project(gdma
 set(gdma_AUTHORS      "Anthony J. Stone")
 set(gdma_DESCRIPTION  "Gaussian Distributed Multipole Analysis")
 set(gdma_URL          "http://www-stone.ch.cam.ac.uk/programs.html")
-#set(gdma_LICENSE)
+set(gdma_LICENSE      "GNU General Public License, version 2 or later")
 
 cmake_minimum_required(VERSION 3.0)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
