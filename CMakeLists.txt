@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)  # project_VERSION* variables populated from project(... VERSION x.x.x) string
 project(gdma
-        VERSION 2.2.06
+        VERSION 2.2.6  # upstream 2.2.06
         LANGUAGES Fortran C)
 set(gdma_AUTHORS      "Anthony J. Stone")
 set(gdma_DESCRIPTION  "Gaussian Distributed Multipole Analysis")
