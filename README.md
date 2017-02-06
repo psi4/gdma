@@ -17,14 +17,9 @@ it builds with `cmake` and has an interface to C++ and Psi4 internals designed
 by @andysim. Manual for GDMA+Psi4 at http://psicode.org/psi4manual/master/gdma.html.
 This repository is GDMA wrapped up nicely in CMake.
 
-
-
-
-
-
 #### Version
 
-This codebase was copied from upstream (above website) at 2.2.06.
+This codebase was copied from upstream (above website) at 2.2.06. It has been modified to build as a library instead of an executable and to manipulate output.
 
 #### Building
 
