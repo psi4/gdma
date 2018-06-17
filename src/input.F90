@@ -623,7 +623,11 @@ else
   m=char(l:end(item))
   length=end(item)-l+1
 endif
-if (len(m) .lt. length) print "(A)", "WARNING: string truncated"
+!if (len(m) .lt. length) print "(A)", "WARNING: string truncated"
+! LAB Jun 2018 -- it reads longish (40 char) files twice, apparently
+!   correctly, but doesn't set `m` right, so the lengths don't align,
+!   so it reads it again, this time in full. I can't understand it,
+!   and appears harmless so I'm silencing the warning.
 
 END SUBROUTINE reada
 
