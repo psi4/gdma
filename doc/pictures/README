@@ -1,0 +1,16 @@
+point_charge_models.svg:
+
+All examples calculated using PBE0 with asymptotic correction and the
+aug-cc-pVQZ basis, and compared with the exact potential determined by
+an energy scan over the vdW x 1.8 surface.
+
+(a) Rank 5 DMA
+
+(b) Rank 5 DMA limited to charges only
+
+(c) Rank 5 DMA approximated with charges using Mulfit
+
+(d) ISA charges
+
+(e) CHELPG charges calculated with Gaussian 03 (PBE1PBE functional)
+

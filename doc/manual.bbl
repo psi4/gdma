@@ -1,0 +1,92 @@
+\newcommand{\SortNoOp}[1]{}
+\begin{thebibliography}{16}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[Frisch \emph{et~al.}(2004)Frisch, Trucks, Schlegel, Scuseria, Robb,
+  Cheeseman, Montgomery, Vreven, Kudin, Burant, Millam, Iyengar, Tomasi,
+  Barone, Mennucci, Cossi, Scalmani, Rega, Petersson, Nakatsuji, Hada, Ehara,
+  Toyota, Fukuda, Hasegawa, Ishida, Nakajima, Honda, Kitao, Nakai, Klene, Li,
+  Knox, Hratchian, Cross, Bakken, Adamo, Jaramillo, Gomperts, Stratmann,
+  Yazyev, Austin, Cammi, Pomelli, Ochterski, Ayala, Morokuma, Voth, Salvador,
+  Dannenberg, Zakrzewski, Dapprich, Daniels, Strain, Farkas, Malick, Rabuck,
+  Raghavachari, Foresman, Ortiz, Cui, Baboul, Clifford, Cioslowski, Stefanov,
+  Liu, Liashenko, Piskorz, Komaromi, Martin, Fox, Keith, Al-Laham, Peng,
+  Nanayakkara, Challacombe, Gill, Johnson, Chen, Wong, Gonzalez and
+  Pople]{Gaussian03}
+M.~J. Frisch, G.~W. Trucks, H.~B. Schlegel, G.~E. Scuseria, M.~A. Robb, J.~R.
+  Cheeseman, J.~A. Montgomery, Jr., T.~Vreven, K.~N. Kudin, J.~C. Burant, J.~M.
+  Millam, S.~S. Iyengar, J.~Tomasi, V.~Barone, B.~Mennucci, M.~Cossi,
+  G.~Scalmani, N.~Rega, G.~A. Petersson, H.~Nakatsuji, M.~Hada, M.~Ehara,
+  K.~Toyota, R.~Fukuda, J.~Hasegawa, M.~Ishida, T.~Nakajima, Y.~Honda,
+  O.~Kitao, H.~Nakai, M.~Klene, X.~Li, J.~E. Knox, H.~P. Hratchian, J.~B.
+  Cross, V.~Bakken, C.~Adamo, J.~Jaramillo, R.~Gomperts, R.~E. Stratmann,
+  O.~Yazyev, A.~J. Austin, R.~Cammi, C.~Pomelli, J.~W. Ochterski, P.~Y. Ayala,
+  K.~Morokuma, G.~A. Voth, P.~Salvador, J.~J. Dannenberg, V.~G. Zakrzewski,
+  S.~Dapprich, A.~D. Daniels, M.~C. Strain, O.~Farkas, D.~K. Malick, A.~D.
+  Rabuck, K.~Raghavachari, J.~B. Foresman, J.~V. Ortiz, Q.~Cui, A.~G. Baboul,
+  S.~Clifford, J.~Cioslowski, B.~B. Stefanov, G.~Liu, A.~Liashenko, P.~Piskorz,
+  I.~Komaromi, R.~L. Martin, D.~J. Fox, T.~Keith, M.~A. Al-Laham, C.~Y. Peng,
+  A.~Nanayakkara, M.~Challacombe, P.~M.~W. Gill, B.~G. Johnson, W.~Chen, M.~W.
+  Wong, C.~Gonzalez and J.~A. Pople, Gaussian 03, Gaussian, {Inc.},
+  Wallingford, CT,  (2004).
+
+\bibitem[Misquitta and Stone(2011)]{CamCASP}
+A.~J. Misquitta and A.~J. Stone,  (2011), in preparation. See also
+  {\url{www-stone.ch.cam.ac.uk/programs.html}}.
+
+\bibitem[Stone(1981)]{Stone81a}
+A.~J. Stone, Chem. Phys. Lett. 83 (1981) 233.
+
+\bibitem[Stone and Alderton(1985)]{StoneA85}
+A.~J. Stone and M.~Alderton, Molec. Phys. 56 (1985) 1047.
+
+\bibitem[Stone(2013)]{timf}
+A.~J. Stone, The Theory of Intermolecular Forces, (Oxford University Press,
+  Oxford, 2013), 2nd edn.
+
+\bibitem[Boys(1950)]{Boys50}
+S.~F. Boys, Proc. Roy. Soc. A 200 (1950) 542.
+
+\bibitem[Stone(2005)]{Stone05b}
+A.~J. Stone, J.~Chem. Theory Comput. 1 (2005) 1128.
+
+\bibitem[Lebedev and Laikov(1999)]{LebedevL99}
+V.~I. Lebedev and D.~N. Laikov, Doklady Mathematics 59 (1999) 477.
+
+\bibitem[Becke(1988)]{Becke88}
+A.~D. Becke, J.~Chem. Phys. 88 (1988) 2547.
+
+\bibitem[Murray \emph{et~al.}(1993)Murray, Handy and Laming]{MurrayHL93}
+C.~W. Murray, N.~C. Handy and G.~J. Laming, Molec. Phys. 78 (1993) 997.
+
+\bibitem[Slater(1964)]{Slater64}
+J.~C. Slater, J.~Chem. Phys. 41 (1964) 3199.
+
+\bibitem[Stone \emph{et~al.}(2018)Stone, Dullweber, Engkvist, Fraschini,
+  Hodges, Meredith, Nutt, Popelier and Wales]{Orient5.0}
+A.~J. Stone, A.~Dullweber, O.~Engkvist, E.~Fraschini, M.~P. Hodges, A.~W.
+  Meredith, D.~R. Nutt, P.~L.~A. Popelier and D.~J. Wales, ORIENT: a program
+  for studying interactions between molecules, version 5.0, University of
+  Cambridge,  (2018), http://www-stone.ch.cam.ac.uk/programs.html\#Orient.
+
+\bibitem[Stone \emph{et~al.}(2012)Stone, Dullweber, Engkvist, Fraschini,
+  Hodges, Meredith, Nutt, Popelier and Wales]{Orient4.8}
+A.~J. Stone, A.~Dullweber, O.~Engkvist, E.~Fraschini, M.~P. Hodges, A.~W.
+  Meredith, D.~R. Nutt, P.~L.~A. Popelier and D.~J. Wales, ORIENT: a program
+  for studying interactions between molecules, version 4.8, University of
+  Cambridge,  (2012), http://www-stone.ch.cam.ac.uk/programs.html\#Orient.
+
+\bibitem[Winn \emph{et~al.}(1997)Winn, Ferenczy and Reynolds]{WinnFR97}
+P.~J. Winn, G.~G. Ferenczy and C.~A. Reynolds, J.~Phys. Chem. A 101 (1997)
+  5437.
+
+\bibitem[Ferenczy \emph{et~al.}(1997)Ferenczy, Winn and Reynolds]{FerenczyWR97}
+G.~G. Ferenczy, P.~J. Winn and C.~A. Reynolds, J.~Phys. Chem. A 101 (1997)
+  5446.
+
+\bibitem[Misquitta \emph{et~al.}(2014)Misquitta, Stone and
+  Fazeli]{MisquittaSF14}
+A.~J. Misquitta, A.~J. Stone and F.~Fazeli, J.~Chem. Theory Comput. 10 (2014)
+  5405.
+
+\end{thebibliography}

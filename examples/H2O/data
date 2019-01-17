@@ -1,0 +1,13 @@
+Title "Water  B3LYP  aug-cc-pVTZ  Gaussian03  optimized"
+File H2O.fchk
+
+Angstrom
+Multipoles
+  switch 4
+  Limit 4
+  Limit 1 H
+  Radius H 0.325
+  Punch H2O.punch
+Start
+
+Finish
