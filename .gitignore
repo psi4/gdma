@@ -1,0 +1,14 @@
+*~
+*.o
+*.mod
+*.tmp
+*.aux
+*.log
+*.blg
+*.bak
+*.old
+*.save
+2.2.06
+2.2.09
+out
+*.punch
