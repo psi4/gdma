@@ -2,7 +2,7 @@ PROGRAM gdma
 
 !  Distributed Multipole Analysis for Gaussian Wavefunctions
 !
-!  Copyright (C) 2005-14  Anthony J. Stone
+!  Copyright (C) 2005-19  Anthony J. Stone
 !
 !  This program is free software; you can redistribute it and/or
 !  modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@ PROGRAM gdma
 !  Fifth Floor, Boston, MA 02110-1301, USA.
 
 USE input
-
+USE version
 USE dma
 USE atom_grids, ONLY: debug_grid => debug
 USE timing, ONLY: start_timer, timer, time_and_date
@@ -47,12 +47,12 @@ INTEGER :: ir=5 ! Input stream
 LOGICAL :: verbose=.false., debug(0:2)=.false.
 
 
-print "(15x,a/)",                                                      &
+print "(15x,a/15x,a//15x,a//15x,5a/14x,4a)",                           &
     "                      G D M A",                                   &
     "                  by Anthony Stone",                              &
-    "          version 2.2.11, 04 February 2015",                       &
-    "Distributed Multipoles from Gaussian wavefunctions"
-
+    "Distributed Multipoles from Gaussian wavefunctions",              &
+    "              version ", gdma_version, " (", commit, ")",         &
+    "Compiled with ", compiler, " on ", compiled
 call time_and_date(datestring)
 print "(/2A)", "Starting at ", datestring
 
@@ -341,8 +341,8 @@ do
   case("Largest degree of contraction")
     read(buffer,"(55X,I6)") cmax
     if (verbose) print "(a,i0)", "Largest contraction depth ", cmax
-    if (cmax .gt. 16) call die                                &
-        ("Sorry -- maximum contraction depth is 16",.false.)
+    ! if (cmax .gt. 16) call die                                &
+    !     ("Sorry -- maximum contraction depth is 16",.false.)
   case("Number of primitive shells")
     read(buffer,"(55X,I6)") nprim
     if (verbose) print "(i0,a)", nprim, " primitive shells"

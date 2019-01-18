@@ -1,0 +1,30 @@
+Installing of the GDMA program
+
+To compile the program you will need a Fortran90 or later compiler.
+The gfortran compiler is used by default. Change to the main gdma
+directory, check that the settings in the Makefile are appropriate
+for your compiler, and run
+  make
+If the compilation is successful, the new executable will be in
+gdma/bin/gdma.
+
+Use
+  make test
+to run the test files through the program. The test script checks
+whether the output is correct, and leaves a report in
+gdma/examples/test.log. If all is well, you can use
+  make install
+will put the executable in /usr/local/bin. You will probably have to
+be root to do that. You can change the definition of INSTALL_DIR in the
+Makefile if necessary, for example to install the executable in your
+personal bin directory.
+
+The detailed documentation is in the file doc/manual.pdf.
+
+The program is distributed under the GNU General Public Licence (GPL).
+See the file doc/gpl-3.0.pdf for full details.
+
+
+In case of difficulty please email Anthony Stone, ajs1@cam.ac.uk.
+
+

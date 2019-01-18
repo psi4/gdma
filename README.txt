@@ -1,4 +1,4 @@
-                   GDMA version 2.2.11
+                   GDMA version 2.2
 
 The GDMA program carries out distributed multipole analysis of
 wavefunctions calculated by the Gaussian system of programs, using the
@@ -17,32 +17,16 @@ the new version, but it is not recommended for use with large basis
 sets containing very diffuse functions. More details are in A. J.
 Stone, J. Chem Theory Comp. (2005) 1, 1128-1132.
 
+Obtaining the program
+---------------------
 
-To compile the program you will need a Fortran90 compiler. The
-gfortran compiler is used by default. Change to the main gdma-2.2.11
-directory, check that the settings in the Makefile are appropriate for
-your compiler, and run
-        make
-If the compilation is successful, the new executable will be in
-gdma-2.2.11/bin/gdma.
+In a suitable directory, run the command
+  git clone https://git.uis.cam.ac.uk/x/ch-stone/u/ajs1/gdma.git
+This will construct a clone of the program files in the subdirectory
+gdma.
 
-Use
-        make test
-to run the test files through the program. The test script checks
-whether the output is correct, and leaves a report in
-gdma-2.2.11/examples/test.log. If all is well, 
-        make install
-will put the executable in /usr/local/bin. You will probably have to
-be root to do that. You can change the definition of INSTALL_DIR in the
-Makefile if necessary, for example to install the executable in your
-personal bin directory.
+Documentation
+-------------
 
-The detailed documentation is in the file doc/manual.pdf.
-
-The program is distributed under the GNU General Public Licence (GPL).
-See the file doc/gpl-2.0.pdf for full details.
-
-
-In case of difficulty please email Anthony Stone, ajs1@cam.ac.uk.
-
+Full documentation is in gdma/doc/manual.pdf.
 
