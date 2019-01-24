@@ -189,7 +189,7 @@ CHARACTER(LEN=*), INTENT(IN) :: whichd
 LOGICAL, INTENT(OUT) :: ok
 
 INTEGER :: atom, i, j, k, n, nn, aok
-REAL(dp) :: e, rt3v2, td(5,6), tf(7,10), tg(9,15)
+REAL(dp) :: e, rt3v2, td(5,6), tf(7,10), tg(9,15), th(11,21)
 REAL(dp), ALLOCATABLE :: temp(:,:)
 LOGICAL eof
 CHARACTER :: text*40, buffer*80, ww*2, density_header*24, type*1
@@ -204,11 +204,14 @@ CHARACTER(LEN=2), DIMENSION(54) :: element=(/"H ", "He",               &
     "Ag", "Cd", "In", "Sn", "Sb", "Te", "I ", "Xe"/)
 REAL(dp), PARAMETER :: rt2=1.4142135623731d0,                          &
     rt3=1.73205080756888d0, rt5=2.23606797749979d0, rt7=2.64575131106459d0
-REAL(dp), PARAMETER :: rt10=rt2*rt5, rt14=rt2*rt7, rt21=rt3*rt7,       &
-    rt35=rt5*rt7
+REAL(dp), PARAMETER :: rt10=rt2*rt5, rt14=rt2*rt7, rt15=rt3*rt5,       &
+    rt21=rt3*rt7, rt35=rt5*rt7, rt70=rt2*rt5*rt7, rt105=rt3*rt5*rt7
 INTEGER, PARAMETER :: v400=1, v040=2, v004=3, v310=4, v301=5,          &
     v130=6, v031=7, v103=8, v013=9, v220=10, v202=11, v022=12,         &
     v211=13, v121=14, v112=15
+INTEGER, PARAMETER :: v500=1, v050=2, v005=3, v410=4, v401=5, v140=6,   &
+    v041=7, v104=8, v014=9, v320=10, v302=11, v230=12, v032=13, v203=14, &
+    v023=15, v311=16, v131=17, v113=18, v221=19, v212=20, v122=21
 CHARACTER(LEN=5) :: label(-5:5)=(/"h(s)","g(s)","f(s)","d(s)","sp  ",  &
     "s   ","p   ","d   ","f   ","g   ","h   "/)
 
@@ -263,6 +266,46 @@ tg(7,v031)=-rt10/4d0; tg(7,v211)=0.75d0*rt2
 tg(8,v400)=rt35/8d0; tg(8,v040)=rt35/8d0; tg(8,v220)=-0.75*rt3
 !  44s
 tg(9,v310)=rt5/2d0; tg(9,v130)=-rt5/2d0
+
+!  h functions
+!    1     2     3     4     5     6     7     8     9    10    11  
+!  xxxxx yyyyy zzzzz xxxxy xxxxz xyyyy yyyyz xzzzz yzzzz xxxyy xxxzz
+!   12    13    14    15    16    17    18    19    20    21
+!  xxyyy yyyzz xxzzz yyzzz xxxyz xyyyz xyzzz xxyyz xxyzz xyyzz
+th = 0d0
+!  50
+th(1,v401) = 15d0/8d0; th(1,v221) = 15d0/4d0; th(1,v041) = 15d0/8d0
+th(1,v203) = -5d0; th(1,v023) = -5d0; th(1,v005) = 1d0
+!  51c
+th(2,v500) = 1d0; th(2,v320) = 2d0; th(2,v140) = 1d0; th(2,v302) = -12d0
+th(2,v122) = -12d0; th(2,v104) = 8d0
+th(2,:) = th(2,:)*rt15/8d0
+!  51s
+th(3,v050) = 1d0; th(3,v230) = 2d0; th(3,v410) = 1d0; th(3,v032) = -12d0
+th(3,v212) = -12d0; th(3,v014) = 8d0
+th(3,:) = th(3,:)*rt15/8d0
+!  52c
+th(4,v401) = -1d0; th(4,v041) = 1d0; th(4,v203) = 2d0; th(4,v023) = -2d0;
+th(4,:) = th(4,:) * rt105/4d0
+!  52s
+th(5,v311) = -0.5d0*rt105; th(5,v131) = -0.5d0*rt105; th(5,v113) = 1d0*rt105
+!  53c
+th(6,v500) = -1d0; th(6,v320) = 2d0; th(6,v140) = 3d0; th(6,v302) = 8d0
+th(6,v122) = -24d0
+th(6,:) = th(6,:) * rt70/16d0
+!  53s
+th(7,v410) = -3d0; th(7,v230) = -2d0; th(7,v050) = 1d0; th(7,v212) = 24d0; th(7,v032) = -8d0
+th(7,:) = th(7,:) * rt70/16d0
+!  54c
+th(8,v401) = 3d0*rt35/8d0; th(8,v221) = -9*rt35/4d0; th(8,v041) = 3d0*rt35/8d0
+!  54s
+th(9,v311) = 1.5d0*rt35; th(9,v131) = -1.5d0*rt35
+!  55c
+th(10,v500) = 3d0*rt14/16d0; th(10,v320) = -15d0*rt14/8d0; th(10,v140) = 15d0*rt14/16d0
+! 55s
+th(11,v410) = 15d0*rt14/16d0; th(11,v230) = -15d0*rt14/8d0; th(11,v050) = 3d0*rt14/16d0
+
+
 
 ! select case(whichg)
 ! case("94","G94")
@@ -404,12 +447,20 @@ do
         num=num+15; n=n+15
       case(-4)
         num=num+9; n=n+15
+      case(5)
+        num=num+21; n=n+21
+      case(-5)
+        num=num+11; n=n+21
+      case(6)
+        num=num+28; n=n+28
+      case(-6)
+        num=num+13; n=n+28
       end select
     end do
     if (verbose) print "(i0,a)", num, " basis functions"
     if ((verbose) .and. n>num)                           &
         print "(a,i0,a)", "(", n, " after conversion to cartesian)"
-    maxbfn=n
+    maxbfn = n
     if (allocated(iax)) deallocate(iax)
     allocate(iax(n+1), stat=aok)
     if (aok>0) then
@@ -445,7 +496,7 @@ do
     do i=1,nshell
       do j=kstart(i),kstart(i)+kng(i)-1
         call getf(e)
-        if (shell_type(i) .eq. 1) then
+        if (shell_type(i) == 1) then
           cp(j)=e
         else
           cs(j)=e
@@ -483,7 +534,7 @@ do
 !       deallocate(temp)
 !     end if
   case default
-    if (text .eq. density_header) then
+    if (text == density_header) then
       ncoorb=n
       nx=n*(n+1)/2
       allocate(densty(n,n),temp(n,n))
@@ -496,7 +547,7 @@ do
       ok=.true.
     else
       !  Ignore this section
-      if (nn .gt. 0) then
+      if (nn > 0) then
         if (type .eq. "I") then
           do i=1,(nn+5)/6
             read(ir,"(A8)") dummy
@@ -527,7 +578,7 @@ if (verbose) then
         print "(i10,f16.8, 2f14.8)", j, ex(j), cs(j)
       case(1)
         print "(i10,f16.8, 2f14.8)", j, ex(j), cp(j)
-      case(2,-2,3,-3,4,-4)
+      case default
         print "(i10,f16.8, 2f14.8)", j, ex(j), cs(j)
       end select
     end do
@@ -617,6 +668,20 @@ do i=1,nshell
       densty(1:k,1:num)=temp(1:k,1:num)
       densty(k+1:k+15,1:num)=matmul(transpose(tg),temp(k+1:k+9,1:num))
       if (i<nshell) densty(k+16:num,1:num)=temp(k+10:num-6,1:num)
+    endif
+  case(5,-5) ! h shell
+    kmin(i)=36
+    kmax(i)=56
+    ktype(i)=6
+    ! print "(a,i0,a,i0)", "num = ", num, "  k = ", k
+    if (shell_type(i) .lt. 0) then ! Spherical h shell
+      temp(1:num,1:k)=densty(1:num,1:k)
+      temp(1:num,k+1:k+21)=matmul(densty(1:num,k+1:k+11),th)
+      if (i<nshell) temp(1:num,k+22:num+6)=densty(1:num,k+12:num)
+      num=num+10
+      densty(1:k,1:num)=temp(1:k,1:num)
+      densty(k+1:k+21,1:num)=matmul(transpose(th),temp(k+1:k+11,1:num))
+      if (i<nshell) densty(k+22:num,1:num)=temp(k+12:num-10,1:num)
     endif
   case default
     write (buffer,"(a,i0)") "Unrecognized or unimplemented shell type ", i

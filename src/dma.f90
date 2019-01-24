@@ -1099,9 +1099,16 @@ do i=1,nat
           d(14:19,minj:maxj)=rt(5)*d(14:19,minj:maxj)
           d(20,minj:maxj)=rt(15)*d(20,minj:maxj)
         case(4)
+          !  Similarly for g functions
           d(24:29,minj:maxj)=rt(7)*d(24:29,minj:maxj)
           d(30:32,minj:maxj)=(rt(5)*rt(7)/rt(3))*d(30:32,minj:maxj)
           d(33:35,minj:maxj)=rt(5)*rt(7)*d(33:35,minj:maxj)
+        case(5)
+          !  and for h functions
+          d(39:44,minj:maxj) = 3d0*d(39:44,minj:maxj)
+          d(45:50,minj:maxj) = rt(3)*rt(7)*d(45:50,minj:maxj)
+          d(51:53,minj:maxj) = 3d0*rt(7)*d(51:53,minj:maxj)
+          d(54:56,minj:maxj) = rt(3)*rt(5)*rt(7)*d(54:56,minj:maxj)
         end select
         select case(lb)
         case(2)
@@ -1113,6 +1120,11 @@ do i=1,nat
           d(mini:maxi,24:29)=rt(7)*d(mini:maxi,24:29)
           d(mini:maxi,30:32)=(rt(5)*rt(7)/rt(3))*d(mini:maxi,30:32)
           d(mini:maxi,33:35)=rt(5)*rt(7)*d(mini:maxi,33:35)
+        case(5)
+          d(mini:maxi,39:44) = 3d0*d(mini:maxi,39:44)
+          d(mini:maxi,45:50) = rt(3)*rt(7)*d(mini:maxi,45:50)
+          d(mini:maxi,51:53) = 3d0*rt(7)*d(mini:maxi,51:53)
+          d(mini:maxi,54:56) = rt(3)*rt(5)*rt(7)*d(mini:maxi,54:56)
         end select
 
         !  I primitive
@@ -1784,9 +1796,16 @@ do i=1,nat
           d(14:19,minj:maxj)=rt(5)*d(14:19,minj:maxj)
           d(20,minj:maxj)=rt(15)*d(20,minj:maxj)
         case(4)
+          !  Similarly for g functions
           d(24:29,minj:maxj)=rt(7)*d(24:29,minj:maxj)
           d(30:32,minj:maxj)=(rt(5)*rt(7)/rt(3))*d(30:32,minj:maxj)
           d(33:35,minj:maxj)=rt(5)*rt(7)*d(33:35,minj:maxj)
+        case(5)
+          !  and for h functions
+          d(39:44,minj:maxj) = 3d0*d(39:44,minj:maxj)
+          d(45:50,minj:maxj) = rt(3)*rt(7)*d(45:50,minj:maxj)
+          d(51:53,minj:maxj) = 3d0*rt(7)*d(51:53,minj:maxj)
+          d(54:56,minj:maxj) = rt(3)*rt(5)*rt(7)*d(54:56,minj:maxj)
         end select
         select case(lb)
         case(2)
@@ -1798,6 +1817,11 @@ do i=1,nat
           d(mini:maxi,24:29)=rt(7)*d(mini:maxi,24:29)
           d(mini:maxi,30:32)=(rt(5)*rt(7)/rt(3))*d(mini:maxi,30:32)
           d(mini:maxi,33:35)=rt(5)*rt(7)*d(mini:maxi,33:35)
+        case(5)
+          d(mini:maxi,39:44) = 3d0*d(mini:maxi,39:44)
+          d(mini:maxi,45:50) = rt(3)*rt(7)*d(mini:maxi,45:50)
+          d(mini:maxi,51:53) = 3d0*rt(7)*d(mini:maxi,51:53)
+          d(mini:maxi,54:56) = rt(3)*rt(5)*rt(7)*d(mini:maxi,54:56)
         end select
 
         !  I primitive
@@ -1859,7 +1883,7 @@ do i=1,nat
 !       sum(k) gk * (xk-xA)**(IA-1) * (xk-xB)**(IB-1) * xk**(IQ-1)
 !  where gk=w(k)/sqrt(AA) and xk=h(k)/sqrt(AA), and L1=L+1 and
 !  LL1=2L+1, where L is the maximum angular momentum to be handled,
-!  i.e. 3 at present.
+!  i.e. 5 at present.
 !  Similar expressions for y and z integrals are formed in GY and GZ.
             do k=k1,k2
               s=h(k)*t

@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set diff = $cwd/diff.pl
+set diff = $cwd/diff.py
 set program = $cwd/../bin/gdma
 set tests = ( CO/G03 H2O C2H4/G03 formamide )
 if ( $#argv > 0 ) then
