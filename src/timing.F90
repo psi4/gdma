@@ -105,21 +105,6 @@ call date_and_time(values=v)
 string = ""
 write (string,"(i2.2,a,i2.2,a,i2.2,a,i2.2,1x,a,1x,i4)")         &
     v(5), ":", v(6), ":", v(7), " on ", v(3), month(v(2)), v(1)
-! string = trim(stri(v(5))) // ":" // trim(stri(v(6))) // ":" //    &
-!     trim(stri(v(7))) // " on " // trim(stri(v(3))) // " " //      &
-!     month(v(2)) // " " // trim(stri(v(1)))
-
-CONTAINS
-
-FUNCTION stri(i)
-
-CHARACTER(LEN=8) :: stri
-INTEGER, INTENT(IN) :: i
-
-write (stri,"(i8)") i
-stri=adjustl(stri)
-
-END FUNCTION stri
 
 END SUBROUTINE time_and_date
 
