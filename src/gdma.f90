@@ -190,6 +190,7 @@ LOGICAL, INTENT(OUT) :: ok
 
 INTEGER :: atom, i, j, k, n, nn, aok
 REAL(dp) :: e, rt3v2, td(5,6), tf(7,10), tg(9,15), th(11,21)
+REAL(dp) :: factor
 REAL(dp), ALLOCATABLE :: temp(:,:)
 LOGICAL eof
 CHARACTER :: text*40, buffer*80, ww*2, density_header*24, type*1
@@ -272,6 +273,9 @@ tg(9,v310)=rt5/2d0; tg(9,v130)=-rt5/2d0
 !  xxxxx yyyyy zzzzz xxxxy xxxxz xyyyy yyyyz xzzzz yzzzz xxxyy xxxzz
 !   12    13    14    15    16    17    18    19    20    21
 !  xxyyy yyyzz xxzzz yyzzz xxxyz xyyyz xyzzz xxyyz xxyzz xyyzz
+!   v500=1, v050=2, v005=3, v410=4, v401=5, v140=6,   &
+!   v041=7, v104=8, v014=9, v320=10, v302=11, v230=12, v032=13, v203=14, &
+!   v023=15, v311=16, v131=17, v113=18, v221=19, v212=20, v122=21
 th = 0d0
 !  50
 th(1,v401) = 15d0/8d0; th(1,v221) = 15d0/4d0; th(1,v041) = 15d0/8d0
@@ -288,7 +292,7 @@ th(3,:) = th(3,:)*rt15/8d0
 th(4,v401) = -1d0; th(4,v041) = 1d0; th(4,v203) = 2d0; th(4,v023) = -2d0;
 th(4,:) = th(4,:) * rt105/4d0
 !  52s
-th(5,v311) = -0.5d0*rt105; th(5,v131) = -0.5d0*rt105; th(5,v113) = 1d0*rt105
+th(5,v311) = -0.5d0*rt105; th(5,v131) = -0.5d0*rt105; th(5,v113) = rt105
 !  53c
 th(6,v500) = -1d0; th(6,v320) = 2d0; th(6,v140) = 3d0; th(6,v302) = 8d0
 th(6,v122) = -24d0
@@ -379,8 +383,8 @@ do
   case("Highest angular momentum")
     read(buffer,"(55X,I6)") maxl
     if (verbose) print "(a,i0)", "Highest angular momentum ", maxl
-    if (maxl .gt. 4) call die                                 &
-        ("Sorry -- GDMA can only handle s, p, d, f and g basis functions",.false.)
+    if (maxl > 5) call die                                 &
+        ("Sorry -- GDMA can only handle s, p, d, f, g and h basis functions",.false.)
   case("Largest degree of contraction")
     read(buffer,"(55X,I6)") cmax
     if (verbose) print "(a,i0)", "Largest contraction depth ", cmax
@@ -497,6 +501,7 @@ do
       do j=kstart(i),kstart(i)+kng(i)-1
         call getf(e)
         if (shell_type(i) == 1) then
+          !  Pure p
           cp(j)=e
         else
           cs(j)=e
@@ -589,27 +594,33 @@ end if
 !  normalising factor to the contraction coefficients. This is
 !  the factor for z^n exp(-e*r^2). General formula is
 !  (4e)^(n/2).(2e/pi)^{3/4}/sqrt{(2n-1)!!}
-do i=1,nshell
-  do j=kstart(i),kstart(i)+kng(i)-1
-    e=ex(j)
+do i = 1,nshell
+  do j = kstart(i),kstart(i)+kng(i)-1
+    e = ex(j)
     select case(abs(shell_type(i)))
     case(0,1)
-      cs(j)=cs(j)*sqrt(sqrt((2d0*e/pi)**3))
-      cp(j)=cp(j)*sqrt(4d0*e*sqrt((2d0*e/pi)**3))
-    case(5) ! h shell
-      cs(j)=cs(j)*(4d0*e)**2*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/945d0)
-    case(4) ! g shell
-      cs(j)=cs(j)*(4d0*e)**2*sqrt(sqrt((2d0*e/pi)**3)/105d0)
-    case(3) ! f shell
-      cs(j)=cs(j)*4d0*e*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/15d0)
+      cs(j) = cs(j)*sqrt(sqrt((2d0*e/pi)**3))
+      cp(j) = cp(j)*sqrt(4d0*e*sqrt((2d0*e/pi)**3))
     case(2) ! d shell
-      cs(j)=cs(j)*4d0*e*sqrt(sqrt((2d0*e/pi)**3)/3d0)
+      cs(j) = cs(j)*4d0*e*sqrt(sqrt((2d0*e/pi)**3)/3d0)
+    case(3) ! f shell
+      cs(j) = cs(j)*4d0*e*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/15d0)
+    case(4) ! g shell
+      factor = (4d0*e)**2*sqrt(sqrt((2d0*e/pi)**3)/105d0)
+      print "(2(a,e12.4))", "g shell  e = ", e, " factor = ", factor
+      cs(j) = cs(j)*(4d0*e)**2*sqrt(sqrt((2d0*e/pi)**3)/105d0)
+    case(5) ! h shell
+      factor = (4d0*e)**2*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/945d0)
+      print "(2(a,e12.4))", "h shell  e = ", e, " factor = ", factor
+      cs(j) = cs(j)*(4d0*e)**2*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/945d0)
     end select
   end do
 end do
 
 if (.not. ok) return
 !     call matwrtt(densty,1,num,1,num,format='5F10.5', cols=5)
+
+
 
 !  Deal with shell types, transforming from spherical to cartesian
 !  basis if necessary
@@ -677,7 +688,7 @@ do i=1,nshell
     if (shell_type(i) .lt. 0) then ! Spherical h shell
       temp(1:num,1:k)=densty(1:num,1:k)
       temp(1:num,k+1:k+21)=matmul(densty(1:num,k+1:k+11),th)
-      if (i<nshell) temp(1:num,k+22:num+6)=densty(1:num,k+12:num)
+      if (i<nshell) temp(1:num,k+22:num+10)=densty(1:num,k+12:num)
       num=num+10
       densty(1:k,1:num)=temp(1:k,1:num)
       densty(k+1:k+21,1:num)=matmul(transpose(th),temp(k+1:k+11,1:num))

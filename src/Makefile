@@ -1,10 +1,12 @@
+FC    := gfortran
+
 gdma: gdma.o dma.o atom_grids.o input.o timing.o version.o
 	${FC} ${FFLAGS} $^ -o gdma
 
-%.o: %.f90
+%.o: %.f90 ${FRC}
 	${FC} ${FFLAGS} -c $<
 
-%.o: %.F90
+%.o: %.F90 ${FRC}
 	${FC} ${FFLAGS} -c $<
 
 gdma.o: dma.o atom_grids.o input.o timing.o version.mod

@@ -30,6 +30,7 @@ PUBLIC dma_main, c, ex, cs, cp, iax, kmin, kmax, kstart, katom, ktype, &
     zan, Qfactor, echarge, bohr, rfact, punchfile
 
 INTEGER, PARAMETER :: dp=kind(1d0)
+INTEGER :: iw=6  ! output unit
 
 !  MAXS:   Maximum number of sites for a normal DMA.
 !  MAXCEN: Maximum number of atoms.
@@ -73,12 +74,12 @@ DATA IZ(36:56) /0,0,5,0,1,0,1,4,4,0,2,0,2,3,3,1,1,3,1,2,2/
 
 INTEGER, ALLOCATABLE :: limit(:)
 REAL(dp), ALLOCATABLE :: xs(:,:), radius(:), q(:,:)
-REAL(dp) :: rt(0:20), binom(0:20,0:20), rtbinom(0:20,0:20),         &
+REAL(dp) :: rt(0:32), binom(0:32,0:32), rtbinom(0:32,0:32),         &
     d(56,56)
 
 LOGICAL:: slice, linear, planar, general
 INTEGER :: ns, lmax, perp, mindc, maxdc
-REAL(dp) :: tol, spread
+REAL(dp) :: tol
 
 !  Charge density at grid points
 REAL(dp), ALLOCATABLE :: rho(:)
@@ -364,7 +365,7 @@ CHARACTER(LEN=16) :: wa, wb, wc
 
 LOGICAL :: check
 
-INTEGER :: iw=6, kr=0, kw=0, nerror=0, itol, zs(MAXS)
+INTEGER :: kr=0, nerror=0, itol, zs(MAXS)
 INTEGER :: i, j, k, l, m, ok
 REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
 
@@ -408,7 +409,7 @@ REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
 !          exceeds exp, the multipoles arising from their overlap are
 !          moved to the nearest site. Otherwise the overlap density is
 !          apportioned between sites in a similar manner to the atom
-!          partitioning used in DFT. See Stone J. Chem. Theor. Comp.
+!          partitioning used in DFT. See Stone, J. Chem. Theor. Comp.
 !          (2005) 1, 1128-1132 for details.
 
 !  LIMIT l
@@ -419,7 +420,7 @@ REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
 !          Set the rank limit to l for all atoms whose names start with a.
 !          Note that a here is case-sensitive.
 !          When the rank on any particular site is limited, contributions
-!          with higher ranks are moved to other sites.) If no name is given
+!          with higher ranks are moved to other sites. If no name is given
 !          the limit applies to all sites. Default (and maximum) is 20 for
 !          the linear case, 10 otherwise.
 
@@ -463,9 +464,7 @@ REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
 !          linear molecules this procedure is always used.
 
 lmax=20
-iw=6
 kr=0
-kw=0
 linear=.false.
 planar=.false.
 general=.false.
@@ -473,7 +472,7 @@ perp=0
 itol=18
 nuclei=.true.
 slice=.false.
-spread=1.0d0
+! spread=1.0d0
 bigexp=bigexp_default
 lebedev=.true.
 nerror=0
@@ -542,9 +541,9 @@ do
     planar=.false.
     perp=0
 
-  case('SPREAD')
-    call readf(spread,rfact)
-    if (spread .eq. 0.0d0) spread=1.0d0
+  ! case('SPREAD')
+  !   call readf(spread,rfact)
+  !   if (spread .eq. 0.0d0) spread=1.0d0
 
   case("GRID")
     do while (item < nitems)
@@ -576,12 +575,11 @@ do
     end do
 
   case('REPORT')
-    if (nitems .gt. 1) then
+    if (nitems > 1) then
       call readi(kr)
     else
       kr=7
     endif
-    if (kr .gt. 1) kw=iw
 
   case('PUNCH')
     if (kp .eq. 0) then
@@ -718,6 +716,7 @@ do
     end do
 
   case('ORIGIN')
+    !  Position of reference origin for overall multipole moments
     call readf(ox,rfact)
     call readf(oy,rfact)
     call readf(oz,rfact)
@@ -786,7 +785,7 @@ endif
 binom(0,0)=1.0d0
 rtbinom(0,0)=1d0
 rt(0)=0.0d0
-do k=1,20
+do k=1,32
   rt(k)=sqrt(dble(k))
   binom(k,0)=1.0d0
   rtbinom(k,0)=1.0d0
@@ -847,9 +846,9 @@ else
 end if
 
 if (linear) then
-  call dmaql0(w,kw)
+  call dmaql0(w,kr)
 else
-  call dmaqlm(w,kw)
+  call dmaqlm(w,kr)
 endif
 
 qt=0.0d0
@@ -909,6 +908,8 @@ CONTAINS
 
 SUBROUTINE atom_sites
 
+INTEGER :: i
+
 mindc=1
 maxdc=maxcen
 do i=1,nat
@@ -933,15 +934,17 @@ END SUBROUTINE dma_main
 
 !---------------------------------------------------------------  DMAQL0
 
-SUBROUTINE dmaql0(densty,iw)
+SUBROUTINE dmaql0(densty,kr)
 IMPLICIT NONE
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983
 !     Modifications and interface to Cadpac, R D Amos
 !     Version for Cadpac5 , R D Amos, June 1990
 !-----------------------------------------------------
-REAL(dp) :: densty(*)
-INTEGER :: iw
+REAL(dp), INTENT(IN) :: densty(*)
+INTEGER, INTENT(IN) :: kr
+
+! INTEGER :: iw=6
 
 !  Calculate multipole moments, and shift them to the nearest site. In
 !  this routine, appropriate for linear molecules, only the moments Qlm
@@ -1016,7 +1019,7 @@ do i=1,nat
   zi=c(3,i)
   if (nuclei .and. i .ge. mindc .and. i .le. maxdc) then
     qt(0)=zan(i)
-    call movez(qt, zi, iw)
+    call movez(qt, zi, kr)
   endif
   !  Find shells for atom i
   ii1=0
@@ -1075,6 +1078,7 @@ do i=1,nat
         locj=kloc(jj)-minj
         iieqjj=ii.eq.jj
         !  Set up temporary density matrix for this pair of shells
+        d = 0d0
         do ib=mini,maxi
           m=iax(loci+ib)
           if (iieqjj) then
@@ -1144,7 +1148,7 @@ do i=1,nat
 !  loops over atoms and shells count each pair only once, and (b) if
 !  II.EQ.JJ but IG.NE.JG, because loops over primitives count each pair
 !  only once.  In fact IG.NE.JG covers both cases.  However, different
-!  atoms may use the same shells and primitives if there is symmetry, an
+!  atoms may use the same shells and primitives if there is symmetry, and
 !  there is always a factor of 2 if the atoms are different.
             if (ig .ne. jg .or. .not. ieqj) fac=2.0d0*fac
             !  ZP is the position of the overlap centre.
@@ -1152,7 +1156,7 @@ do i=1,nat
             zp=zi-p*zji
             za=zi-zp
             zb=zj-zp
-            if (iw .gt. 0) write (iw,"(3(i5,i4), f11.4)")              &
+            if (iand(kr,2) .ne. 0) write (iw,"(3(i5,i4), f11.4)")              &
                 i,j, ii,jj, ig,jg, zp
 !  Use numerical integration to evaluate the multipole integrals
 !  over x and y (they are the same).
@@ -1217,7 +1221,7 @@ do i=1,nat
 !  End of loop over basis functions
                   end do
                 end do
-                if (iw .gt. 0) write (iw,"(a,i3, 11f11.7)")            &
+                if (kr .gt. 0) write (iw,"(a,i3, 11f11.7)")            &
                     "slice", is, (qt(iq), iq=0,min(lmax,10))
 !  Move multipoles to expansion site contained in this slice.
 !  Note that they are currently referred to the overlap centre P.
@@ -1277,23 +1281,22 @@ do i=1,nat
                   if (mod(mx,2) .eq. 0 .and. mod(my,2) .eq. 0)         &
                       call addql0 (qt, min(nq,lmax), -fac*ci*cj*d(ia,jb), &
                       gx(mx),gx(my),gz(0,iz(ia),iz(jb)))
-                  if (iw .gt. 0) write (iw,"(1p,3e10.2,2i3,1p,4e10.2)") &
+                  if (iand(kr,2) .ne. 0) write (iw,"(1p,3e10.2,2i3,1p,4e10.2)") &
                       fac, ci, cj, ia, jb, d(ia,jb),                   &
                       gx(mx), gx(my), gz(0,iz(ia),iz(jb))
 !  End of loop over basis functions
                 end do
               end do
-              if (iw .gt. 0) write (iw,"(3(i5,i4), f11.4, 3x, 11f12.8)") &
+              if (iand(kr,1) .ne. 0) write (iw,"(3(i5,i4), f11.4, 3x, 11f12.8)") &
                   i,j, ii,jj, ig,jg, zp, (qt(iq), iq=0,10)
 !  Move multipoles to nearest site.
-              call movez(qt, zp, iw)
+              call movez(qt, zp, kr)
             endif
 !  End of loop over primitives
           end do
         end do
-        if (iw .gt. 0) write (iw,"(/(5f15.8))")                        &
-            (q(0:4,ia), ia=1,ns)
-        if (iw .gt. 0) write (iw,"(1x)")
+        if (iand(kr,1) .ne. 0) write (iw,"(/(5f15.8))") (q(0:4,ia), ia=1,ns)
+        if (iand(kr,1) .ne. 0) write (iw,"(1x)")
 !  End of loop over shells
       end do
     end do
@@ -1434,7 +1437,7 @@ END SUBROUTINE shiftz
 
 !----------------------------------------------------------------- MOVEZ
 
-SUBROUTINE movez (qp, p, iw)
+SUBROUTINE movez (qp, p, kr)
 IMPLICIT NONE
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983
@@ -1443,8 +1446,9 @@ IMPLICIT NONE
 !-----------------------------------------------------
 !  Move the multipole contributions in QP, which are referred to z=P,
 !  to the nearest site.
-REAL(dp) :: qp(0:), p
-INTEGER, INTENT(IN) :: iw
+REAL(dp), INTENT(INOUT) :: qp(0:)
+REAL(dp), INTENT(IN) :: p
+INTEGER, INTENT(IN) :: kr
 
 REAL(dp) :: r(maxs)
 REAL(dp), PARAMETER :: eps=1d-8
@@ -1472,9 +1476,9 @@ do
     m(2)=i
   end do
 !  Multipoles of ranks LOW to LIMIT(K) are to be moved at this stage
-  IF (IW .GT. 0) WRITE (6,1001) P, LOW, LIMIT(K),                   &
-      (M(I), XS(3,M(I)), I=1,N)
-1001  FORMAT (' From', F7.3, ': ranks', I3, ' to', I3,                  &
+  if (iand(kr,2) .ne. 0) write (6,1001) p, low, limit(k),                   &
+      (m(i), xs(3,m(i)), i=1,n)
+1001  format (' From', F7.3, ': ranks', I3, ' to', I3,                  &
           ' to be moved to site ', I1, ' at', F7.3:                     &
           ' and site', I2, ' at', F7.3)
   if (n .eq. 2) then
@@ -1625,10 +1629,10 @@ END SUBROUTINE dmaerf
 
 !-----------------------------------------------------------------DMAQLM
 
-SUBROUTINE dmaqlm(densty,iw)
+SUBROUTINE dmaqlm(densty,kr)
 IMPLICIT NONE
 REAL(dp), INTENT(IN) :: densty(*)
-INTEGER, INTENT(IN) :: iw
+INTEGER, INTENT(IN) :: kr
 
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983
@@ -1637,7 +1641,7 @@ INTEGER, INTENT(IN) :: iw
 !-----------------------------------------------------
 !  Calculate multipole moments, and shift them to the nearest site.
 !  Normal routine, for use with non-linear molecules.
-!  If IW>0, print details of the progress of the calculation.
+!  If KR>0, print details of the progress of the calculation.
 !  If NUCLEI, include the nuclear charges in the calculation.
 !  The multipoles Qlmc and Qlms are sqrt(2) times the real and
 !  imaginary parts of the complex multipole [Ql,-m]*=(-1)**m Qlm,
@@ -1674,8 +1678,8 @@ REAL(dp) :: qt
 COMMON/BIG/qt(121)
 
 !  L1=L+1, LL1=2L+1, where L is the maximum angular momentum of basis
-!  function that can be handled, i.e. 4 at present.
-INTEGER, PARAMETER :: L1=5, LL1=9
+!  function that can be handled, i.e. 5 at present.
+INTEGER, PARAMETER :: L1=6, LL1=11
 !  Dimension is (2L+1)*(L+1)**2, where L is the highest angular momentum
 !  basis function
 REAL(dp) :: gx(0:l1*l1*ll1), gy(0:l1*l1*ll1), gz(0:l1*l1*ll1)
@@ -1686,8 +1690,8 @@ LOGICAL :: ieqj, iieqjj, do_quadrature
 
 INTEGER :: i, i1, i2, ia, ib, ii, ii1, ii2, ig, iq,                    &
     j, j1, j2, jb, jj, jj1, jj2, jg, jgmax, k, k1, k2,                 &
-    l, la, lb, loci, locj, lq,                                  &
-    m, ma, mb, mx, my, mz, mini, maxi, minj, maxj, nq
+    l, la, lb, loci, locj, lq,                                         &
+    m, ma, mb, mi, mj, mx, my, mz, mini, maxi, minj, maxj, nq
 REAL(dp) :: aa, ai, arri, aj, ci, cj, dum, e, fac, f, g,               &
     p, pax, pay, paz, pq, px, py, pz, rr, s, t, xi, xj, xa, xb,        &
     xji, xk, xp, xas, xbs, yi, yj, ya, yb, yji, yk, yp, yas, ybs,      &
@@ -1695,7 +1699,7 @@ REAL(dp) :: aa, ai, arri, aj, ci, cj, dum, e, fac, f, g,               &
 
 do_quadrature=.false.
 
-if (iw .gt. 0) write (iw,"(a/a)")                                      &
+if (iand(kr,1) .ne. 0) print "(a/a)",                                           &
     '    Atoms   Shells Primitives            Position',               &
     '     Multipole contributions ...'
 katom(nshell+1)=0
@@ -1785,6 +1789,14 @@ do i=1,nat
             end do
           end if
         end do
+
+        if (iand(kr,8) .ne. 0) then
+          !  Print out temporary density matrix
+          print "(4i4)", i, j, la, lb
+          do mi = mini,maxi
+            print "(21f9.5)", (d(mi,mj), mj = minj,maxj)
+          end do
+        end if
         !  Insert factors of sqrt(3) for xy, xz and yz functions, if present,
         !  and factors of sqrt(5) and sqrt(15) for f functions. This is to
         !  compensate for the use of the same normalisation factor in all the
@@ -1864,7 +1876,7 @@ do i=1,nat
             yp=yi-ya
             zp=zi-za
             t=dsqrt(1.0d0/aa)
-            if (iw .gt. 0) write (iw,"(3(i5,i4), 3x, 3f10.5)")      &
+            if (iand(kr,2) .ne. 0) print ("(3(i5,i4), 3x, 3f10.5)"),      &
                 i,j, ii,jj, ig,jg, xp,yp,zp
 !  LQ is the maximum rank of multipole to which these functions
 !  contribute. The integrals involve polynomials up to order 2(NQ-1),
@@ -1945,10 +1957,9 @@ do i=1,nat
               end do
             end do
 
-            if (iw .gt. 0) write (iw,1003) qt(1:nq**2)
-1003        format (f10.6: / 3f10.6: / 5f10.6: / 7f10.6: / 9f10.6: /   &
-                11f10.6: / 13f10.6: / 15f10.6: / 17f10.6: / 19f10.6: / &
-                21f10.6)
+            if (iand(kr,1) .ne. 0) print "(f10.6: / 3f10.6: / 5f10.6: / 7f10.6: / 9f10.6: /&
+                & 11f10.6: / 13f10.6: / 15f10.6: / 17f10.6: / 19f10.6: / 21f10.6)", &
+                qt(1:nq**2)
 !  Move multipoles to expansion centre nearest to overlap centre P.
             call moveq(xp,yp,zp)
 
@@ -1966,7 +1977,7 @@ do i=1,nat
               xp=xi-p*xji
               yp=yi-p*yji
               zp=zi-p*zji
-              if (iw > 0) print "(2i5, 3f20.15)", ig, jg, xp, yp, zp
+              if (iand(kr,2) .ne. 0) print "(2i5, 3f20.15)", ig, jg, xp, yp, zp
               do k=1,ng
                 xk=grid(1,k)
                 yk=grid(2,k)
@@ -2883,8 +2894,7 @@ REAL(dp) :: a2kp1, rr, rfx, rfy, rfz, s
 
 l=iabs(j)
 if ((l+1)**2 .gt. max) then
-  write (6,'(a,i3)')                                           &
-      'Insufficient array space for harmonics up to rank',L
+  print '(a,i3)', 'Insufficient array space for harmonics up to rank',L
   call die('Consult authors')
 endif
 rr=x**2+y**2+z**2
