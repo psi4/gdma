@@ -1,10 +1,12 @@
 INSTALL_DIR := /usr/local/bin
 
+COMPILER := gfortran
+
 FFLAGS := -O2
-FC     := gfortran
+FC     := ${COMPILER}
 
 gdma:
-	cd src; ${MAKE} FFLAGS=${FFLAGS} FC=${FC}
+	cd src; ${MAKE} FFLAGS="${FFLAGS}" FC=${FC}
 	rm -f bin/gdma
 	ln src/gdma bin
 

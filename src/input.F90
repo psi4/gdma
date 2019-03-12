@@ -20,6 +20,7 @@ MODULE input
 !  Fifth Floor, Boston, MA 02110-1301, USA, or see
 !  http://www.gnu.org/copyleft/gpl.html
 
+use iso_fortran_env, only: real128, real64
 #ifdef ARGS
 #ifdef NAGF95
 USE f90_unix_env, ONLY: getarg, iargc
@@ -55,8 +56,12 @@ INTEGER, SAVE :: lc=3
 INTEGER, PARAMETER :: sp=kind(1.0), dp=kind(1d0)!, qp=selected_real_kind(30)
 
 INTERFACE readf
-  MODULE PROCEDURE read_single, read_double, readv_double!, read_quad
+  MODULE PROCEDURE read_single, read_double, readv_double, read_quad
 END INTERFACE readf
+
+INTERFACE getf
+  MODULE PROCEDURE get_double, get_quad
+END INTERFACE getf
 
 PRIVATE
 PUBLIC :: item, nitems, read_line, stream, reada, readu, readl,        &
@@ -629,44 +634,44 @@ END SUBROUTINE reada
 
 !-----------------------------------------------------------------------
 
-! SUBROUTINE read_quad(A,factor)
-! 
-! !  Read the next item from the buffer as a real (quadruple precision) number.
-! !  If the optional argument factor is present, the value read should be
-! !  divided by it. (External value = factor*internal value)
-! 
-! REAL(KIND=qp), INTENT(INOUT) :: a
-! REAL(KIND=qp), INTENT(IN), OPTIONAL :: factor
-! 
-! CHARACTER(LEN=50) :: string
-! 
-! if (clear) a=0.0_qp
-! 
-! !  If there are no more items on the line, A is unchanged unless already
-! !  cleared
-! if (item .ge. nitems) return
-! 
-! string=""
-! call reada(string)
-! !  If the item is null, A is unchanged unless already cleared
-! if (string == "") return
-! read (unit=string,fmt=*,err=99) a
-! if (present(factor)) then
-!   a=a/factor
-! endif
-! return
-! 
-! 99 a=0.0_qp
-! select case(input_error_flag)
-! case(-1,0)
-!   call report("Error while reading real number",.true.)
-! case(1)
-!   print "(2a)", "Error while reading real number. Input is ", trim(string)
-! case(2)
-!   input_error_flag=-1
-! end select
-! 
-! END SUBROUTINE read_quad
+SUBROUTINE read_quad(A,factor)
+
+!  Read the next item from the buffer as a real (quadruple precision) number.
+!  If the optional argument factor is present, the value read should be
+!  divided by it. (External value = factor*internal value)
+
+REAL(KIND=real128), INTENT(INOUT) :: a
+REAL(KIND=real128), INTENT(IN), OPTIONAL :: factor
+
+CHARACTER(LEN=50) :: string
+
+if (clear) a = 0.0
+
+!  If there are no more items on the line, A is unchanged unless already
+!  cleared
+if (item .ge. nitems) return
+
+string = ""
+call reada(string)
+!  If the item is null, A is unchanged unless already cleared
+if (string == "") return
+read (unit=string,fmt=*,err=99) a
+if (present(factor)) then
+  a = a/factor
+endif
+return
+
+99 a = 0.0
+select case(input_error_flag)
+case(-1,0)
+  call report("Error while reading real number",.true.)
+case(1)
+  print "(2a)", "Error while reading real number. Input is ", trim(string)
+case(2)
+  input_error_flag = -1
+end select
+
+END SUBROUTINE read_quad
 
 !-----------------------------------------------------------------------
 
@@ -806,7 +811,7 @@ END SUBROUTINE readv_double
 
 !-----------------------------------------------------------------------
 
-SUBROUTINE getf(A,factor)
+SUBROUTINE get_double(A,factor)
 !  Read the next item as a double-precision number, reading new data
 !  records if necessary.
 !  If the optional argument factor is present, the value read should be
@@ -818,7 +823,7 @@ DOUBLE PRECISION, INTENT(IN), OPTIONAL :: factor
 LOGICAL :: eof
 
 do
-  if (item .lt. nitems) then
+  if (item < nitems) then
     call readf(a,factor)
     exit
   else
@@ -830,7 +835,35 @@ do
   endif
 end do
 
-END SUBROUTINE getf
+END SUBROUTINE get_double
+
+!-----------------------------------------------------------------------
+
+SUBROUTINE get_quad(A,factor)
+!  Read the next item as a double-precision number, reading new data
+!  records if necessary.
+!  If the optional argument factor is present, the value read should be
+!  divided by it. (External value = factor*internal value)
+
+REAL(real128), INTENT(INOUT) :: A
+REAL(real128), INTENT(IN), OPTIONAL :: factor
+
+LOGICAL :: eof
+
+do
+  if (item < nitems) then
+    call read_quad(a,factor)
+    exit
+  else
+    call read_line(eof)
+    if (eof) then
+      print "(A)", "End of file while attempting to read a number"
+      stop
+    endif
+  endif
+end do
+
+END SUBROUTINE get_quad
 
 !-----------------------------------------------------------------------
 
