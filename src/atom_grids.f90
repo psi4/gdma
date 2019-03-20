@@ -1,6 +1,5 @@
 MODULE atom_grids
 
-use iso_fortran_env, only: real128, real64
 
 IMPLICIT NONE
 
@@ -235,7 +234,7 @@ IMPLICIT NONE
 !  sites. The atomic number controls the scale of the radial grid.
 
 INTEGER, INTENT(IN) :: ns, zs(:)
-REAL(real64), INTENT(IN) :: c(:,:), radius(:)
+REAL(dp), INTENT(IN) :: c(:,:), radius(:)
 
 INTEGER :: a, b, g, i, m, ma, mb, n, p, q, ok
 REAL(dp), ALLOCATABLE :: rr(:,:), aa(:,:), s(:,:), pp(:)

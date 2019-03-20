@@ -16,3 +16,6 @@ test:
 install:
 	cp -p bin/gdma ${INSTALL_DIR}
 
+clean:
+	cd src; rm -f *.mod *.o
+

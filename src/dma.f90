@@ -22,7 +22,6 @@ MODULE DMA
 
 USE atom_grids, ONLY : grid, ng, make_grid, Lebedev,                   &
     n_a, n_r, k_mu, start
-USE iso_fortran_env, only: real128, real64
 IMPLICIT NONE
 
 PRIVATE
@@ -30,12 +29,8 @@ PUBLIC dma_main, c, ex, cs, cp, iax, kmin, kmax, kstart, katom, ktype, &
     kng, kloc, maxcen, maxbfn, maxs, nat, name, nshell, title, &
     zan, Qfactor, echarge, bohr, rfact, punchfile
 
-INTEGER, PARAMETER :: dp = real64
+INTEGER, PARAMETER :: dp=kind(1d0)
 INTEGER :: iw=6  ! output unit
-
-!  Change this to .true. if the erroneous treatment of h functions has
-!  been corrected.
-LOGICAL :: h_bug_fixed = .false.
 
 !  MAXS:   Maximum number of sites for a normal DMA.
 !  MAXCEN: Maximum number of atoms.
@@ -48,11 +43,11 @@ INTEGER :: maxs, maxcen, maxbfn
 ! INTEGER, PARAMETER :: MAXEXP=5000, MAXSHL=1000
 
 ! bohr radius x 1e10
-REAL(dp), PARAMETER :: bohr=0.529177211_dp
-REAL(dp), PARAMETER :: rtpi=1.7724538509055160272_DP
-REAL(dp) :: Qfactor(0:20)=1_dp
+REAL(dp), PARAMETER :: bohr=0.529177211d0
+REAL(dp), PARAMETER :: rtpi=1.7724538509055160272d0
+REAL(dp) :: Qfactor(0:20)=1d0
 !  elementary charge x 1e20
-REAL(dp), PARAMETER :: echarge=16.0217653_dp
+REAL(dp), PARAMETER :: echarge=16.0217653d0
 
 INTEGER :: nat, nshell
 REAL(dp), ALLOCATABLE :: zan(:), c(:,:)
@@ -79,7 +74,7 @@ DATA IZ(36:56) /0,0,5,0,1,0,1,4,4,0,2,0,2,3,3,1,1,3,1,2,2/
 
 INTEGER, ALLOCATABLE :: limit(:)
 REAL(dp), ALLOCATABLE :: xs(:,:), radius(:), q(:,:)
-REAL(dp) :: rt(0:32), binom(0:32,0:32), rtbinom(0:32,0:32),         &
+REAL(dp) :: rt(0:20), binom(0:20,0:20), rtbinom(0:20,0:20),         &
     d(56,56)
 
 LOGICAL:: slice, linear, planar, general
@@ -102,7 +97,7 @@ LOGICAL :: nuclei=.true.
 
 INTEGER, ALLOCATABLE :: iax(:)
 
-REAL(dp) :: rfact=1_dp
+REAL(dp) :: rfact=1d0
 
 CHARACTER(LEN=40) :: punchfile="gdma.punch", tempfile=""
 CHARACTER(LEN=8) :: runit
@@ -179,15 +174,15 @@ DATA W(37:45) /                                          &
     8.84745273943776D-02, 4.94362427553706D-03, 3.96069772632660D-05/
 
 DATA H(46:55) /                                          &
-    -3.436159118837738, -2.532731674232790, -1.756683649299882, &
-    -1.036610829789514, -0.342901327223705,  0.342901327223705, &
-     1.036610829789514,  1.756683649299882,  2.532731674232790, &
-     3.436159118837738/
+    -3.43615911883773D+00,-2.53273167423278D+00,-1.75668364929988D+00,&
+    -1.03661082978951D+00,-3.42901327223704D-01, 3.42901327223704D-01,&
+    1.03661082978951D+00, 1.75668364929988D+00, 2.53273167423278D+00,&
+    3.43615911883773D+00/
 DATA W(46:55) /                                          &
-    7.6404328552330D-06,  1.34364574678128D-03, 3.38743944554816D-02,&
-    2.40138611082316D-01, 6.10862633735326D-01, 6.10862633735326D-01,&
-    2.40138611082316D-01, 3.38743944554816D-02, 1.34364574678128D-03,&
-    7.6404328552330D-06/
+    7.64043285523306D-06, 1.34364574678130D-03, 3.38743944554813D-02,&
+    2.40138611082315D-01, 6.10862633735326D-01, 6.10862633735326D-01,&
+    2.40138611082317D-01, 3.38743944554818D-02, 1.34364574678127D-03,&
+    7.64043285523290D-06/
 
 DATA H(56:66) /                                          &
     -3.66847084655957D+00,-2.78329009978165D+00,-2.02594801582575D+00,&
@@ -372,7 +367,7 @@ LOGICAL :: check
 
 INTEGER :: kr=0, nerror=0, itol, zs(MAXS)
 INTEGER :: i, j, k, l, m, ok
-REAL(dp) :: r, ox=0_dp, oy=0_dp, oz=0_dp, qt(0:121)
+REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
 
 !  Directive syntax:
 !   MULTIPOLES
@@ -477,7 +472,6 @@ perp=0
 itol=18
 nuclei=.true.
 slice=.false.
-! spread=1.0_dp
 bigexp=bigexp_default
 lebedev=.true.
 nerror=0
@@ -485,7 +479,7 @@ iax(1)=0
 do i=1,maxbfn
   iax(i+1)=iax(i)+i
 end do
-if (rfact==1_dp) then
+if (rfact==1d0) then
   runit="bohr"
 else
   runit="angstrom"
@@ -545,10 +539,6 @@ do
     linear=.false.
     planar=.false.
     perp=0
-
-  ! case('SPREAD')
-  !   call readf(spread,rfact)
-  !   if (spread .eq. 0.0_dp) spread=1.0_dp
 
   case("GRID")
     do while (item < nitems)
@@ -740,7 +730,7 @@ do
       call readf(xs(i,ns),rfact)
     end do
     limit(ns)=lmax
-    radius(ns)=0.65_dp/bohr
+    radius(ns)=0.65d0/bohr
     zs(ns)=0
     do while (item < nitems)
       call readu(aa)
@@ -759,7 +749,7 @@ do
 !   select case(aa)
 !   case("EQUAL")
 !     do i=1,ns
-!       radius(i)=0.5_dp/bohr
+!       radius(i)=0.5d0/bohr
 !     end do
 !   case("DEFAULT","SLATER")
 !     do i=1,ns
@@ -769,11 +759,11 @@ do
 
   case("BIGEXP","SWITCH")
     call readf(bigexp)
-    if (bigexp < 0_dp) then
+    if (bigexp < 0d0) then
       print "(a)", "Switch value must not be negative"
       nerror=nerror+1
     end if
-    if (bigexp > 0_dp) general=.true.
+    if (bigexp > 0d0) general=.true.
 
   case default
     print '(a,a)', 'Unrecognised DMA keyword ', wa
@@ -787,14 +777,14 @@ if (nerror .gt. 0) then
   call die ('Multipoles directive not executed.',.false.)
 endif
 
-binom(0,0)=1.0_dp
-rtbinom(0,0)=1_dp
-rt(0)=0.0_dp
-do k=1,32
-  rt(k)=sqrt(dble(k))
-  binom(k,0)=1.0_dp
-  rtbinom(k,0)=1.0_dp
-  binom(k-1,k)=0.0_dp
+binom(0,0)=1.0d0
+rtbinom(0,0)=1.0d0
+rt(0)=0.0d0
+do k=1,20
+  rt(k)=sqrt(real(k,dp))
+  binom(k,0)=1.0d0
+  rtbinom(k,0)=1.0d0
+  binom(k-1,k)=0.0d0
   do m=1,k
     binom(k,m)=binom(k-1,m-1)+binom(k-1,m)
     rtbinom(k,m)=sqrt(binom(k,m))
@@ -810,15 +800,15 @@ do i=1,ns
 end do
 lmax=l
 
-tol=2.30258_dp*itol
+tol=2.30258d0*itol
 
 !  Standard DMA
 
 write (iw,"(/25x,a/)") "Distributed Multipole Analysis"
 
-Q=0.0_dp
+Q=0.0d0
 
-if (bigexp > 0_dp) then
+if (bigexp > 0d0) then
   print "(a,a,f0.5)", "Standard DMA for products of primitives",  &
       " with exponent greater than ", bigexp
   general=.true.
@@ -844,7 +834,7 @@ end if
 
 print "(/2a)", "Positions and radii in ", trim(runit)
 
-if (Qfactor(0) .ne. 1_dp) then
+if (Qfactor(0) .ne. 1d0) then
   print "(/a)", "Multipole moments are in SI units, multiplied by 10^(10k+20) for rank k"
 else
   print "(a)", "Multipole moments in atomic units, ea_0^k for rank k"
@@ -856,7 +846,7 @@ else
   call dmaqlm(w,kr)
 endif
 
-qt=0.0_dp
+qt=0.0d0
 
 if (kp .gt. 0) then
   !  Heading for 'punch' results
@@ -907,7 +897,7 @@ else
 endif
 call printq(qt,lmax, linear, iw)
 
-if (bigexp > 0_dp) deallocate(rho)
+if (bigexp > 0d0) deallocate(rho)
 
 CONTAINS
 
@@ -923,10 +913,10 @@ do i=1,nat
   zs(i)=nint(zan(i))
   if (zs(i)==1) then
     !  Hydrogen atoms have default radius 0.325 Angstrom
-    radius(i)=0.325_dp/bohr
+    radius(i)=0.325d0/bohr
   else
     !  Otherwise the default radius is 0.65 Angstrom
-    radius(i)=0.65_dp/bohr
+    radius(i)=0.65d0/bohr
   end if
 end do
 ns=nat
@@ -949,7 +939,6 @@ IMPLICIT NONE
 REAL(dp), INTENT(IN) :: densty(*)
 INTEGER, INTENT(IN) :: kr
 
-! INTEGER :: iw=6
 
 !  Calculate multipole moments, and shift them to the nearest site. In
 !  this routine, appropriate for linear molecules, only the moments Qlm
@@ -1016,7 +1005,7 @@ endif
 
 !  Clear temporary multipole array. Note that subsequently it is cleared
 !  whenever multipoles are moved from it to an expansion site.
-qt(0:lmax)=0.0_dp
+qt(0:lmax)=0.0d0
 
 !  Loop over pairs of atoms
 katom(nshell+1)=0
@@ -1083,7 +1072,7 @@ do i=1,nat
         locj=kloc(jj)-minj
         iieqjj=ii.eq.jj
         !  Set up temporary density matrix for this pair of shells
-        d = 0_dp
+        d = 0d0
         do ib=mini,maxi
           m=iax(loci+ib)
           if (iieqjj) then
@@ -1114,12 +1103,10 @@ do i=1,nat
           d(33:35,minj:maxj)=rt(5)*rt(7)*d(33:35,minj:maxj)
         case(5)
           !  and for h functions
-          if (h_bug_fixed) then
-            d(39:44,minj:maxj) = 3_dp*d(39:44,minj:maxj)
-            d(45:50,minj:maxj) = rt(3)*rt(7)*d(45:50,minj:maxj)
-            d(51:53,minj:maxj) = 3_dp*rt(7)*d(51:53,minj:maxj)
-            d(54:56,minj:maxj) = rt(3)*rt(5)*rt(7)*d(54:56,minj:maxj)
-          end if
+          d(39:44,minj:maxj) = 3d0*d(39:44,minj:maxj)
+          d(45:50,minj:maxj) = rt(3)*rt(7)*d(45:50,minj:maxj)
+          d(51:53,minj:maxj) = 3d0*rt(7)*d(51:53,minj:maxj)
+          d(54:56,minj:maxj) = rt(3)*rt(5)*rt(7)*d(54:56,minj:maxj)
         end select
         select case(lb)
         case(2)
@@ -1132,12 +1119,10 @@ do i=1,nat
           d(mini:maxi,30:32)=(rt(5)*rt(7)/rt(3))*d(mini:maxi,30:32)
           d(mini:maxi,33:35)=rt(5)*rt(7)*d(mini:maxi,33:35)
         case(5)
-          if (h_bug_fixed) then
-            d(mini:maxi,39:44) = 3_dp*d(mini:maxi,39:44)
-            d(mini:maxi,45:50) = rt(3)*rt(7)*d(mini:maxi,45:50)
-            d(mini:maxi,51:53) = 3_dp*rt(7)*d(mini:maxi,51:53)
-            d(mini:maxi,54:56) = rt(3)*rt(5)*rt(7)*d(mini:maxi,54:56)
-          end if
+          d(mini:maxi,39:44) = 3d0*d(mini:maxi,39:44)
+          d(mini:maxi,45:50) = rt(3)*rt(7)*d(mini:maxi,45:50)
+          d(mini:maxi,51:53) = 3d0*rt(7)*d(mini:maxi,51:53)
+          d(mini:maxi,54:56) = rt(3)*rt(5)*rt(7)*d(mini:maxi,54:56)
         end select
 
         !  I primitive
@@ -1159,7 +1144,7 @@ do i=1,nat
 !  only once.  In fact IG.NE.JG covers both cases.  However, different
 !  atoms may use the same shells and primitives if there is symmetry, and
 !  there is always a factor of 2 if the atoms are different.
-            if (ig .ne. jg .or. .not. ieqj) fac=2.0_dp*fac
+            if (ig .ne. jg .or. .not. ieqj) fac=2.0d0*fac
             !  ZP is the position of the overlap centre.
             p=aj/aa
             zp=zi-p*zji
@@ -1169,7 +1154,7 @@ do i=1,nat
                 i,j, ii,jj, ig,jg, zp
 !  Use numerical integration to evaluate the multipole integrals
 !  over x and y (they are the same).
-            t=sqrt(1.0_dp/aa)
+            t=sqrt(1.0d0/aa)
 !  The x integrals involve polynomials up to order LA+LB+LMAX,
 !  for which NQ+1 integration points are required.
             if (slice) then
@@ -1179,7 +1164,7 @@ do i=1,nat
             endif
             k1=mink(nq+1)
             k2=maxk(nq+1)
-            gx(0:20)=0.0_dp
+            gx(0:20)=0.0d0
 !  In GX it is only necessary to accumulate the sums of even powers of
 !  xk:
 !           sum(k) gk * xk**(IQ),  IQ even,
@@ -1210,7 +1195,7 @@ do i=1,nat
 !  Now these basic integrals are used to construct the multipole moments
 !  for the overlap density corresponding to each pair of basis functions
 !  in the pair of shells.
-                qt(0:lmax)=0.0_dp
+                qt(0:lmax)=0.0d0
                 ci=cs(ig)
                 do ia=mini,maxi
                   if (ia .gt. 1 .and. la .eq. 1) ci=cp(ig)
@@ -1244,7 +1229,7 @@ do i=1,nat
 
 
 !  Clear integral arrays
-              gz(0:20,0:5,0:5)=0.0_dp
+              gz(0:20,0:5,0:5)=0.0d0
 
 !  The following loop runs through the integration points, accumulating
 !  in GZ(IQ,IA,IB) the quantity
@@ -1273,7 +1258,7 @@ do i=1,nat
 !  Now these basic integrals are used to construct the multipole moments
 !  for the overlap density corresponding to each pair of basis functions
 !  in the pair of shells.
-              qt(0:lmax)=0.0_dp
+              qt(0:lmax)=0.0d0
               ci=cs(ig)
               do ia=mini,maxi
                 if (ia .gt. 1 .and. la .eq. 1) ci=cp(ig)
@@ -1332,65 +1317,65 @@ REAL(dp) :: xy0, xy2, xy4, xy6, xy8, xy10
 
 GO TO (100,101,102,103,104,105,106,107,108,109,110,111), L+1
 111   CONTINUE
-110   XY10=GX(10)*GY(0)+5.0_DP*GX(8)*GY(2)+10.0_DP*GX(6)*GY(4)+           &
-                  10.0_DP*GX(4)*GY(6)+5.0_DP*GX(2)*GY(8)+GX(0)*GY(10)
+110   XY10=GX(10)*GY(0)+5.0D0*GX(8)*GY(2)+10.0D0*GX(6)*GY(4)+           &
+                  10.0D0*GX(4)*GY(6)+5.0D0*GX(2)*GY(8)+GX(0)*GY(10)
 109   CONTINUE
-108   XY8=GX(8)*GY(0)+4.0_DP*GX(6)*GY(2)+6.0_DP*GX(4)*GY(4)+              &
-                                4.0_DP*GX(2)*GY(6)+GX(0)*GY(8)
+108   XY8=GX(8)*GY(0)+4.0D0*GX(6)*GY(2)+6.0D0*GX(4)*GY(4)+              &
+                                4.0D0*GX(2)*GY(6)+GX(0)*GY(8)
 107   CONTINUE
-106   XY6=GX(6)*GY(0)+3.0_DP*GX(4)*GY(2)+3.0_DP*GX(2)*GY(4)+GX(0)*GY(6)
+106   XY6=GX(6)*GY(0)+3.0D0*GX(4)*GY(2)+3.0D0*GX(2)*GY(4)+GX(0)*GY(6)
 105   CONTINUE
-104   XY4=GX(4)*GY(0)+2.0_DP*GX(2)*GY(2)+GX(0)*GY(4)
+104   XY4=GX(4)*GY(0)+2.0D0*GX(2)*GY(2)+GX(0)*GY(4)
 103   CONTINUE
 102   XY2=GX(2)*GY(0)+GX(0)*GY(2)
 101   CONTINUE
 100   XY0=GX(0)*GY(0)
 GO TO (200,201,202,203,204,205,206,207,208,209,210,211), L+1
-211   Q(11)=Q(11)+0.00390625_DP*F*                                       &
-          (256.0_DP*XY0*GZ(11)                                           &
-          -7040.0_DP*XY2*GZ(9)                                           &
-          +31680.0_DP*XY4*GZ(7)                                          &
-          -36960.0_DP*XY6*GZ(5)                                          &
-          +11550.0_DP*XY8*GZ(3)                                          &
-          -693.0_DP*XY10*GZ(1))
-210   Q(10)=Q(10)+0.00390625_DP*F*                                       &
-          (256.0_DP*XY0*GZ(10)                                           &
-          -5760.0_DP*XY2*GZ(8)                                           &
-          +20160.0_DP*XY4*GZ(6)                                          &
-          -16800.0_DP*XY6*GZ(4)                                          &
-          +3150.0_DP*XY8*GZ(2)                                           &
-          -63.0_DP*XY10*GZ(0))
-209   Q(9)=Q(9)+0.0078125_DP*F*                                          &
-          (128.0_DP*XY0*GZ(9)                                            &
-          -2304.0_DP*XY2*GZ(7)                                           &
-          +6048.0_DP*XY4*GZ(5)                                           &
-          -3360.0_DP*XY6*GZ(3)                                           &
-          +315.0_DP*XY8*GZ(1))
-208   Q(8)=Q(8)+0.0078125_DP*F*                                          &
-          (128.0_DP*XY0*GZ(8)                                            &
-          -1792.0_DP*XY2*GZ(6)                                           &
-          +3360.0_DP*XY4*GZ(4)                                           &
-          -1120.0_DP*XY6*GZ(2)                                           &
-          +35.0_DP*XY8*GZ(0))
-207   Q(7)=Q(7)+0.0625_DP*F*                                             &
-          (16.0_DP*XY0*GZ(7)                                             &
-          -168.0_DP*XY2*GZ(5)                                            &
-          +210.0_DP*XY4*GZ(3)                                            &
-          -35.0_DP*XY6*GZ(1))
-206   Q(6)=Q(6)+0.0625_DP*F                                              &
-          *(16.0_DP*XY0*GZ(6)                                            &
-           -120.0_DP*XY2*GZ(4)                                           &
-           +90.0_DP*XY4*GZ(2)                                            &
-           -5.0_DP*XY6*GZ(0))
-205   Q(5)=Q(5)+0.125_DP*F                                               &
-          *(8.0_DP*GZ(5)*XY0                                             &
-           -40.0_DP*GZ(3)*XY2                                            &
-           +15.0_DP*GZ(1)*XY4)
-204   Q(4)=Q(4)+0.125_DP*F*(8.0_DP*XY0*GZ(4)                              &
-                       -24.0_DP*XY2*GZ(2)                                &
-                        +3.0_DP*XY4*GZ(0))
-203   Q(3)=Q(3)+F*(XY0*GZ(3)-1.5_DP*XY2*GZ(1))
-202   Q(2)=Q(2)+F*(XY0*GZ(2)-0.5_DP*XY2*GZ(0))
+211   Q(11)=Q(11)+0.00390625D0*F*                                       &
+          (256.0D0*XY0*GZ(11)                                           &
+          -7040.0D0*XY2*GZ(9)                                           &
+          +31680.0D0*XY4*GZ(7)                                          &
+          -36960.0D0*XY6*GZ(5)                                          &
+          +11550.0D0*XY8*GZ(3)                                          &
+          -693.0D0*XY10*GZ(1))
+210   Q(10)=Q(10)+0.00390625D0*F*                                       &
+          (256.0D0*XY0*GZ(10)                                           &
+          -5760.0D0*XY2*GZ(8)                                           &
+          +20160.0D0*XY4*GZ(6)                                          &
+          -16800.0D0*XY6*GZ(4)                                          &
+          +3150.0D0*XY8*GZ(2)                                           &
+          -63.0D0*XY10*GZ(0))
+209   Q(9)=Q(9)+0.0078125D0*F*                                          &
+          (128.0D0*XY0*GZ(9)                                            &
+          -2304.0D0*XY2*GZ(7)                                           &
+          +6048.0D0*XY4*GZ(5)                                           &
+          -3360.0D0*XY6*GZ(3)                                           &
+          +315.0D0*XY8*GZ(1))
+208   Q(8)=Q(8)+0.0078125D0*F*                                          &
+          (128.0D0*XY0*GZ(8)                                            &
+          -1792.0D0*XY2*GZ(6)                                           &
+          +3360.0D0*XY4*GZ(4)                                           &
+          -1120.0D0*XY6*GZ(2)                                           &
+          +35.0D0*XY8*GZ(0))
+207   Q(7)=Q(7)+0.0625D0*F*                                             &
+          (16.0D0*XY0*GZ(7)                                             &
+          -168.0D0*XY2*GZ(5)                                            &
+          +210.0D0*XY4*GZ(3)                                            &
+          -35.0D0*XY6*GZ(1))
+206   Q(6)=Q(6)+0.0625D0*F                                              &
+          *(16.0D0*XY0*GZ(6)                                            &
+           -120.0D0*XY2*GZ(4)                                           &
+           +90.0D0*XY4*GZ(2)                                            &
+           -5.0D0*XY6*GZ(0))
+205   Q(5)=Q(5)+0.125D0*F                                               &
+          *(8.0D0*GZ(5)*XY0                                             &
+           -40.0D0*GZ(3)*XY2                                            &
+           +15.0D0*GZ(1)*XY4)
+204   Q(4)=Q(4)+0.125D0*F*(8.0D0*XY0*GZ(4)                              &
+                       -24.0D0*XY2*GZ(2)                                &
+                        +3.0D0*XY4*GZ(0))
+203   Q(3)=Q(3)+F*(XY0*GZ(3)-1.5D0*XY2*GZ(1))
+202   Q(2)=Q(2)+F*(XY0*GZ(2)-0.5D0*XY2*GZ(0))
 201   Q(1)=Q(1)+F*XY0*GZ(1)
 200   Q(0)=Q(0)+F*XY0*GZ(0)
 
@@ -1421,7 +1406,7 @@ REAL(dp) :: zs(0:20)
 INTEGER :: i, n, s, s1, s2
 
 if (l1 .gt. m1) return
-zs(0)=1.0_dp
+zs(0)=1.0d0
 do i=1,m2
   zs(i)=z*zs(i-1)
 end do
@@ -1492,7 +1477,7 @@ do
           ' and site', I2, ' at', F7.3)
   if (n .eq. 2) then
     do i=low,limit(k)
-      qp(i)=0.5_dp*qp(i)
+      qp(i)=0.5d0*qp(i)
     end do
   end if
   do i=1,n
@@ -1500,7 +1485,7 @@ do
     call shiftz(qp,low,limit(k), q(0:,k),lmax, p-xs(3,k))
   end do
   do i=low,limit(k)
-    qp(i)=0.0_dp
+    qp(i)=0.0d0
   end do
 !  At this point the new sites carry multipoles of all ranks up to
 !  LMAX.  Shift any of ranks higher than LIMIT(K) back to the original
@@ -1511,7 +1496,7 @@ do
     k=m(i)
     call shiftz(q(0:,k),limit(k)+1,lmax, qp,lmax, xs(3,k)-p)
     do l=limit(k)+1,lmax
-      q(l,k)=0.0_dp
+      q(l,k)=0.0d0
     end do
   end do
   low=limit(k)+1
@@ -1606,10 +1591,10 @@ INTEGER :: k, l, n
 v=sqrt(aa)
 t=rtpi/v
 
-gz(0,0,0)=0.5_dp*t*(derf(v*z2)-derf(v*z1))
+gz(0,0,0)=0.5d0*t*(derf(v*z2)-derf(v*z1))
 skip=(abs(gz(0,0,0)) .lt. 1.0d-8)
-e1=exp(-aa*z1**2)/(2_dp*aa)
-e2=exp(-aa*z2**2)/(2_dp*aa)
+e1=exp(-aa*z1**2)/(2d0*aa)
+e2=exp(-aa*z2**2)/(2d0*aa)
 gz(1,0,0)=e1-e2
 skip=skip .and. (abs(gz(1,0,0)) .lt. 1.0d-8)
 p1=e1
@@ -1617,7 +1602,7 @@ p2=e2
 do n=2,16
   p1=p1*z1
   p2=p2*z2
-  gz(n,0,0)=p1-p2+(n-1)*gz(n-2,0,0)/(2_dp*aa)
+  gz(n,0,0)=p1-p2+(n-1)*gz(n-2,0,0)/(2d0*aa)
   skip=skip .and. (abs(gz(n,0,0)) .lt. 1.0d-8)
 end do
 if (skip) return
@@ -1688,21 +1673,20 @@ COMMON/BIG/qt(121)
 
 !  L1=L+1, LL1=2L+1, where L is the maximum angular momentum of basis
 !  function that can be handled, i.e. 5 at present.
-INTEGER, PARAMETER :: L1=6, LL1=11
+!  INTEGER, PARAMETER :: L1=6, LL1=11
 !  Dimension is (2L+1)*(L+1)**2, where L is the highest angular momentum
 !  basis function
-! REAL(dp) :: gx(0:l1*l1*ll1), gy(0:l1*l1*ll1), gz(0:l1*l1*ll1)
+!  REAL(dp) :: gx(0:l1*l1*ll1), gy(0:l1*l1*ll1), gz(0:l1*l1*ll1)
 REAL(dp) :: gx(0:11,0:5,0:5), gy(0:11,0:5,0:5), gz(0:11,0:5,0:5),      &
     ggx(0:20), ggy(0:20), ggz(0:20)
-REAL(dp) :: xai(0:5)=1_dp, yai(0:5)=1_dp, zai(0:5)=1_dp,                  &
-    xbj(0:5)=1_dp, ybj(0:5)=1_dp, zbj(0:5)=1_dp
+REAL(dp) :: xai(0:5)=1d0, yai(0:5)=1d0, zai(0:5)=1d0,                  &
+    xbj(0:5)=1d0, ybj(0:5)=1d0, zbj(0:5)=1d0
 
 LOGICAL :: ieqj, iieqjj, do_quadrature
 
 INTEGER :: i, i1, i2, ia, ib, ii, ii1, ii2, ig, iq,                    &
     j, j1, j2, jb, jj, jj1, jj2, jg, jgmax, k, k1, k2,                 &
-    l, la, lb, loci, locj, lq,                                         &
-    m, ma, mb, mi, mj, mx, my, mz, mini, maxi, minj, maxj, nq
+    l, la, lb, loci, locj, lq, m, mi, mj, mini, maxi, minj, maxj, nq
 REAL(dp) :: aa, ai, arri, aj, ci, cj, ch, dum, e, fac, f, g,           &
     p, pax, pay, paz, pq, px, py, pz, rr, s, t, xi, xj, xa, xb,        &
     xji, xk, xp, xas, xbs, yi, yj, ya, yb, yji, yk, yp, yas, ybs,      &
@@ -1719,7 +1703,7 @@ do i=1,nat
   xi=c(1,i)
   yi=c(2,i)
   zi=c(3,i)
-  qt=0.0_dp
+  qt=0.0d0
   if (nuclei .and. i .ge. mindc .and. i .le. maxdc) then
     qt(1)=zan(i)
     call moveq (xi,yi,zi)
@@ -1825,16 +1809,14 @@ do i=1,nat
           d(33:35,minj:maxj) = rt(5)*rt(7)*d(33:35,minj:maxj)
         case(5)
           !  and for h functions
-          if (h_bug_fixed) then
-            !  xxxxy etc.
-            d(39:44,minj:maxj) = 3_dp*d(39:44,minj:maxj)
-            !  xxxyy etc.
-            d(45:50,minj:maxj) = rt(3)*rt(7)*d(45:50,minj:maxj)
-            !  xxxyz etc.
-            d(51:53,minj:maxj) = 3_dp*rt(7)*d(51:53,minj:maxj)
-            !  xxyyz etc.
-            d(54:56,minj:maxj) = rt(3)*rt(5)*rt(7)*d(54:56,minj:maxj)
-          end if
+          !  xxxxy etc.
+          d(39:44,minj:maxj) = 3d0*d(39:44,minj:maxj)
+          !  xxxyy etc.
+          d(45:50,minj:maxj) = rt(3)*rt(7)*d(45:50,minj:maxj)
+          !  xxxyz etc.
+          d(51:53,minj:maxj) = 3d0*rt(7)*d(51:53,minj:maxj)
+          !  xxyyz etc.
+          d(54:56,minj:maxj) = rt(3)*rt(5)*rt(7)*d(54:56,minj:maxj)
         end select
         select case(lb)
         case(2)
@@ -1847,12 +1829,10 @@ do i=1,nat
           d(mini:maxi,30:32) = (rt(5)*rt(7)/rt(3))*d(mini:maxi,30:32)
           d(mini:maxi,33:35) = rt(5)*rt(7)*d(mini:maxi,33:35)
         case(5)
-          if (h_bug_fixed) then
-            d(mini:maxi,39:44) = 3_dp*d(mini:maxi,39:44)
-            d(mini:maxi,45:50) = rt(3)*rt(7)*d(mini:maxi,45:50)
-            d(mini:maxi,51:53) = 3_dp*rt(7)*d(mini:maxi,51:53)
-            d(mini:maxi,54:56) = rt(3)*rt(5)*rt(7)*d(mini:maxi,54:56)
-          end if
+          d(mini:maxi,39:44) = 3d0*d(mini:maxi,39:44)
+          d(mini:maxi,45:50) = rt(3)*rt(7)*d(mini:maxi,45:50)
+          d(mini:maxi,51:53) = 3d0*rt(7)*d(mini:maxi,51:53)
+          d(mini:maxi,54:56) = rt(3)*rt(5)*rt(7)*d(mini:maxi,54:56)
         end select
 
         !  I primitive
@@ -1874,7 +1854,7 @@ do i=1,nat
 !  only once.  In fact IG.NE.JG covers both cases.  However, different
 !  atoms may use the same shells and primitives if there is symmetry, and
 !  there is always a factor of 2 if the atoms are different.
-            if (ig .ne. jg .or. .not. ieqj) fac=2.0_dp*fac
+            if (ig .ne. jg .or. .not. ieqj) fac=2.0d0*fac
 
             if (ex(ig)+ex(jg) > bigexp) then
 !  At least one primitive with large exponent.
@@ -1894,7 +1874,7 @@ do i=1,nat
             xp=xi-xa
             yp=yi-ya
             zp=zi-za
-            t=sqrt(1.0_dp/aa)
+            t=sqrt(1.0d0/aa)
             if (iand(kr,2) .ne. 0) print ("(3(i5,i4), 3x, 3f10.5)"),      &
                 i,j, ii,jj, ig,jg, xp,yp,zp
 !  LQ is the maximum rank of multipole to which these functions
@@ -1905,9 +1885,9 @@ do i=1,nat
             k1=mink(nq)
             k2=maxk(nq)
             !  Clear integral arrays
-            gx=0.0_dp
-            gy=0.0_dp
-            gz=0.0_dp
+            gx=0.0d0
+            gy=0.0d0
+            gz=0.0d0
 
 !  The following loop runs through the integration points, accumulating
 !  in gx(iq,ia,ib) the quantity            
@@ -1941,7 +1921,7 @@ do i=1,nat
                 py=pay
                 pz=paz
                 do ib=0,lb
-                  pq=1.0_dp
+                  pq=1.0d0
                   do iq=0,nq
                     gx(iq,ia,ib)=gx(iq,ia,ib)+px*pq
                     gy(iq,ia,ib)=gy(iq,ia,ib)+py*pq
@@ -1962,7 +1942,7 @@ do i=1,nat
 !  Now these basic integrals are used to construct the multipole moments
 !  for the overlap density corresponding to each pair of basis functions
 !  in the pair of shells.
-            qt=0.0_dp
+            qt=0.0d0
             ci=cs(ig)
             do ia=mini,maxi
               if (ia > 1 .and. la == 1) ci=cp(ig)
@@ -1971,19 +1951,16 @@ do i=1,nat
                 if (jb > 1 .and. lb == 1) cj=cp(jg)
                 if (abs(d(ia,jb)) > 1d-12) then 
                   f = -fac*ci*cj*d(ia,jb)
-                  ! mx=(ix(ia)*l1+ix(jb))*ll1+1
-                  ! my=(iy(ia)*l1+iy(jb))*ll1+1
-                  ! mz=(iz(ia)*l1+iz(jb))*ll1+1
 !  Now the integral of (x**i)*(y**j)*(z**k) over the current pair of
 !  atomic primitive orbitals is 
 !  f * gx(i,ix(ia),ix(jb)) * gy(j,iy(ia),iy(jb)) * gz(k,iz(ia),iz(jb))
-                  if (iand(kr,4) .ne. 0) then
-                    ch = f * gx(0,ix(ia),ix(jb)) * gy(0,iy(ia),iy(jb))  &
-                        * gz(0,iz(ia),iz(jb))
-                    if (abs(ch) > 1d-10 .and. (la == 5 .or. lb == 5))   &
-                        print "(2a4,2i3,2x 2i3, f12.8)",                &
-                        name(i), name(j), la, lb, ib, jb, ch
-                  end if
+                  ! if (iand(kr,4) .ne. 0) then
+                  !   ch = f * gx(0,ix(ia),ix(jb)) * gy(0,iy(ia),iy(jb))  &
+                  !       * gz(0,iz(ia),iz(jb))
+                  !   if (abs(ch) > 1d-10 .and. (la == 5 .or. lb == 5))   &
+                  !       print "(2a4,2i3,2x, 2i3, f12.8)",                &
+                  !       name(i), name(j), la, lb, ib, jb, ch
+                  ! end if
                   call addqlm(lq, f, gx(:,ix(ia),ix(jb)),               &
                       gy(:,iy(ia),iy(jb)),gz(:,iz(ia),iz(jb)))
                 end if
@@ -2002,7 +1979,7 @@ do i=1,nat
 !  to atoms.
               if (.not. do_quadrature) then
                 !  Clear grid of density values
-                rho(:)=0_dp
+                rho(:)=0d0
                 do_quadrature=.true.
               end if
 
@@ -2069,14 +2046,14 @@ end do
 
 if (do_quadrature) then
   !  Loop over sites to evaluate multipole contributions from charge density
-  ggx(0) = 1_dp
-  ggy(0) = 1_dp
-  ggz(0) = 1_dp
+  ggx(0) = 1d0
+  ggy(0) = 1d0
+  ggz(0) = 1d0
   do i=1,ns
     xi=xs(1,i)
     yi=xs(2,i)
     zi=xs(3,i)
-    qt=0_dp
+    qt=0d0
     !  Work backwards (most distant points first) to avoid loss of
     !  significance.
     do k=start(i+1)-1,start(i),-1
@@ -2143,512 +2120,512 @@ COMMON/BIG/Q00, Q10,Q11c,Q11s, Q20,Q21c,Q21s,Q22c,Q22s,                &
 
 go to (100,101,102,103,104,105,106,107,108,109,110), min(l,lmax)+1
 110                                                                     &
-QA0=QA0+f*(256_dp*gx(0)*gy(0)*gz(10)-5760_dp*gx(0)*gy(2)*gz(8)            &
-    -5760_dp*gx(2)*gy(0)*gz(8)+20160_dp*gx(0)*gy(4)*gz(6)                 &
-    +40320_dp*gx(2)*gy(2)*gz(6)+20160_dp*gx(4)*gy(0)*gz(6)                &
-    -16800_dp*gx(0)*gy(6)*gz(4)-50400_dp*gx(2)*gy(4)*gz(4)                &
-    -50400_dp*gx(4)*gy(2)*gz(4)-16800_dp*gx(6)*gy(0)*gz(4)                &
-    +3150_dp*gx(0)*gy(8)*gz(2)+12600_dp*gx(2)*gy(6)*gz(2)                 &
-    +18900_dp*gx(4)*gy(4)*gz(2)+12600_dp*gx(6)*gy(2)*gz(2)                &
-    +3150_dp*gx(8)*gy(0)*gz(2)-63_dp*gx(0)*gy(10)*gz(0)                   &
-    -315_dp*gx(2)*gy(8)*gz(0)-630_dp*gx(4)*gy(6)*gz(0)                    &
-    -630_dp*gx(6)*gy(4)*gz(0)-315_dp*gx(8)*gy(2)*gz(0)                    &
-    -63_dp*gx(10)*gy(0)*gz(0))/256_dp
-QA1s=QA1s+f*rt(5)*rt(11)*(128_dp*gx(0)*gy(1)*gz(9)                       &
-    -1152_dp*gx(0)*gy(3)*gz(7)-1152_dp*gx(2)*gy(1)*gz(7)                  &
-    +2016_dp*gx(0)*gy(5)*gz(5)+4032_dp*gx(2)*gy(3)*gz(5)                  &
-    +2016_dp*gx(4)*gy(1)*gz(5)-840_dp*gx(0)*gy(7)*gz(3)                   &
-    -2520_dp*gx(2)*gy(5)*gz(3)-2520_dp*gx(4)*gy(3)*gz(3)                  &
-    -840_dp*gx(6)*gy(1)*gz(3)+63_dp*gx(0)*gy(9)*gz(1)                     &
-    +252_dp*gx(2)*gy(7)*gz(1)+378_dp*gx(4)*gy(5)*gz(1)                    &
-    +252_dp*gx(6)*gy(3)*gz(1)+63_dp*gx(8)*gy(1)*gz(1))/128_dp
-QA1c=QA1c+f*rt(5)*rt(11)*(128_dp*gx(1)*gy(0)*gz(9)                       &
-    -1152_dp*gx(1)*gy(2)*gz(7)-1152_dp*gx(3)*gy(0)*gz(7)                  &
-    +2016_dp*gx(1)*gy(4)*gz(5)+4032_dp*gx(3)*gy(2)*gz(5)                  &
-    +2016_dp*gx(5)*gy(0)*gz(5)-840_dp*gx(1)*gy(6)*gz(3)                   &
-    -2520_dp*gx(3)*gy(4)*gz(3)-2520_dp*gx(5)*gy(2)*gz(3)                  &
-    -840_dp*gx(7)*gy(0)*gz(3)+63_dp*gx(1)*gy(8)*gz(1)                     &
-    +252_dp*gx(3)*gy(6)*gz(1)+378_dp*gx(5)*gy(4)*gz(1)                    &
-    +252_dp*gx(7)*gy(2)*gz(1)+63_dp*gx(9)*gy(0)*gz(1))/128_dp
-QA2s=QA2s+f*rt(3)*rt(5)*rt(11)*(768_dp*gx(1)*gy(1)*gz(8)                 &
-    -3584_dp*gx(1)*gy(3)*gz(6)-3584_dp*gx(3)*gy(1)*gz(6)                  &
-    +3360_dp*gx(1)*gy(5)*gz(4)+6720_dp*gx(3)*gy(3)*gz(4)                  &
-    +3360_dp*gx(5)*gy(1)*gz(4)-672_dp*gx(1)*gy(7)*gz(2)                   &
-    -2016_dp*gx(3)*gy(5)*gz(2)-2016_dp*gx(5)*gy(3)*gz(2)                  &
-    -672_dp*gx(7)*gy(1)*gz(2)+14_dp*gx(1)*gy(9)*gz(0)                     &
-    +56_dp*gx(3)*gy(7)*gz(0)+84_dp*gx(5)*gy(5)*gz(0)                      &
-    +56_dp*gx(7)*gy(3)*gz(0)+14_dp*gx(9)*gy(1)*gz(0))/256_dp
-QA2c=QA2c+f*rt(3)*rt(5)*rt(11)*(-384_dp*gx(0)*gy(2)*gz(8)                &
-    +384_dp*gx(2)*gy(0)*gz(8)+1792_dp*gx(0)*gy(4)*gz(6)                   &
-    -1792_dp*gx(4)*gy(0)*gz(6)-1680_dp*gx(0)*gy(6)*gz(4)                  &
-    -1680_dp*gx(2)*gy(4)*gz(4)+1680_dp*gx(4)*gy(2)*gz(4)                  &
-    +1680_dp*gx(6)*gy(0)*gz(4)+336_dp*gx(0)*gy(8)*gz(2)                   &
-    +672_dp*gx(2)*gy(6)*gz(2)-672_dp*gx(6)*gy(2)*gz(2)                    &
-    -336_dp*gx(8)*gy(0)*gz(2)-7_dp*gx(0)*gy(10)*gz(0)                     &
-    -21_dp*gx(2)*gy(8)*gz(0)-14_dp*gx(4)*gy(6)*gz(0)                      &
-    +14_dp*gx(6)*gy(4)*gz(0)+21_dp*gx(8)*gy(2)*gz(0)                      &
-    +7_dp*gx(10)*gy(0)*gz(0))/256_dp
-QA3s=QA3s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-64_dp*gx(0)*gy(3)*gz(7)    &
-    +192_dp*gx(2)*gy(1)*gz(7)+168_dp*gx(0)*gy(5)*gz(5)                    &
-    -336_dp*gx(2)*gy(3)*gz(5)-504_dp*gx(4)*gy(1)*gz(5)                    &
-    -84_dp*gx(0)*gy(7)*gz(3)+84_dp*gx(2)*gy(5)*gz(3)                      &
-    +420_dp*gx(4)*gy(3)*gz(3)+252_dp*gx(6)*gy(1)*gz(3)                    &
-    +7_dp*gx(0)*gy(9)*gz(1)-42_dp*gx(4)*gy(5)*gz(1)                       &
-    -56_dp*gx(6)*gy(3)*gz(1)-21_dp*gx(8)*gy(1)*gz(1))/128_dp
-QA3c=QA3c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-192_dp*gx(1)*gy(2)*gz(7)   &
-    +64_dp*gx(3)*gy(0)*gz(7)+504_dp*gx(1)*gy(4)*gz(5)                     &
-    +336_dp*gx(3)*gy(2)*gz(5)-168_dp*gx(5)*gy(0)*gz(5)                    &
-    -252_dp*gx(1)*gy(6)*gz(3)-420_dp*gx(3)*gy(4)*gz(3)                    &
-    -84_dp*gx(5)*gy(2)*gz(3)+84_dp*gx(7)*gy(0)*gz(3)                      &
-    +21_dp*gx(1)*gy(8)*gz(1)+56_dp*gx(3)*gy(6)*gz(1)                      &
-    +42_dp*gx(5)*gy(4)*gz(1)-7_dp*gx(9)*gy(0)*gz(1))/128_dp
-QA4s=QA4s+f*rt(3)*rt(5)*rt(11)*rt(13)*(-448_dp*gx(1)*gy(3)*gz(6)         &
-    +448_dp*gx(3)*gy(1)*gz(6)+672_dp*gx(1)*gy(5)*gz(4)                    &
-    -672_dp*gx(5)*gy(1)*gz(4)-168_dp*gx(1)*gy(7)*gz(2)                    &
-    -168_dp*gx(3)*gy(5)*gz(2)+168_dp*gx(5)*gy(3)*gz(2)                    &
-    +168_dp*gx(7)*gy(1)*gz(2)+4_dp*gx(1)*gy(9)*gz(0)                      &
-    +8_dp*gx(3)*gy(7)*gz(0)-8_dp*gx(7)*gy(3)*gz(0)-4_dp*gx(9)*gy(1)*gz(0)) &
-    /128_dp
-QA4c=QA4c+f*rt(3)*rt(5)*rt(11)*rt(13)*(112_dp*gx(0)*gy(4)*gz(6)          &
-    -672_dp*gx(2)*gy(2)*gz(6)+112_dp*gx(4)*gy(0)*gz(6)                    &
-    -168_dp*gx(0)*gy(6)*gz(4)+840_dp*gx(2)*gy(4)*gz(4)                    &
-    +840_dp*gx(4)*gy(2)*gz(4)-168_dp*gx(6)*gy(0)*gz(4)                    &
-    +42_dp*gx(0)*gy(8)*gz(2)-168_dp*gx(2)*gy(6)*gz(2)                     &
-    -420_dp*gx(4)*gy(4)*gz(2)-168_dp*gx(6)*gy(2)*gz(2)                    &
-    +42_dp*gx(8)*gy(0)*gz(2)-gx(0)*gy(10)*gz(0)+3_dp*gx(2)*gy(8)*gz(0)    &
-    +14_dp*gx(4)*gy(6)*gz(0)+14_dp*gx(6)*gy(4)*gz(0)                      &
-    +3_dp*gx(8)*gy(2)*gz(0)-gx(10)*gy(0)*gz(0))/128_dp
-QA5s=QA5s+f*rt(2)*rt(3)*rt(11)*rt(13)*(168_dp*gx(0)*gy(5)*gz(5)          &
-    -1680_dp*gx(2)*gy(3)*gz(5)+840_dp*gx(4)*gy(1)*gz(5)                   &
-    -140_dp*gx(0)*gy(7)*gz(3)+1260_dp*gx(2)*gy(5)*gz(3)                   &
-    +700_dp*gx(4)*gy(3)*gz(3)-700_dp*gx(6)*gy(1)*gz(3)                    &
-    +15_dp*gx(0)*gy(9)*gz(1)-120_dp*gx(2)*gy(7)*gz(1)                     &
-    -210_dp*gx(4)*gy(5)*gz(1)+75_dp*gx(8)*gy(1)*gz(1))/128_dp
-QA5c=QA5c+f*rt(2)*rt(3)*rt(11)*rt(13)*(840_dp*gx(1)*gy(4)*gz(5)          &
-    -1680_dp*gx(3)*gy(2)*gz(5)+168_dp*gx(5)*gy(0)*gz(5)                   &
-    -700_dp*gx(1)*gy(6)*gz(3)+700_dp*gx(3)*gy(4)*gz(3)                    &
-    +1260_dp*gx(5)*gy(2)*gz(3)-140_dp*gx(7)*gy(0)*gz(3)                   &
-    +75_dp*gx(1)*gy(8)*gz(1)-210_dp*gx(5)*gy(4)*gz(1)                     &
-    -120_dp*gx(7)*gy(2)*gz(1)+15_dp*gx(9)*gy(0)*gz(1))/128_dp
-QA6s=QA6s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(1344_dp*gx(1)*gy(5)*gz(4)   &
-    -4480_dp*gx(3)*gy(3)*gz(4)+1344_dp*gx(5)*gy(1)*gz(4)                  &
-    -576_dp*gx(1)*gy(7)*gz(2)+1344_dp*gx(3)*gy(5)*gz(2)                   &
-    +1344_dp*gx(5)*gy(3)*gz(2)-576_dp*gx(7)*gy(1)*gz(2)                   &
-    +18_dp*gx(1)*gy(9)*gz(0)-24_dp*gx(3)*gy(7)*gz(0)                      &
-    -84_dp*gx(5)*gy(5)*gz(0)-24_dp*gx(7)*gy(3)*gz(0)                      &
-    +18_dp*gx(9)*gy(1)*gz(0))/512_dp
-QA6c=QA6c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-224_dp*gx(0)*gy(6)*gz(4)   &
-    +3360_dp*gx(2)*gy(4)*gz(4)-3360_dp*gx(4)*gy(2)*gz(4)                  &
-    +224_dp*gx(6)*gy(0)*gz(4)+96_dp*gx(0)*gy(8)*gz(2)                     &
-    -1344_dp*gx(2)*gy(6)*gz(2)+1344_dp*gx(6)*gy(2)*gz(2)                  &
-    -96_dp*gx(8)*gy(0)*gz(2)-3_dp*gx(0)*gy(10)*gz(0)                      &
-    +39_dp*gx(2)*gy(8)*gz(0)+42_dp*gx(4)*gy(6)*gz(0)                      &
-    -42_dp*gx(6)*gy(4)*gz(0)-39_dp*gx(8)*gy(2)*gz(0)                      &
-    +3_dp*gx(10)*gy(0)*gz(0))/512_dp
+QA0=QA0+f*(256d0*gx(0)*gy(0)*gz(10)-5760d0*gx(0)*gy(2)*gz(8)            &
+    -5760d0*gx(2)*gy(0)*gz(8)+20160d0*gx(0)*gy(4)*gz(6)                 &
+    +40320d0*gx(2)*gy(2)*gz(6)+20160d0*gx(4)*gy(0)*gz(6)                &
+    -16800d0*gx(0)*gy(6)*gz(4)-50400d0*gx(2)*gy(4)*gz(4)                &
+    -50400d0*gx(4)*gy(2)*gz(4)-16800d0*gx(6)*gy(0)*gz(4)                &
+    +3150d0*gx(0)*gy(8)*gz(2)+12600d0*gx(2)*gy(6)*gz(2)                 &
+    +18900d0*gx(4)*gy(4)*gz(2)+12600d0*gx(6)*gy(2)*gz(2)                &
+    +3150d0*gx(8)*gy(0)*gz(2)-63d0*gx(0)*gy(10)*gz(0)                   &
+    -315d0*gx(2)*gy(8)*gz(0)-630d0*gx(4)*gy(6)*gz(0)                    &
+    -630d0*gx(6)*gy(4)*gz(0)-315d0*gx(8)*gy(2)*gz(0)                    &
+    -63d0*gx(10)*gy(0)*gz(0))/256d0
+QA1s=QA1s+f*rt(5)*rt(11)*(128d0*gx(0)*gy(1)*gz(9)                       &
+    -1152d0*gx(0)*gy(3)*gz(7)-1152d0*gx(2)*gy(1)*gz(7)                  &
+    +2016d0*gx(0)*gy(5)*gz(5)+4032d0*gx(2)*gy(3)*gz(5)                  &
+    +2016d0*gx(4)*gy(1)*gz(5)-840d0*gx(0)*gy(7)*gz(3)                   &
+    -2520d0*gx(2)*gy(5)*gz(3)-2520d0*gx(4)*gy(3)*gz(3)                  &
+    -840d0*gx(6)*gy(1)*gz(3)+63d0*gx(0)*gy(9)*gz(1)                     &
+    +252d0*gx(2)*gy(7)*gz(1)+378d0*gx(4)*gy(5)*gz(1)                    &
+    +252d0*gx(6)*gy(3)*gz(1)+63d0*gx(8)*gy(1)*gz(1))/128d0
+QA1c=QA1c+f*rt(5)*rt(11)*(128d0*gx(1)*gy(0)*gz(9)                       &
+    -1152d0*gx(1)*gy(2)*gz(7)-1152d0*gx(3)*gy(0)*gz(7)                  &
+    +2016d0*gx(1)*gy(4)*gz(5)+4032d0*gx(3)*gy(2)*gz(5)                  &
+    +2016d0*gx(5)*gy(0)*gz(5)-840d0*gx(1)*gy(6)*gz(3)                   &
+    -2520d0*gx(3)*gy(4)*gz(3)-2520d0*gx(5)*gy(2)*gz(3)                  &
+    -840d0*gx(7)*gy(0)*gz(3)+63d0*gx(1)*gy(8)*gz(1)                     &
+    +252d0*gx(3)*gy(6)*gz(1)+378d0*gx(5)*gy(4)*gz(1)                    &
+    +252d0*gx(7)*gy(2)*gz(1)+63d0*gx(9)*gy(0)*gz(1))/128d0
+QA2s=QA2s+f*rt(3)*rt(5)*rt(11)*(768d0*gx(1)*gy(1)*gz(8)                 &
+    -3584d0*gx(1)*gy(3)*gz(6)-3584d0*gx(3)*gy(1)*gz(6)                  &
+    +3360d0*gx(1)*gy(5)*gz(4)+6720d0*gx(3)*gy(3)*gz(4)                  &
+    +3360d0*gx(5)*gy(1)*gz(4)-672d0*gx(1)*gy(7)*gz(2)                   &
+    -2016d0*gx(3)*gy(5)*gz(2)-2016d0*gx(5)*gy(3)*gz(2)                  &
+    -672d0*gx(7)*gy(1)*gz(2)+14d0*gx(1)*gy(9)*gz(0)                     &
+    +56d0*gx(3)*gy(7)*gz(0)+84d0*gx(5)*gy(5)*gz(0)                      &
+    +56d0*gx(7)*gy(3)*gz(0)+14d0*gx(9)*gy(1)*gz(0))/256d0
+QA2c=QA2c+f*rt(3)*rt(5)*rt(11)*(-384d0*gx(0)*gy(2)*gz(8)                &
+    +384d0*gx(2)*gy(0)*gz(8)+1792d0*gx(0)*gy(4)*gz(6)                   &
+    -1792d0*gx(4)*gy(0)*gz(6)-1680d0*gx(0)*gy(6)*gz(4)                  &
+    -1680d0*gx(2)*gy(4)*gz(4)+1680d0*gx(4)*gy(2)*gz(4)                  &
+    +1680d0*gx(6)*gy(0)*gz(4)+336d0*gx(0)*gy(8)*gz(2)                   &
+    +672d0*gx(2)*gy(6)*gz(2)-672d0*gx(6)*gy(2)*gz(2)                    &
+    -336d0*gx(8)*gy(0)*gz(2)-7d0*gx(0)*gy(10)*gz(0)                     &
+    -21d0*gx(2)*gy(8)*gz(0)-14d0*gx(4)*gy(6)*gz(0)                      &
+    +14d0*gx(6)*gy(4)*gz(0)+21d0*gx(8)*gy(2)*gz(0)                      &
+    +7d0*gx(10)*gy(0)*gz(0))/256d0
+QA3s=QA3s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-64d0*gx(0)*gy(3)*gz(7)    &
+    +192d0*gx(2)*gy(1)*gz(7)+168d0*gx(0)*gy(5)*gz(5)                    &
+    -336d0*gx(2)*gy(3)*gz(5)-504d0*gx(4)*gy(1)*gz(5)                    &
+    -84d0*gx(0)*gy(7)*gz(3)+84d0*gx(2)*gy(5)*gz(3)                      &
+    +420d0*gx(4)*gy(3)*gz(3)+252d0*gx(6)*gy(1)*gz(3)                    &
+    +7d0*gx(0)*gy(9)*gz(1)-42d0*gx(4)*gy(5)*gz(1)                       &
+    -56d0*gx(6)*gy(3)*gz(1)-21d0*gx(8)*gy(1)*gz(1))/128d0
+QA3c=QA3c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-192d0*gx(1)*gy(2)*gz(7)   &
+    +64d0*gx(3)*gy(0)*gz(7)+504d0*gx(1)*gy(4)*gz(5)                     &
+    +336d0*gx(3)*gy(2)*gz(5)-168d0*gx(5)*gy(0)*gz(5)                    &
+    -252d0*gx(1)*gy(6)*gz(3)-420d0*gx(3)*gy(4)*gz(3)                    &
+    -84d0*gx(5)*gy(2)*gz(3)+84d0*gx(7)*gy(0)*gz(3)                      &
+    +21d0*gx(1)*gy(8)*gz(1)+56d0*gx(3)*gy(6)*gz(1)                      &
+    +42d0*gx(5)*gy(4)*gz(1)-7d0*gx(9)*gy(0)*gz(1))/128d0
+QA4s=QA4s+f*rt(3)*rt(5)*rt(11)*rt(13)*(-448d0*gx(1)*gy(3)*gz(6)         &
+    +448d0*gx(3)*gy(1)*gz(6)+672d0*gx(1)*gy(5)*gz(4)                    &
+    -672d0*gx(5)*gy(1)*gz(4)-168d0*gx(1)*gy(7)*gz(2)                    &
+    -168d0*gx(3)*gy(5)*gz(2)+168d0*gx(5)*gy(3)*gz(2)                    &
+    +168d0*gx(7)*gy(1)*gz(2)+4d0*gx(1)*gy(9)*gz(0)                      &
+    +8d0*gx(3)*gy(7)*gz(0)-8d0*gx(7)*gy(3)*gz(0)-4d0*gx(9)*gy(1)*gz(0)) &
+    /128d0
+QA4c=QA4c+f*rt(3)*rt(5)*rt(11)*rt(13)*(112d0*gx(0)*gy(4)*gz(6)          &
+    -672d0*gx(2)*gy(2)*gz(6)+112d0*gx(4)*gy(0)*gz(6)                    &
+    -168d0*gx(0)*gy(6)*gz(4)+840d0*gx(2)*gy(4)*gz(4)                    &
+    +840d0*gx(4)*gy(2)*gz(4)-168d0*gx(6)*gy(0)*gz(4)                    &
+    +42d0*gx(0)*gy(8)*gz(2)-168d0*gx(2)*gy(6)*gz(2)                     &
+    -420d0*gx(4)*gy(4)*gz(2)-168d0*gx(6)*gy(2)*gz(2)                    &
+    +42d0*gx(8)*gy(0)*gz(2)-gx(0)*gy(10)*gz(0)+3d0*gx(2)*gy(8)*gz(0)    &
+    +14d0*gx(4)*gy(6)*gz(0)+14d0*gx(6)*gy(4)*gz(0)                      &
+    +3d0*gx(8)*gy(2)*gz(0)-gx(10)*gy(0)*gz(0))/128d0
+QA5s=QA5s+f*rt(2)*rt(3)*rt(11)*rt(13)*(168d0*gx(0)*gy(5)*gz(5)          &
+    -1680d0*gx(2)*gy(3)*gz(5)+840d0*gx(4)*gy(1)*gz(5)                   &
+    -140d0*gx(0)*gy(7)*gz(3)+1260d0*gx(2)*gy(5)*gz(3)                   &
+    +700d0*gx(4)*gy(3)*gz(3)-700d0*gx(6)*gy(1)*gz(3)                    &
+    +15d0*gx(0)*gy(9)*gz(1)-120d0*gx(2)*gy(7)*gz(1)                     &
+    -210d0*gx(4)*gy(5)*gz(1)+75d0*gx(8)*gy(1)*gz(1))/128d0
+QA5c=QA5c+f*rt(2)*rt(3)*rt(11)*rt(13)*(840d0*gx(1)*gy(4)*gz(5)          &
+    -1680d0*gx(3)*gy(2)*gz(5)+168d0*gx(5)*gy(0)*gz(5)                   &
+    -700d0*gx(1)*gy(6)*gz(3)+700d0*gx(3)*gy(4)*gz(3)                    &
+    +1260d0*gx(5)*gy(2)*gz(3)-140d0*gx(7)*gy(0)*gz(3)                   &
+    +75d0*gx(1)*gy(8)*gz(1)-210d0*gx(5)*gy(4)*gz(1)                     &
+    -120d0*gx(7)*gy(2)*gz(1)+15d0*gx(9)*gy(0)*gz(1))/128d0
+QA6s=QA6s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(1344d0*gx(1)*gy(5)*gz(4)   &
+    -4480d0*gx(3)*gy(3)*gz(4)+1344d0*gx(5)*gy(1)*gz(4)                  &
+    -576d0*gx(1)*gy(7)*gz(2)+1344d0*gx(3)*gy(5)*gz(2)                   &
+    +1344d0*gx(5)*gy(3)*gz(2)-576d0*gx(7)*gy(1)*gz(2)                   &
+    +18d0*gx(1)*gy(9)*gz(0)-24d0*gx(3)*gy(7)*gz(0)                      &
+    -84d0*gx(5)*gy(5)*gz(0)-24d0*gx(7)*gy(3)*gz(0)                      &
+    +18d0*gx(9)*gy(1)*gz(0))/512d0
+QA6c=QA6c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-224d0*gx(0)*gy(6)*gz(4)   &
+    +3360d0*gx(2)*gy(4)*gz(4)-3360d0*gx(4)*gy(2)*gz(4)                  &
+    +224d0*gx(6)*gy(0)*gz(4)+96d0*gx(0)*gy(8)*gz(2)                     &
+    -1344d0*gx(2)*gy(6)*gz(2)+1344d0*gx(6)*gy(2)*gz(2)                  &
+    -96d0*gx(8)*gy(0)*gz(2)-3d0*gx(0)*gy(10)*gz(0)                      &
+    +39d0*gx(2)*gy(8)*gz(0)+42d0*gx(4)*gy(6)*gz(0)                      &
+    -42d0*gx(6)*gy(4)*gz(0)-39d0*gx(8)*gy(2)*gz(0)                      &
+    +3d0*gx(10)*gy(0)*gz(0))/512d0
 QA7s=QA7s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*rt(17)*(                    &
-    -16_dp*gx(0)*gy(7)*gz(3)+336_dp*gx(2)*gy(5)*gz(3)                     &
-    -560_dp*gx(4)*gy(3)*gz(3)+112_dp*gx(6)*gy(1)*gz(3)                    &
-    +3_dp*gx(0)*gy(9)*gz(1)-60_dp*gx(2)*gy(7)*gz(1)                       &
-    +42_dp*gx(4)*gy(5)*gz(1)+84_dp*gx(6)*gy(3)*gz(1)                      &
-    -21_dp*gx(8)*gy(1)*gz(1))/256_dp
+    -16d0*gx(0)*gy(7)*gz(3)+336d0*gx(2)*gy(5)*gz(3)                     &
+    -560d0*gx(4)*gy(3)*gz(3)+112d0*gx(6)*gy(1)*gz(3)                    &
+    +3d0*gx(0)*gy(9)*gz(1)-60d0*gx(2)*gy(7)*gz(1)                       &
+    +42d0*gx(4)*gy(5)*gz(1)+84d0*gx(6)*gy(3)*gz(1)                      &
+    -21d0*gx(8)*gy(1)*gz(1))/256d0
 QA7c=QA7c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*rt(17)*(                    &
-    -112_dp*gx(1)*gy(6)*gz(3)+560_dp*gx(3)*gy(4)*gz(3)                    &
-    -336_dp*gx(5)*gy(2)*gz(3)+16_dp*gx(7)*gy(0)*gz(3)                     &
-    +21_dp*gx(1)*gy(8)*gz(1)-84_dp*gx(3)*gy(6)*gz(1)                      &
-    -42_dp*gx(5)*gy(4)*gz(1)+60_dp*gx(7)*gy(2)*gz(1)                      &
-    -3_dp*gx(9)*gy(0)*gz(1))/256_dp
-QA8s=QA8s+f*rt(5)*rt(11)*rt(13)*rt(17)*(-144_dp*gx(1)*gy(7)*gz(2)        &
-    +1008_dp*gx(3)*gy(5)*gz(2)-1008_dp*gx(5)*gy(3)*gz(2)                  &
-    +144_dp*gx(7)*gy(1)*gz(2)+8_dp*gx(1)*gy(9)*gz(0)                      &
-    -48_dp*gx(3)*gy(7)*gz(0)+48_dp*gx(7)*gy(3)*gz(0)                      &
-    -8_dp*gx(9)*gy(1)*gz(0))/256_dp
-QA8c=QA8c+f*rt(5)*rt(11)*rt(13)*rt(17)*(18_dp*gx(0)*gy(8)*gz(2)          &
-    -504_dp*gx(2)*gy(6)*gz(2)+1260_dp*gx(4)*gy(4)*gz(2)                   &
-    -504_dp*gx(6)*gy(2)*gz(2)+18_dp*gx(8)*gy(0)*gz(2)-gx(0)*gy(10)*gz(0)  &
-    +27_dp*gx(2)*gy(8)*gz(0)-42_dp*gx(4)*gy(6)*gz(0)                      &
-    -42_dp*gx(6)*gy(4)*gz(0)+27_dp*gx(8)*gy(2)*gz(0)-gx(10)*gy(0)*gz(0))  &
-    /256_dp
+    -112d0*gx(1)*gy(6)*gz(3)+560d0*gx(3)*gy(4)*gz(3)                    &
+    -336d0*gx(5)*gy(2)*gz(3)+16d0*gx(7)*gy(0)*gz(3)                     &
+    +21d0*gx(1)*gy(8)*gz(1)-84d0*gx(3)*gy(6)*gz(1)                      &
+    -42d0*gx(5)*gy(4)*gz(1)+60d0*gx(7)*gy(2)*gz(1)                      &
+    -3d0*gx(9)*gy(0)*gz(1))/256d0
+QA8s=QA8s+f*rt(5)*rt(11)*rt(13)*rt(17)*(-144d0*gx(1)*gy(7)*gz(2)        &
+    +1008d0*gx(3)*gy(5)*gz(2)-1008d0*gx(5)*gy(3)*gz(2)                  &
+    +144d0*gx(7)*gy(1)*gz(2)+8d0*gx(1)*gy(9)*gz(0)                      &
+    -48d0*gx(3)*gy(7)*gz(0)+48d0*gx(7)*gy(3)*gz(0)                      &
+    -8d0*gx(9)*gy(1)*gz(0))/256d0
+QA8c=QA8c+f*rt(5)*rt(11)*rt(13)*rt(17)*(18d0*gx(0)*gy(8)*gz(2)          &
+    -504d0*gx(2)*gy(6)*gz(2)+1260d0*gx(4)*gy(4)*gz(2)                   &
+    -504d0*gx(6)*gy(2)*gz(2)+18d0*gx(8)*gy(0)*gz(2)-gx(0)*gy(10)*gz(0)  &
+    +27d0*gx(2)*gy(8)*gz(0)-42d0*gx(4)*gy(6)*gz(0)                      &
+    -42d0*gx(6)*gy(4)*gz(0)+27d0*gx(8)*gy(2)*gz(0)-gx(10)*gy(0)*gz(0))  &
+    /256d0
 QA9s=QA9s+f*rt(2)*rt(5)*rt(11)*rt(13)*rt(17)*rt(19)*(gx(0)*gy(9)*gz(1)  &
-    -36_dp*gx(2)*gy(7)*gz(1)+126_dp*gx(4)*gy(5)*gz(1)                     &
-    -84_dp*gx(6)*gy(3)*gz(1)+9_dp*gx(8)*gy(1)*gz(1))/256_dp
+    -36d0*gx(2)*gy(7)*gz(1)+126d0*gx(4)*gy(5)*gz(1)                     &
+    -84d0*gx(6)*gy(3)*gz(1)+9d0*gx(8)*gy(1)*gz(1))/256d0
 QA9c=QA9c+f*rt(2)*rt(5)*rt(11)*rt(13)*rt(17)*rt(19)*(                   &
-    9_dp*gx(1)*gy(8)*gz(1)-84_dp*gx(3)*gy(6)*gz(1)                        &
-    +126_dp*gx(5)*gy(4)*gz(1)-36_dp*gx(7)*gy(2)*gz(1)+gx(9)*gy(0)*gz(1))  &
-    /256_dp
-QAAs=QAAs+f*rt(2)*rt(11)*rt(13)*rt(17)*rt(19)*(10_dp*gx(1)*gy(9)*gz(0)   &
-    -120_dp*gx(3)*gy(7)*gz(0)+252_dp*gx(5)*gy(5)*gz(0)                    &
-    -120_dp*gx(7)*gy(3)*gz(0)+10_dp*gx(9)*gy(1)*gz(0))/512_dp
+    9d0*gx(1)*gy(8)*gz(1)-84d0*gx(3)*gy(6)*gz(1)                        &
+    +126d0*gx(5)*gy(4)*gz(1)-36d0*gx(7)*gy(2)*gz(1)+gx(9)*gy(0)*gz(1))  &
+    /256d0
+QAAs=QAAs+f*rt(2)*rt(11)*rt(13)*rt(17)*rt(19)*(10d0*gx(1)*gy(9)*gz(0)   &
+    -120d0*gx(3)*gy(7)*gz(0)+252d0*gx(5)*gy(5)*gz(0)                    &
+    -120d0*gx(7)*gy(3)*gz(0)+10d0*gx(9)*gy(1)*gz(0))/512d0
 QAAc=QAAc+f*rt(2)*rt(11)*rt(13)*rt(17)*rt(19)*(-gx(0)*gy(10)*gz(0)      &
-    +45_dp*gx(2)*gy(8)*gz(0)-210_dp*gx(4)*gy(6)*gz(0)                     &
-    +210_dp*gx(6)*gy(4)*gz(0)-45_dp*gx(8)*gy(2)*gz(0)+gx(10)*gy(0)*gz(0)) &
-    /512_dp
+    +45d0*gx(2)*gy(8)*gz(0)-210d0*gx(4)*gy(6)*gz(0)                     &
+    +210d0*gx(6)*gy(4)*gz(0)-45d0*gx(8)*gy(2)*gz(0)+gx(10)*gy(0)*gz(0)) &
+    /512d0
 
 109                                                                     &
-Q90=Q90+f*(128_dp*gx(0)*gy(0)*gz(9)-2304_dp*gx(0)*gy(2)*gz(7)             &
-    -2304_dp*gx(2)*gy(0)*gz(7)+6048_dp*gx(0)*gy(4)*gz(5)                  &
-    +12096_dp*gx(2)*gy(2)*gz(5)+6048_dp*gx(4)*gy(0)*gz(5)                 &
-    -3360_dp*gx(0)*gy(6)*gz(3)-10080_dp*gx(2)*gy(4)*gz(3)                 &
-    -10080_dp*gx(4)*gy(2)*gz(3)-3360_dp*gx(6)*gy(0)*gz(3)                 &
-    +315_dp*gx(0)*gy(8)*gz(1)+1260_dp*gx(2)*gy(6)*gz(1)                   &
-    +1890_dp*gx(4)*gy(4)*gz(1)+1260_dp*gx(6)*gy(2)*gz(1)                  &
-    +315_dp*gx(8)*gy(0)*gz(1))/128_dp
-Q91s=Q91s+f*rt(5)*(384_dp*gx(0)*gy(1)*gz(8)-2688_dp*gx(0)*gy(3)*gz(6)     &
-    -2688_dp*gx(2)*gy(1)*gz(6)+3360_dp*gx(0)*gy(5)*gz(4)                  &
-    +6720_dp*gx(2)*gy(3)*gz(4)+3360_dp*gx(4)*gy(1)*gz(4)                  &
-    -840_dp*gx(0)*gy(7)*gz(2)-2520_dp*gx(2)*gy(5)*gz(2)                   &
-    -2520_dp*gx(4)*gy(3)*gz(2)-840_dp*gx(6)*gy(1)*gz(2)                   &
-    +21_dp*gx(0)*gy(9)*gz(0)+84_dp*gx(2)*gy(7)*gz(0)                      &
-    +126_dp*gx(4)*gy(5)*gz(0)+84_dp*gx(6)*gy(3)*gz(0)                     &
-    +21_dp*gx(8)*gy(1)*gz(0))/128_dp
-Q91c=Q91c+f*rt(5)*(384_dp*gx(1)*gy(0)*gz(8)-2688_dp*gx(1)*gy(2)*gz(6)     &
-    -2688_dp*gx(3)*gy(0)*gz(6)+3360_dp*gx(1)*gy(4)*gz(4)                  &
-    +6720_dp*gx(3)*gy(2)*gz(4)+3360_dp*gx(5)*gy(0)*gz(4)                  &
-    -840_dp*gx(1)*gy(6)*gz(2)-2520_dp*gx(3)*gy(4)*gz(2)                   &
-    -2520_dp*gx(5)*gy(2)*gz(2)-840_dp*gx(7)*gy(0)*gz(2)                   &
-    +21_dp*gx(1)*gy(8)*gz(0)+84_dp*gx(3)*gy(6)*gz(0)                      &
-    +126_dp*gx(5)*gy(4)*gz(0)+84_dp*gx(7)*gy(2)*gz(0)                     &
-    +21_dp*gx(9)*gy(0)*gz(0))/128_dp
-Q92s=Q92s+f*rt(2)*rt(5)*rt(11)*(192_dp*gx(1)*gy(1)*gz(7)                 &
-    -672_dp*gx(1)*gy(3)*gz(5)-672_dp*gx(3)*gy(1)*gz(5)                    &
-    +420_dp*gx(1)*gy(5)*gz(3)+840_dp*gx(3)*gy(3)*gz(3)                    &
-    +420_dp*gx(5)*gy(1)*gz(3)-42_dp*gx(1)*gy(7)*gz(1)                     &
-    -126_dp*gx(3)*gy(5)*gz(1)-126_dp*gx(5)*gy(3)*gz(1)                    &
-    -42_dp*gx(7)*gy(1)*gz(1))/64_dp
-Q92c=Q92c+f*rt(2)*rt(5)*rt(11)*(-96_dp*gx(0)*gy(2)*gz(7)                 &
-    +96_dp*gx(2)*gy(0)*gz(7)+336_dp*gx(0)*gy(4)*gz(5)                     &
-    -336_dp*gx(4)*gy(0)*gz(5)-210_dp*gx(0)*gy(6)*gz(3)                    &
-    -210_dp*gx(2)*gy(4)*gz(3)+210_dp*gx(4)*gy(2)*gz(3)                    &
-    +210_dp*gx(6)*gy(0)*gz(3)+21_dp*gx(0)*gy(8)*gz(1)                     &
-    +42_dp*gx(2)*gy(6)*gz(1)-42_dp*gx(6)*gy(2)*gz(1)                      &
-    -21_dp*gx(8)*gy(0)*gz(1))/64_dp
-Q93s=Q93s+f*rt(2)*rt(3)*rt(5)*rt(7)*rt(11)*(-64_dp*gx(0)*gy(3)*gz(6)     &
-    +192_dp*gx(2)*gy(1)*gz(6)+120_dp*gx(0)*gy(5)*gz(4)                    &
-    -240_dp*gx(2)*gy(3)*gz(4)-360_dp*gx(4)*gy(1)*gz(4)                    &
-    -36_dp*gx(0)*gy(7)*gz(2)+36_dp*gx(2)*gy(5)*gz(2)                      &
-    +180_dp*gx(4)*gy(3)*gz(2)+108_dp*gx(6)*gy(1)*gz(2)+gx(0)*gy(9)*gz(0)  &
-    -6_dp*gx(4)*gy(5)*gz(0)-8_dp*gx(6)*gy(3)*gz(0)-3_dp*gx(8)*gy(1)*gz(0)) &
-    /128_dp
-Q93c=Q93c+f*rt(2)*rt(3)*rt(5)*rt(7)*rt(11)*(-192_dp*gx(1)*gy(2)*gz(6)    &
-    +64_dp*gx(3)*gy(0)*gz(6)+360_dp*gx(1)*gy(4)*gz(4)                     &
-    +240_dp*gx(3)*gy(2)*gz(4)-120_dp*gx(5)*gy(0)*gz(4)                    &
-    -108_dp*gx(1)*gy(6)*gz(2)-180_dp*gx(3)*gy(4)*gz(2)                    &
-    -36_dp*gx(5)*gy(2)*gz(2)+36_dp*gx(7)*gy(0)*gz(2)                      &
-    +3_dp*gx(1)*gy(8)*gz(0)+8_dp*gx(3)*gy(6)*gz(0)+6_dp*gx(5)*gy(4)*gz(0)  &
-    -gx(9)*gy(0)*gz(0))/128_dp
-Q94s=Q94s+f*rt(5)*rt(7)*rt(11)*rt(13)*(-96_dp*gx(1)*gy(3)*gz(5)          &
-    +96_dp*gx(3)*gy(1)*gz(5)+96_dp*gx(1)*gy(5)*gz(3)                      &
-    -96_dp*gx(5)*gy(1)*gz(3)-12_dp*gx(1)*gy(7)*gz(1)                      &
-    -12_dp*gx(3)*gy(5)*gz(1)+12_dp*gx(5)*gy(3)*gz(1)                      &
-    +12_dp*gx(7)*gy(1)*gz(1))/64_dp
-Q94c=Q94c+f*rt(5)*rt(7)*rt(11)*rt(13)*(24_dp*gx(0)*gy(4)*gz(5)           &
-    -144_dp*gx(2)*gy(2)*gz(5)+24_dp*gx(4)*gy(0)*gz(5)                     &
-    -24_dp*gx(0)*gy(6)*gz(3)+120_dp*gx(2)*gy(4)*gz(3)                     &
-    +120_dp*gx(4)*gy(2)*gz(3)-24_dp*gx(6)*gy(0)*gz(3)                     &
-    +3_dp*gx(0)*gy(8)*gz(1)-12_dp*gx(2)*gy(6)*gz(1)                       &
-    -30_dp*gx(4)*gy(4)*gz(1)-12_dp*gx(6)*gy(2)*gz(1)                      &
-    +3_dp*gx(8)*gy(0)*gz(1))/64_dp
-Q95s=Q95s+f*rt(2)*rt(11)*rt(13)*(168_dp*gx(0)*gy(5)*gz(4)                &
-    -1680_dp*gx(2)*gy(3)*gz(4)+840_dp*gx(4)*gy(1)*gz(4)                   &
-    -84_dp*gx(0)*gy(7)*gz(2)+756_dp*gx(2)*gy(5)*gz(2)                     &
-    +420_dp*gx(4)*gy(3)*gz(2)-420_dp*gx(6)*gy(1)*gz(2)                    &
-    +3_dp*gx(0)*gy(9)*gz(0)-24_dp*gx(2)*gy(7)*gz(0)                       &
-    -42_dp*gx(4)*gy(5)*gz(0)+15_dp*gx(8)*gy(1)*gz(0))/128_dp
-Q95c=Q95c+f*rt(2)*rt(11)*rt(13)*(840_dp*gx(1)*gy(4)*gz(4)                &
-    -1680_dp*gx(3)*gy(2)*gz(4)+168_dp*gx(5)*gy(0)*gz(4)                   &
-    -420_dp*gx(1)*gy(6)*gz(2)+420_dp*gx(3)*gy(4)*gz(2)                    &
-    +756_dp*gx(5)*gy(2)*gz(2)-84_dp*gx(7)*gy(0)*gz(2)                     &
-    +15_dp*gx(1)*gy(8)*gz(0)-42_dp*gx(5)*gy(4)*gz(0)                      &
-    -24_dp*gx(7)*gy(2)*gz(0)+3_dp*gx(9)*gy(0)*gz(0))/128_dp
-Q96s=Q96s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(84_dp*gx(1)*gy(5)*gz(3)     &
-    -280_dp*gx(3)*gy(3)*gz(3)+84_dp*gx(5)*gy(1)*gz(3)                     &
-    -18_dp*gx(1)*gy(7)*gz(1)+42_dp*gx(3)*gy(5)*gz(1)                      &
-    +42_dp*gx(5)*gy(3)*gz(1)-18_dp*gx(7)*gy(1)*gz(1))/64_dp
-Q96c=Q96c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-14_dp*gx(0)*gy(6)*gz(3)    &
-    +210_dp*gx(2)*gy(4)*gz(3)-210_dp*gx(4)*gy(2)*gz(3)                    &
-    +14_dp*gx(6)*gy(0)*gz(3)+3_dp*gx(0)*gy(8)*gz(1)                       &
-    -42_dp*gx(2)*gy(6)*gz(1)+42_dp*gx(6)*gy(2)*gz(1)                      &
-    -3_dp*gx(8)*gy(0)*gz(1))/64_dp
-Q97s=Q97s+f*rt(2)*rt(5)*rt(11)*rt(13)*(-48_dp*gx(0)*gy(7)*gz(2)          &
-    +1008_dp*gx(2)*gy(5)*gz(2)-1680_dp*gx(4)*gy(3)*gz(2)                  &
-    +336_dp*gx(6)*gy(1)*gz(2)+3_dp*gx(0)*gy(9)*gz(0)                      &
-    -60_dp*gx(2)*gy(7)*gz(0)+42_dp*gx(4)*gy(5)*gz(0)                      &
-    +84_dp*gx(6)*gy(3)*gz(0)-21_dp*gx(8)*gy(1)*gz(0))/256_dp
-Q97c=Q97c+f*rt(2)*rt(5)*rt(11)*rt(13)*(-336_dp*gx(1)*gy(6)*gz(2)         &
-    +1680_dp*gx(3)*gy(4)*gz(2)-1008_dp*gx(5)*gy(2)*gz(2)                  &
-    +48_dp*gx(7)*gy(0)*gz(2)+21_dp*gx(1)*gy(8)*gz(0)                      &
-    -84_dp*gx(3)*gy(6)*gz(0)-42_dp*gx(5)*gy(4)*gz(0)                      &
-    +60_dp*gx(7)*gy(2)*gz(0)-3_dp*gx(9)*gy(0)*gz(0))/256_dp
-Q98s=Q98s+f*rt(5)*rt(11)*rt(13)*rt(17)*(-24_dp*gx(1)*gy(7)*gz(1)         &
-    +168_dp*gx(3)*gy(5)*gz(1)-168_dp*gx(5)*gy(3)*gz(1)                    &
-    +24_dp*gx(7)*gy(1)*gz(1))/128_dp
-Q98c=Q98c+f*rt(5)*rt(11)*rt(13)*rt(17)*(3_dp*gx(0)*gy(8)*gz(1)           &
-    -84_dp*gx(2)*gy(6)*gz(1)+210_dp*gx(4)*gy(4)*gz(1)                     &
-    -84_dp*gx(6)*gy(2)*gz(1)+3_dp*gx(8)*gy(0)*gz(1))/128_dp
+Q90=Q90+f*(128d0*gx(0)*gy(0)*gz(9)-2304d0*gx(0)*gy(2)*gz(7)             &
+    -2304d0*gx(2)*gy(0)*gz(7)+6048d0*gx(0)*gy(4)*gz(5)                  &
+    +12096d0*gx(2)*gy(2)*gz(5)+6048d0*gx(4)*gy(0)*gz(5)                 &
+    -3360d0*gx(0)*gy(6)*gz(3)-10080d0*gx(2)*gy(4)*gz(3)                 &
+    -10080d0*gx(4)*gy(2)*gz(3)-3360d0*gx(6)*gy(0)*gz(3)                 &
+    +315d0*gx(0)*gy(8)*gz(1)+1260d0*gx(2)*gy(6)*gz(1)                   &
+    +1890d0*gx(4)*gy(4)*gz(1)+1260d0*gx(6)*gy(2)*gz(1)                  &
+    +315d0*gx(8)*gy(0)*gz(1))/128d0
+Q91s=Q91s+f*rt(5)*(384d0*gx(0)*gy(1)*gz(8)-2688d0*gx(0)*gy(3)*gz(6)     &
+    -2688d0*gx(2)*gy(1)*gz(6)+3360d0*gx(0)*gy(5)*gz(4)                  &
+    +6720d0*gx(2)*gy(3)*gz(4)+3360d0*gx(4)*gy(1)*gz(4)                  &
+    -840d0*gx(0)*gy(7)*gz(2)-2520d0*gx(2)*gy(5)*gz(2)                   &
+    -2520d0*gx(4)*gy(3)*gz(2)-840d0*gx(6)*gy(1)*gz(2)                   &
+    +21d0*gx(0)*gy(9)*gz(0)+84d0*gx(2)*gy(7)*gz(0)                      &
+    +126d0*gx(4)*gy(5)*gz(0)+84d0*gx(6)*gy(3)*gz(0)                     &
+    +21d0*gx(8)*gy(1)*gz(0))/128d0
+Q91c=Q91c+f*rt(5)*(384d0*gx(1)*gy(0)*gz(8)-2688d0*gx(1)*gy(2)*gz(6)     &
+    -2688d0*gx(3)*gy(0)*gz(6)+3360d0*gx(1)*gy(4)*gz(4)                  &
+    +6720d0*gx(3)*gy(2)*gz(4)+3360d0*gx(5)*gy(0)*gz(4)                  &
+    -840d0*gx(1)*gy(6)*gz(2)-2520d0*gx(3)*gy(4)*gz(2)                   &
+    -2520d0*gx(5)*gy(2)*gz(2)-840d0*gx(7)*gy(0)*gz(2)                   &
+    +21d0*gx(1)*gy(8)*gz(0)+84d0*gx(3)*gy(6)*gz(0)                      &
+    +126d0*gx(5)*gy(4)*gz(0)+84d0*gx(7)*gy(2)*gz(0)                     &
+    +21d0*gx(9)*gy(0)*gz(0))/128d0
+Q92s=Q92s+f*rt(2)*rt(5)*rt(11)*(192d0*gx(1)*gy(1)*gz(7)                 &
+    -672d0*gx(1)*gy(3)*gz(5)-672d0*gx(3)*gy(1)*gz(5)                    &
+    +420d0*gx(1)*gy(5)*gz(3)+840d0*gx(3)*gy(3)*gz(3)                    &
+    +420d0*gx(5)*gy(1)*gz(3)-42d0*gx(1)*gy(7)*gz(1)                     &
+    -126d0*gx(3)*gy(5)*gz(1)-126d0*gx(5)*gy(3)*gz(1)                    &
+    -42d0*gx(7)*gy(1)*gz(1))/64d0
+Q92c=Q92c+f*rt(2)*rt(5)*rt(11)*(-96d0*gx(0)*gy(2)*gz(7)                 &
+    +96d0*gx(2)*gy(0)*gz(7)+336d0*gx(0)*gy(4)*gz(5)                     &
+    -336d0*gx(4)*gy(0)*gz(5)-210d0*gx(0)*gy(6)*gz(3)                    &
+    -210d0*gx(2)*gy(4)*gz(3)+210d0*gx(4)*gy(2)*gz(3)                    &
+    +210d0*gx(6)*gy(0)*gz(3)+21d0*gx(0)*gy(8)*gz(1)                     &
+    +42d0*gx(2)*gy(6)*gz(1)-42d0*gx(6)*gy(2)*gz(1)                      &
+    -21d0*gx(8)*gy(0)*gz(1))/64d0
+Q93s=Q93s+f*rt(2)*rt(3)*rt(5)*rt(7)*rt(11)*(-64d0*gx(0)*gy(3)*gz(6)     &
+    +192d0*gx(2)*gy(1)*gz(6)+120d0*gx(0)*gy(5)*gz(4)                    &
+    -240d0*gx(2)*gy(3)*gz(4)-360d0*gx(4)*gy(1)*gz(4)                    &
+    -36d0*gx(0)*gy(7)*gz(2)+36d0*gx(2)*gy(5)*gz(2)                      &
+    +180d0*gx(4)*gy(3)*gz(2)+108d0*gx(6)*gy(1)*gz(2)+gx(0)*gy(9)*gz(0)  &
+    -6d0*gx(4)*gy(5)*gz(0)-8d0*gx(6)*gy(3)*gz(0)-3d0*gx(8)*gy(1)*gz(0)) &
+    /128d0
+Q93c=Q93c+f*rt(2)*rt(3)*rt(5)*rt(7)*rt(11)*(-192d0*gx(1)*gy(2)*gz(6)    &
+    +64d0*gx(3)*gy(0)*gz(6)+360d0*gx(1)*gy(4)*gz(4)                     &
+    +240d0*gx(3)*gy(2)*gz(4)-120d0*gx(5)*gy(0)*gz(4)                    &
+    -108d0*gx(1)*gy(6)*gz(2)-180d0*gx(3)*gy(4)*gz(2)                    &
+    -36d0*gx(5)*gy(2)*gz(2)+36d0*gx(7)*gy(0)*gz(2)                      &
+    +3d0*gx(1)*gy(8)*gz(0)+8d0*gx(3)*gy(6)*gz(0)+6d0*gx(5)*gy(4)*gz(0)  &
+    -gx(9)*gy(0)*gz(0))/128d0
+Q94s=Q94s+f*rt(5)*rt(7)*rt(11)*rt(13)*(-96d0*gx(1)*gy(3)*gz(5)          &
+    +96d0*gx(3)*gy(1)*gz(5)+96d0*gx(1)*gy(5)*gz(3)                      &
+    -96d0*gx(5)*gy(1)*gz(3)-12d0*gx(1)*gy(7)*gz(1)                      &
+    -12d0*gx(3)*gy(5)*gz(1)+12d0*gx(5)*gy(3)*gz(1)                      &
+    +12d0*gx(7)*gy(1)*gz(1))/64d0
+Q94c=Q94c+f*rt(5)*rt(7)*rt(11)*rt(13)*(24d0*gx(0)*gy(4)*gz(5)           &
+    -144d0*gx(2)*gy(2)*gz(5)+24d0*gx(4)*gy(0)*gz(5)                     &
+    -24d0*gx(0)*gy(6)*gz(3)+120d0*gx(2)*gy(4)*gz(3)                     &
+    +120d0*gx(4)*gy(2)*gz(3)-24d0*gx(6)*gy(0)*gz(3)                     &
+    +3d0*gx(0)*gy(8)*gz(1)-12d0*gx(2)*gy(6)*gz(1)                       &
+    -30d0*gx(4)*gy(4)*gz(1)-12d0*gx(6)*gy(2)*gz(1)                      &
+    +3d0*gx(8)*gy(0)*gz(1))/64d0
+Q95s=Q95s+f*rt(2)*rt(11)*rt(13)*(168d0*gx(0)*gy(5)*gz(4)                &
+    -1680d0*gx(2)*gy(3)*gz(4)+840d0*gx(4)*gy(1)*gz(4)                   &
+    -84d0*gx(0)*gy(7)*gz(2)+756d0*gx(2)*gy(5)*gz(2)                     &
+    +420d0*gx(4)*gy(3)*gz(2)-420d0*gx(6)*gy(1)*gz(2)                    &
+    +3d0*gx(0)*gy(9)*gz(0)-24d0*gx(2)*gy(7)*gz(0)                       &
+    -42d0*gx(4)*gy(5)*gz(0)+15d0*gx(8)*gy(1)*gz(0))/128d0
+Q95c=Q95c+f*rt(2)*rt(11)*rt(13)*(840d0*gx(1)*gy(4)*gz(4)                &
+    -1680d0*gx(3)*gy(2)*gz(4)+168d0*gx(5)*gy(0)*gz(4)                   &
+    -420d0*gx(1)*gy(6)*gz(2)+420d0*gx(3)*gy(4)*gz(2)                    &
+    +756d0*gx(5)*gy(2)*gz(2)-84d0*gx(7)*gy(0)*gz(2)                     &
+    +15d0*gx(1)*gy(8)*gz(0)-42d0*gx(5)*gy(4)*gz(0)                      &
+    -24d0*gx(7)*gy(2)*gz(0)+3d0*gx(9)*gy(0)*gz(0))/128d0
+Q96s=Q96s+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(84d0*gx(1)*gy(5)*gz(3)     &
+    -280d0*gx(3)*gy(3)*gz(3)+84d0*gx(5)*gy(1)*gz(3)                     &
+    -18d0*gx(1)*gy(7)*gz(1)+42d0*gx(3)*gy(5)*gz(1)                      &
+    +42d0*gx(5)*gy(3)*gz(1)-18d0*gx(7)*gy(1)*gz(1))/64d0
+Q96c=Q96c+f*rt(2)*rt(3)*rt(5)*rt(11)*rt(13)*(-14d0*gx(0)*gy(6)*gz(3)    &
+    +210d0*gx(2)*gy(4)*gz(3)-210d0*gx(4)*gy(2)*gz(3)                    &
+    +14d0*gx(6)*gy(0)*gz(3)+3d0*gx(0)*gy(8)*gz(1)                       &
+    -42d0*gx(2)*gy(6)*gz(1)+42d0*gx(6)*gy(2)*gz(1)                      &
+    -3d0*gx(8)*gy(0)*gz(1))/64d0
+Q97s=Q97s+f*rt(2)*rt(5)*rt(11)*rt(13)*(-48d0*gx(0)*gy(7)*gz(2)          &
+    +1008d0*gx(2)*gy(5)*gz(2)-1680d0*gx(4)*gy(3)*gz(2)                  &
+    +336d0*gx(6)*gy(1)*gz(2)+3d0*gx(0)*gy(9)*gz(0)                      &
+    -60d0*gx(2)*gy(7)*gz(0)+42d0*gx(4)*gy(5)*gz(0)                      &
+    +84d0*gx(6)*gy(3)*gz(0)-21d0*gx(8)*gy(1)*gz(0))/256d0
+Q97c=Q97c+f*rt(2)*rt(5)*rt(11)*rt(13)*(-336d0*gx(1)*gy(6)*gz(2)         &
+    +1680d0*gx(3)*gy(4)*gz(2)-1008d0*gx(5)*gy(2)*gz(2)                  &
+    +48d0*gx(7)*gy(0)*gz(2)+21d0*gx(1)*gy(8)*gz(0)                      &
+    -84d0*gx(3)*gy(6)*gz(0)-42d0*gx(5)*gy(4)*gz(0)                      &
+    +60d0*gx(7)*gy(2)*gz(0)-3d0*gx(9)*gy(0)*gz(0))/256d0
+Q98s=Q98s+f*rt(5)*rt(11)*rt(13)*rt(17)*(-24d0*gx(1)*gy(7)*gz(1)         &
+    +168d0*gx(3)*gy(5)*gz(1)-168d0*gx(5)*gy(3)*gz(1)                    &
+    +24d0*gx(7)*gy(1)*gz(1))/128d0
+Q98c=Q98c+f*rt(5)*rt(11)*rt(13)*rt(17)*(3d0*gx(0)*gy(8)*gz(1)           &
+    -84d0*gx(2)*gy(6)*gz(1)+210d0*gx(4)*gy(4)*gz(1)                     &
+    -84d0*gx(6)*gy(2)*gz(1)+3d0*gx(8)*gy(0)*gz(1))/128d0
 Q99s=Q99s+f*rt(2)*rt(5)*rt(11)*rt(13)*rt(17)*(gx(0)*gy(9)*gz(0)         &
-    -36_dp*gx(2)*gy(7)*gz(0)+126_dp*gx(4)*gy(5)*gz(0)                     &
-    -84_dp*gx(6)*gy(3)*gz(0)+9_dp*gx(8)*gy(1)*gz(0))/256_dp
-Q99c=Q99c+f*rt(2)*rt(5)*rt(11)*rt(13)*rt(17)*(9_dp*gx(1)*gy(8)*gz(0)     &
-    -84_dp*gx(3)*gy(6)*gz(0)+126_dp*gx(5)*gy(4)*gz(0)                     &
-    -36_dp*gx(7)*gy(2)*gz(0)+gx(9)*gy(0)*gz(0))/256_dp
+    -36d0*gx(2)*gy(7)*gz(0)+126d0*gx(4)*gy(5)*gz(0)                     &
+    -84d0*gx(6)*gy(3)*gz(0)+9d0*gx(8)*gy(1)*gz(0))/256d0
+Q99c=Q99c+f*rt(2)*rt(5)*rt(11)*rt(13)*rt(17)*(9d0*gx(1)*gy(8)*gz(0)     &
+    -84d0*gx(3)*gy(6)*gz(0)+126d0*gx(5)*gy(4)*gz(0)                     &
+    -36d0*gx(7)*gy(2)*gz(0)+gx(9)*gy(0)*gz(0))/256d0
 
 108                                                                     &
-Q80=Q80+f*(128_dp*gx(0)*gy(0)*gz(8)-1792_dp*gx(0)*gy(2)*gz(6)             &
-    -1792_dp*gx(2)*gy(0)*gz(6)+3360_dp*gx(0)*gy(4)*gz(4)                  &
-    +6720_dp*gx(2)*gy(2)*gz(4)+3360_dp*gx(4)*gy(0)*gz(4)                  &
-    -1120_dp*gx(0)*gy(6)*gz(2)-3360_dp*gx(2)*gy(4)*gz(2)                  &
-    -3360_dp*gx(4)*gy(2)*gz(2)-1120_dp*gx(6)*gy(0)*gz(2)                  &
-    +35_dp*gx(0)*gy(8)*gz(0)+140_dp*gx(2)*gy(6)*gz(0)                     &
-    +210_dp*gx(4)*gy(4)*gz(0)+140_dp*gx(6)*gy(2)*gz(0)                    &
-    +35_dp*gx(8)*gy(0)*gz(0))/128_dp
-Q81s=Q81s+f*(192_dp*gx(0)*gy(1)*gz(7)-1008_dp*gx(0)*gy(3)*gz(5)           &
-    -1008_dp*gx(2)*gy(1)*gz(5)+840_dp*gx(0)*gy(5)*gz(3)                   &
-    +1680_dp*gx(2)*gy(3)*gz(3)+840_dp*gx(4)*gy(1)*gz(3)                   &
-    -105_dp*gx(0)*gy(7)*gz(1)-315_dp*gx(2)*gy(5)*gz(1)                    &
-    -315_dp*gx(4)*gy(3)*gz(1)-105_dp*gx(6)*gy(1)*gz(1))/32_dp
-Q81c=Q81c+f*(192_dp*gx(1)*gy(0)*gz(7)-1008_dp*gx(1)*gy(2)*gz(5)           &
-    -1008_dp*gx(3)*gy(0)*gz(5)+840_dp*gx(1)*gy(4)*gz(3)                   &
-    +1680_dp*gx(3)*gy(2)*gz(3)+840_dp*gx(5)*gy(0)*gz(3)                   &
-    -105_dp*gx(1)*gy(6)*gz(1)-315_dp*gx(3)*gy(4)*gz(1)                    &
-    -315_dp*gx(5)*gy(2)*gz(1)-105_dp*gx(7)*gy(0)*gz(1))/32_dp
-Q82s=Q82s+f*rt(2)*rt(5)*rt(7)*(192_dp*gx(1)*gy(1)*gz(6)                  &
-    -480_dp*gx(1)*gy(3)*gz(4)-480_dp*gx(3)*gy(1)*gz(4)                    &
-    +180_dp*gx(1)*gy(5)*gz(2)+360_dp*gx(3)*gy(3)*gz(2)                    &
-    +180_dp*gx(5)*gy(1)*gz(2)-6_dp*gx(1)*gy(7)*gz(0)                      &
-    -18_dp*gx(3)*gy(5)*gz(0)-18_dp*gx(5)*gy(3)*gz(0)                      &
-    -6_dp*gx(7)*gy(1)*gz(0))/64_dp
-Q82c=Q82c+f*rt(2)*rt(5)*rt(7)*(-96_dp*gx(0)*gy(2)*gz(6)                  &
-    +96_dp*gx(2)*gy(0)*gz(6)+240_dp*gx(0)*gy(4)*gz(4)                     &
-    -240_dp*gx(4)*gy(0)*gz(4)-90_dp*gx(0)*gy(6)*gz(2)                     &
-    -90_dp*gx(2)*gy(4)*gz(2)+90_dp*gx(4)*gy(2)*gz(2)                      &
-    +90_dp*gx(6)*gy(0)*gz(2)+3_dp*gx(0)*gy(8)*gz(0)                       &
-    +6_dp*gx(2)*gy(6)*gz(0)-6_dp*gx(6)*gy(2)*gz(0)-3_dp*gx(8)*gy(0)*gz(0)) &
-    /64_dp
-Q83s=Q83s+f*rt(3)*rt(5)*rt(7)*rt(11)*(-16_dp*gx(0)*gy(3)*gz(5)           &
-    +48_dp*gx(2)*gy(1)*gz(5)+20_dp*gx(0)*gy(5)*gz(3)                      &
-    -40_dp*gx(2)*gy(3)*gz(3)-60_dp*gx(4)*gy(1)*gz(3)                      &
-    -3_dp*gx(0)*gy(7)*gz(1)+3_dp*gx(2)*gy(5)*gz(1)                        &
-    +15_dp*gx(4)*gy(3)*gz(1)+9_dp*gx(6)*gy(1)*gz(1))/32_dp
-Q83c=Q83c+f*rt(3)*rt(5)*rt(7)*rt(11)*(-48_dp*gx(1)*gy(2)*gz(5)           &
-    +16_dp*gx(3)*gy(0)*gz(5)+60_dp*gx(1)*gy(4)*gz(3)                      &
-    +40_dp*gx(3)*gy(2)*gz(3)-20_dp*gx(5)*gy(0)*gz(3)                      &
-    -9_dp*gx(1)*gy(6)*gz(1)-15_dp*gx(3)*gy(4)*gz(1)                       &
-    -3_dp*gx(5)*gy(2)*gz(1)+3_dp*gx(7)*gy(0)*gz(1))/32_dp
-Q84s=Q84s+f*rt(7)*rt(11)*(-480_dp*gx(1)*gy(3)*gz(4)                      &
-    +480_dp*gx(3)*gy(1)*gz(4)+288_dp*gx(1)*gy(5)*gz(2)                    &
-    -288_dp*gx(5)*gy(1)*gz(2)-12_dp*gx(1)*gy(7)*gz(0)                     &
-    -12_dp*gx(3)*gy(5)*gz(0)+12_dp*gx(5)*gy(3)*gz(0)                      &
-    +12_dp*gx(7)*gy(1)*gz(0))/64_dp
-Q84c=Q84c+f*rt(7)*rt(11)*(120_dp*gx(0)*gy(4)*gz(4)                       &
-    -720_dp*gx(2)*gy(2)*gz(4)+120_dp*gx(4)*gy(0)*gz(4)                    &
-    -72_dp*gx(0)*gy(6)*gz(2)+360_dp*gx(2)*gy(4)*gz(2)                     &
-    +360_dp*gx(4)*gy(2)*gz(2)-72_dp*gx(6)*gy(0)*gz(2)                     &
-    +3_dp*gx(0)*gy(8)*gz(0)-12_dp*gx(2)*gy(6)*gz(0)                       &
-    -30_dp*gx(4)*gy(4)*gz(0)-12_dp*gx(6)*gy(2)*gz(0)                      &
-    +3_dp*gx(8)*gy(0)*gz(0))/64_dp
-Q85s=Q85s+f*rt(7)*rt(11)*rt(13)*(12_dp*gx(0)*gy(5)*gz(3)                 &
-    -120_dp*gx(2)*gy(3)*gz(3)+60_dp*gx(4)*gy(1)*gz(3)                     &
-    -3_dp*gx(0)*gy(7)*gz(1)+27_dp*gx(2)*gy(5)*gz(1)                       &
-    +15_dp*gx(4)*gy(3)*gz(1)-15_dp*gx(6)*gy(1)*gz(1))/32_dp
-Q85c=Q85c+f*rt(7)*rt(11)*rt(13)*(60_dp*gx(1)*gy(4)*gz(3)                 &
-    -120_dp*gx(3)*gy(2)*gz(3)+12_dp*gx(5)*gy(0)*gz(3)                     &
-    -15_dp*gx(1)*gy(6)*gz(1)+15_dp*gx(3)*gy(4)*gz(1)                      &
-    +27_dp*gx(5)*gy(2)*gz(1)-3_dp*gx(7)*gy(0)*gz(1))/32_dp
-Q86s=Q86s+f*rt(2)*rt(3)*rt(11)*rt(13)*(84_dp*gx(1)*gy(5)*gz(2)           &
-    -280_dp*gx(3)*gy(3)*gz(2)+84_dp*gx(5)*gy(1)*gz(2)                     &
-    -6_dp*gx(1)*gy(7)*gz(0)+14_dp*gx(3)*gy(5)*gz(0)                       &
-    +14_dp*gx(5)*gy(3)*gz(0)-6_dp*gx(7)*gy(1)*gz(0))/64_dp
-Q86c=Q86c+f*rt(2)*rt(3)*rt(11)*rt(13)*(-14_dp*gx(0)*gy(6)*gz(2)          &
-    +210_dp*gx(2)*gy(4)*gz(2)-210_dp*gx(4)*gy(2)*gz(2)                    &
-    +14_dp*gx(6)*gy(0)*gz(2)+gx(0)*gy(8)*gz(0)-14_dp*gx(2)*gy(6)*gz(0)    &
-    +14_dp*gx(6)*gy(2)*gz(0)-gx(8)*gy(0)*gz(0))/64_dp
-Q87s=Q87s+f*rt(5)*rt(11)*rt(13)*(-3_dp*gx(0)*gy(7)*gz(1)                 &
-    +63_dp*gx(2)*gy(5)*gz(1)-105_dp*gx(4)*gy(3)*gz(1)                     &
-    +21_dp*gx(6)*gy(1)*gz(1))/32_dp
-Q87c=Q87c+f*rt(5)*rt(11)*rt(13)*(-21_dp*gx(1)*gy(6)*gz(1)                &
-    +105_dp*gx(3)*gy(4)*gz(1)-63_dp*gx(5)*gy(2)*gz(1)                     &
-    +3_dp*gx(7)*gy(0)*gz(1))/32_dp
-Q88s=Q88s+f*rt(5)*rt(11)*rt(13)*(-24_dp*gx(1)*gy(7)*gz(0)                &
-    +168_dp*gx(3)*gy(5)*gz(0)-168_dp*gx(5)*gy(3)*gz(0)                    &
-    +24_dp*gx(7)*gy(1)*gz(0))/128_dp
-Q88c=Q88c+f*rt(5)*rt(11)*rt(13)*(3_dp*gx(0)*gy(8)*gz(0)                  &
-    -84_dp*gx(2)*gy(6)*gz(0)+210_dp*gx(4)*gy(4)*gz(0)                     &
-    -84_dp*gx(6)*gy(2)*gz(0)+3_dp*gx(8)*gy(0)*gz(0))/128_dp
+Q80=Q80+f*(128d0*gx(0)*gy(0)*gz(8)-1792d0*gx(0)*gy(2)*gz(6)             &
+    -1792d0*gx(2)*gy(0)*gz(6)+3360d0*gx(0)*gy(4)*gz(4)                  &
+    +6720d0*gx(2)*gy(2)*gz(4)+3360d0*gx(4)*gy(0)*gz(4)                  &
+    -1120d0*gx(0)*gy(6)*gz(2)-3360d0*gx(2)*gy(4)*gz(2)                  &
+    -3360d0*gx(4)*gy(2)*gz(2)-1120d0*gx(6)*gy(0)*gz(2)                  &
+    +35d0*gx(0)*gy(8)*gz(0)+140d0*gx(2)*gy(6)*gz(0)                     &
+    +210d0*gx(4)*gy(4)*gz(0)+140d0*gx(6)*gy(2)*gz(0)                    &
+    +35d0*gx(8)*gy(0)*gz(0))/128d0
+Q81s=Q81s+f*(192d0*gx(0)*gy(1)*gz(7)-1008d0*gx(0)*gy(3)*gz(5)           &
+    -1008d0*gx(2)*gy(1)*gz(5)+840d0*gx(0)*gy(5)*gz(3)                   &
+    +1680d0*gx(2)*gy(3)*gz(3)+840d0*gx(4)*gy(1)*gz(3)                   &
+    -105d0*gx(0)*gy(7)*gz(1)-315d0*gx(2)*gy(5)*gz(1)                    &
+    -315d0*gx(4)*gy(3)*gz(1)-105d0*gx(6)*gy(1)*gz(1))/32d0
+Q81c=Q81c+f*(192d0*gx(1)*gy(0)*gz(7)-1008d0*gx(1)*gy(2)*gz(5)           &
+    -1008d0*gx(3)*gy(0)*gz(5)+840d0*gx(1)*gy(4)*gz(3)                   &
+    +1680d0*gx(3)*gy(2)*gz(3)+840d0*gx(5)*gy(0)*gz(3)                   &
+    -105d0*gx(1)*gy(6)*gz(1)-315d0*gx(3)*gy(4)*gz(1)                    &
+    -315d0*gx(5)*gy(2)*gz(1)-105d0*gx(7)*gy(0)*gz(1))/32d0
+Q82s=Q82s+f*rt(2)*rt(5)*rt(7)*(192d0*gx(1)*gy(1)*gz(6)                  &
+    -480d0*gx(1)*gy(3)*gz(4)-480d0*gx(3)*gy(1)*gz(4)                    &
+    +180d0*gx(1)*gy(5)*gz(2)+360d0*gx(3)*gy(3)*gz(2)                    &
+    +180d0*gx(5)*gy(1)*gz(2)-6d0*gx(1)*gy(7)*gz(0)                      &
+    -18d0*gx(3)*gy(5)*gz(0)-18d0*gx(5)*gy(3)*gz(0)                      &
+    -6d0*gx(7)*gy(1)*gz(0))/64d0
+Q82c=Q82c+f*rt(2)*rt(5)*rt(7)*(-96d0*gx(0)*gy(2)*gz(6)                  &
+    +96d0*gx(2)*gy(0)*gz(6)+240d0*gx(0)*gy(4)*gz(4)                     &
+    -240d0*gx(4)*gy(0)*gz(4)-90d0*gx(0)*gy(6)*gz(2)                     &
+    -90d0*gx(2)*gy(4)*gz(2)+90d0*gx(4)*gy(2)*gz(2)                      &
+    +90d0*gx(6)*gy(0)*gz(2)+3d0*gx(0)*gy(8)*gz(0)                       &
+    +6d0*gx(2)*gy(6)*gz(0)-6d0*gx(6)*gy(2)*gz(0)-3d0*gx(8)*gy(0)*gz(0)) &
+    /64d0
+Q83s=Q83s+f*rt(3)*rt(5)*rt(7)*rt(11)*(-16d0*gx(0)*gy(3)*gz(5)           &
+    +48d0*gx(2)*gy(1)*gz(5)+20d0*gx(0)*gy(5)*gz(3)                      &
+    -40d0*gx(2)*gy(3)*gz(3)-60d0*gx(4)*gy(1)*gz(3)                      &
+    -3d0*gx(0)*gy(7)*gz(1)+3d0*gx(2)*gy(5)*gz(1)                        &
+    +15d0*gx(4)*gy(3)*gz(1)+9d0*gx(6)*gy(1)*gz(1))/32d0
+Q83c=Q83c+f*rt(3)*rt(5)*rt(7)*rt(11)*(-48d0*gx(1)*gy(2)*gz(5)           &
+    +16d0*gx(3)*gy(0)*gz(5)+60d0*gx(1)*gy(4)*gz(3)                      &
+    +40d0*gx(3)*gy(2)*gz(3)-20d0*gx(5)*gy(0)*gz(3)                      &
+    -9d0*gx(1)*gy(6)*gz(1)-15d0*gx(3)*gy(4)*gz(1)                       &
+    -3d0*gx(5)*gy(2)*gz(1)+3d0*gx(7)*gy(0)*gz(1))/32d0
+Q84s=Q84s+f*rt(7)*rt(11)*(-480d0*gx(1)*gy(3)*gz(4)                      &
+    +480d0*gx(3)*gy(1)*gz(4)+288d0*gx(1)*gy(5)*gz(2)                    &
+    -288d0*gx(5)*gy(1)*gz(2)-12d0*gx(1)*gy(7)*gz(0)                     &
+    -12d0*gx(3)*gy(5)*gz(0)+12d0*gx(5)*gy(3)*gz(0)                      &
+    +12d0*gx(7)*gy(1)*gz(0))/64d0
+Q84c=Q84c+f*rt(7)*rt(11)*(120d0*gx(0)*gy(4)*gz(4)                       &
+    -720d0*gx(2)*gy(2)*gz(4)+120d0*gx(4)*gy(0)*gz(4)                    &
+    -72d0*gx(0)*gy(6)*gz(2)+360d0*gx(2)*gy(4)*gz(2)                     &
+    +360d0*gx(4)*gy(2)*gz(2)-72d0*gx(6)*gy(0)*gz(2)                     &
+    +3d0*gx(0)*gy(8)*gz(0)-12d0*gx(2)*gy(6)*gz(0)                       &
+    -30d0*gx(4)*gy(4)*gz(0)-12d0*gx(6)*gy(2)*gz(0)                      &
+    +3d0*gx(8)*gy(0)*gz(0))/64d0
+Q85s=Q85s+f*rt(7)*rt(11)*rt(13)*(12d0*gx(0)*gy(5)*gz(3)                 &
+    -120d0*gx(2)*gy(3)*gz(3)+60d0*gx(4)*gy(1)*gz(3)                     &
+    -3d0*gx(0)*gy(7)*gz(1)+27d0*gx(2)*gy(5)*gz(1)                       &
+    +15d0*gx(4)*gy(3)*gz(1)-15d0*gx(6)*gy(1)*gz(1))/32d0
+Q85c=Q85c+f*rt(7)*rt(11)*rt(13)*(60d0*gx(1)*gy(4)*gz(3)                 &
+    -120d0*gx(3)*gy(2)*gz(3)+12d0*gx(5)*gy(0)*gz(3)                     &
+    -15d0*gx(1)*gy(6)*gz(1)+15d0*gx(3)*gy(4)*gz(1)                      &
+    +27d0*gx(5)*gy(2)*gz(1)-3d0*gx(7)*gy(0)*gz(1))/32d0
+Q86s=Q86s+f*rt(2)*rt(3)*rt(11)*rt(13)*(84d0*gx(1)*gy(5)*gz(2)           &
+    -280d0*gx(3)*gy(3)*gz(2)+84d0*gx(5)*gy(1)*gz(2)                     &
+    -6d0*gx(1)*gy(7)*gz(0)+14d0*gx(3)*gy(5)*gz(0)                       &
+    +14d0*gx(5)*gy(3)*gz(0)-6d0*gx(7)*gy(1)*gz(0))/64d0
+Q86c=Q86c+f*rt(2)*rt(3)*rt(11)*rt(13)*(-14d0*gx(0)*gy(6)*gz(2)          &
+    +210d0*gx(2)*gy(4)*gz(2)-210d0*gx(4)*gy(2)*gz(2)                    &
+    +14d0*gx(6)*gy(0)*gz(2)+gx(0)*gy(8)*gz(0)-14d0*gx(2)*gy(6)*gz(0)    &
+    +14d0*gx(6)*gy(2)*gz(0)-gx(8)*gy(0)*gz(0))/64d0
+Q87s=Q87s+f*rt(5)*rt(11)*rt(13)*(-3d0*gx(0)*gy(7)*gz(1)                 &
+    +63d0*gx(2)*gy(5)*gz(1)-105d0*gx(4)*gy(3)*gz(1)                     &
+    +21d0*gx(6)*gy(1)*gz(1))/32d0
+Q87c=Q87c+f*rt(5)*rt(11)*rt(13)*(-21d0*gx(1)*gy(6)*gz(1)                &
+    +105d0*gx(3)*gy(4)*gz(1)-63d0*gx(5)*gy(2)*gz(1)                     &
+    +3d0*gx(7)*gy(0)*gz(1))/32d0
+Q88s=Q88s+f*rt(5)*rt(11)*rt(13)*(-24d0*gx(1)*gy(7)*gz(0)                &
+    +168d0*gx(3)*gy(5)*gz(0)-168d0*gx(5)*gy(3)*gz(0)                    &
+    +24d0*gx(7)*gy(1)*gz(0))/128d0
+Q88c=Q88c+f*rt(5)*rt(11)*rt(13)*(3d0*gx(0)*gy(8)*gz(0)                  &
+    -84d0*gx(2)*gy(6)*gz(0)+210d0*gx(4)*gy(4)*gz(0)                     &
+    -84d0*gx(6)*gy(2)*gz(0)+3d0*gx(8)*gy(0)*gz(0))/128d0
 
 107                                                                     &
-Q70=Q70+f*(16_dp*gx(0)*gy(0)*gz(7)-168_dp*gx(0)*gy(2)*gz(5)               &
-    -168_dp*gx(2)*gy(0)*gz(5)+210_dp*gx(0)*gy(4)*gz(3)                    &
-    +420_dp*gx(2)*gy(2)*gz(3)+210_dp*gx(4)*gy(0)*gz(3)                    &
-    -35_dp*gx(0)*gy(6)*gz(1)-105_dp*gx(2)*gy(4)*gz(1)                     &
-    -105_dp*gx(4)*gy(2)*gz(1)-35_dp*gx(6)*gy(0)*gz(1))/16_dp
-Q71s=Q71s+f*rt(7)*(64_dp*gx(0)*gy(1)*gz(6)-240_dp*gx(0)*gy(3)*gz(4)       &
-    -240_dp*gx(2)*gy(1)*gz(4)+120_dp*gx(0)*gy(5)*gz(2)                    &
-    +240_dp*gx(2)*gy(3)*gz(2)+120_dp*gx(4)*gy(1)*gz(2)                    &
-    -5_dp*gx(0)*gy(7)*gz(0)-15_dp*gx(2)*gy(5)*gz(0)                       &
-    -15_dp*gx(4)*gy(3)*gz(0)-5_dp*gx(6)*gy(1)*gz(0))/32_dp
-Q71c=Q71c+f*rt(7)*(64_dp*gx(1)*gy(0)*gz(6)-240_dp*gx(1)*gy(2)*gz(4)       &
-    -240_dp*gx(3)*gy(0)*gz(4)+120_dp*gx(1)*gy(4)*gz(2)                    &
-    +240_dp*gx(3)*gy(2)*gz(2)+120_dp*gx(5)*gy(0)*gz(2)                    &
-    -5_dp*gx(1)*gy(6)*gz(0)-15_dp*gx(3)*gy(4)*gz(0)                       &
-    -15_dp*gx(5)*gy(2)*gz(0)-5_dp*gx(7)*gy(0)*gz(0))/32_dp
-Q72s=Q72s+f*rt(2)*rt(3)*rt(7)*(96_dp*gx(1)*gy(1)*gz(5)                   &
-    -160_dp*gx(1)*gy(3)*gz(3)-160_dp*gx(3)*gy(1)*gz(3)                    &
-    +30_dp*gx(1)*gy(5)*gz(1)+60_dp*gx(3)*gy(3)*gz(1)                      &
-    +30_dp*gx(5)*gy(1)*gz(1))/32_dp
-Q72c=Q72c+f*rt(2)*rt(3)*rt(7)*(-48_dp*gx(0)*gy(2)*gz(5)                  &
-    +48_dp*gx(2)*gy(0)*gz(5)+80_dp*gx(0)*gy(4)*gz(3)                      &
-    -80_dp*gx(4)*gy(0)*gz(3)-15_dp*gx(0)*gy(6)*gz(1)                      &
-    -15_dp*gx(2)*gy(4)*gz(1)+15_dp*gx(4)*gy(2)*gz(1)                      &
-    +15_dp*gx(6)*gy(0)*gz(1))/32_dp
-Q73s=Q73s+f*rt(3)*rt(7)*(-80_dp*gx(0)*gy(3)*gz(4)                        &
-    +240_dp*gx(2)*gy(1)*gz(4)+60_dp*gx(0)*gy(5)*gz(2)                     &
-    -120_dp*gx(2)*gy(3)*gz(2)-180_dp*gx(4)*gy(1)*gz(2)                    &
-    -3_dp*gx(0)*gy(7)*gz(0)+3_dp*gx(2)*gy(5)*gz(0)                        &
-    +15_dp*gx(4)*gy(3)*gz(0)+9_dp*gx(6)*gy(1)*gz(0))/32_dp
-Q73c=Q73c+f*rt(3)*rt(7)*(-240_dp*gx(1)*gy(2)*gz(4)                       &
-    +80_dp*gx(3)*gy(0)*gz(4)+180_dp*gx(1)*gy(4)*gz(2)                     &
-    +120_dp*gx(3)*gy(2)*gz(2)-60_dp*gx(5)*gy(0)*gz(2)                     &
-    -9_dp*gx(1)*gy(6)*gz(0)-15_dp*gx(3)*gy(4)*gz(0)                       &
-    -3_dp*gx(5)*gy(2)*gz(0)+3_dp*gx(7)*gy(0)*gz(0))/32_dp
-Q74s=Q74s+f*rt(3)*rt(7)*rt(11)*(-40_dp*gx(1)*gy(3)*gz(3)                 &
-    +40_dp*gx(3)*gy(1)*gz(3)+12_dp*gx(1)*gy(5)*gz(1)                      &
-    -12_dp*gx(5)*gy(1)*gz(1))/16_dp
-Q74c=Q74c+f*rt(3)*rt(7)*rt(11)*(10_dp*gx(0)*gy(4)*gz(3)                  &
-    -60_dp*gx(2)*gy(2)*gz(3)+10_dp*gx(4)*gy(0)*gz(3)                      &
-    -3_dp*gx(0)*gy(6)*gz(1)+15_dp*gx(2)*gy(4)*gz(1)                       &
-    +15_dp*gx(4)*gy(2)*gz(1)-3_dp*gx(6)*gy(0)*gz(1))/16_dp
-Q75s=Q75s+f*rt(3)*rt(7)*rt(11)*(12_dp*gx(0)*gy(5)*gz(2)                  &
-    -120_dp*gx(2)*gy(3)*gz(2)+60_dp*gx(4)*gy(1)*gz(2)-gx(0)*gy(7)*gz(0)   &
-    +9_dp*gx(2)*gy(5)*gz(0)+5_dp*gx(4)*gy(3)*gz(0)-5_dp*gx(6)*gy(1)*gz(0)) &
-    /32_dp
-Q75c=Q75c+f*rt(3)*rt(7)*rt(11)*(60_dp*gx(1)*gy(4)*gz(2)                  &
-    -120_dp*gx(3)*gy(2)*gz(2)+12_dp*gx(5)*gy(0)*gz(2)                     &
-    -5_dp*gx(1)*gy(6)*gz(0)+5_dp*gx(3)*gy(4)*gz(0)+9_dp*gx(5)*gy(2)*gz(0)  &
-    -gx(7)*gy(0)*gz(0))/32_dp
-Q76s=Q76s+f*rt(2)*rt(3)*rt(7)*rt(11)*rt(13)*(6_dp*gx(1)*gy(5)*gz(1)      &
-    -20_dp*gx(3)*gy(3)*gz(1)+6_dp*gx(5)*gy(1)*gz(1))/32_dp
+Q70=Q70+f*(16d0*gx(0)*gy(0)*gz(7)-168d0*gx(0)*gy(2)*gz(5)               &
+    -168d0*gx(2)*gy(0)*gz(5)+210d0*gx(0)*gy(4)*gz(3)                    &
+    +420d0*gx(2)*gy(2)*gz(3)+210d0*gx(4)*gy(0)*gz(3)                    &
+    -35d0*gx(0)*gy(6)*gz(1)-105d0*gx(2)*gy(4)*gz(1)                     &
+    -105d0*gx(4)*gy(2)*gz(1)-35d0*gx(6)*gy(0)*gz(1))/16d0
+Q71s=Q71s+f*rt(7)*(64d0*gx(0)*gy(1)*gz(6)-240d0*gx(0)*gy(3)*gz(4)       &
+    -240d0*gx(2)*gy(1)*gz(4)+120d0*gx(0)*gy(5)*gz(2)                    &
+    +240d0*gx(2)*gy(3)*gz(2)+120d0*gx(4)*gy(1)*gz(2)                    &
+    -5d0*gx(0)*gy(7)*gz(0)-15d0*gx(2)*gy(5)*gz(0)                       &
+    -15d0*gx(4)*gy(3)*gz(0)-5d0*gx(6)*gy(1)*gz(0))/32d0
+Q71c=Q71c+f*rt(7)*(64d0*gx(1)*gy(0)*gz(6)-240d0*gx(1)*gy(2)*gz(4)       &
+    -240d0*gx(3)*gy(0)*gz(4)+120d0*gx(1)*gy(4)*gz(2)                    &
+    +240d0*gx(3)*gy(2)*gz(2)+120d0*gx(5)*gy(0)*gz(2)                    &
+    -5d0*gx(1)*gy(6)*gz(0)-15d0*gx(3)*gy(4)*gz(0)                       &
+    -15d0*gx(5)*gy(2)*gz(0)-5d0*gx(7)*gy(0)*gz(0))/32d0
+Q72s=Q72s+f*rt(2)*rt(3)*rt(7)*(96d0*gx(1)*gy(1)*gz(5)                   &
+    -160d0*gx(1)*gy(3)*gz(3)-160d0*gx(3)*gy(1)*gz(3)                    &
+    +30d0*gx(1)*gy(5)*gz(1)+60d0*gx(3)*gy(3)*gz(1)                      &
+    +30d0*gx(5)*gy(1)*gz(1))/32d0
+Q72c=Q72c+f*rt(2)*rt(3)*rt(7)*(-48d0*gx(0)*gy(2)*gz(5)                  &
+    +48d0*gx(2)*gy(0)*gz(5)+80d0*gx(0)*gy(4)*gz(3)                      &
+    -80d0*gx(4)*gy(0)*gz(3)-15d0*gx(0)*gy(6)*gz(1)                      &
+    -15d0*gx(2)*gy(4)*gz(1)+15d0*gx(4)*gy(2)*gz(1)                      &
+    +15d0*gx(6)*gy(0)*gz(1))/32d0
+Q73s=Q73s+f*rt(3)*rt(7)*(-80d0*gx(0)*gy(3)*gz(4)                        &
+    +240d0*gx(2)*gy(1)*gz(4)+60d0*gx(0)*gy(5)*gz(2)                     &
+    -120d0*gx(2)*gy(3)*gz(2)-180d0*gx(4)*gy(1)*gz(2)                    &
+    -3d0*gx(0)*gy(7)*gz(0)+3d0*gx(2)*gy(5)*gz(0)                        &
+    +15d0*gx(4)*gy(3)*gz(0)+9d0*gx(6)*gy(1)*gz(0))/32d0
+Q73c=Q73c+f*rt(3)*rt(7)*(-240d0*gx(1)*gy(2)*gz(4)                       &
+    +80d0*gx(3)*gy(0)*gz(4)+180d0*gx(1)*gy(4)*gz(2)                     &
+    +120d0*gx(3)*gy(2)*gz(2)-60d0*gx(5)*gy(0)*gz(2)                     &
+    -9d0*gx(1)*gy(6)*gz(0)-15d0*gx(3)*gy(4)*gz(0)                       &
+    -3d0*gx(5)*gy(2)*gz(0)+3d0*gx(7)*gy(0)*gz(0))/32d0
+Q74s=Q74s+f*rt(3)*rt(7)*rt(11)*(-40d0*gx(1)*gy(3)*gz(3)                 &
+    +40d0*gx(3)*gy(1)*gz(3)+12d0*gx(1)*gy(5)*gz(1)                      &
+    -12d0*gx(5)*gy(1)*gz(1))/16d0
+Q74c=Q74c+f*rt(3)*rt(7)*rt(11)*(10d0*gx(0)*gy(4)*gz(3)                  &
+    -60d0*gx(2)*gy(2)*gz(3)+10d0*gx(4)*gy(0)*gz(3)                      &
+    -3d0*gx(0)*gy(6)*gz(1)+15d0*gx(2)*gy(4)*gz(1)                       &
+    +15d0*gx(4)*gy(2)*gz(1)-3d0*gx(6)*gy(0)*gz(1))/16d0
+Q75s=Q75s+f*rt(3)*rt(7)*rt(11)*(12d0*gx(0)*gy(5)*gz(2)                  &
+    -120d0*gx(2)*gy(3)*gz(2)+60d0*gx(4)*gy(1)*gz(2)-gx(0)*gy(7)*gz(0)   &
+    +9d0*gx(2)*gy(5)*gz(0)+5d0*gx(4)*gy(3)*gz(0)-5d0*gx(6)*gy(1)*gz(0)) &
+    /32d0
+Q75c=Q75c+f*rt(3)*rt(7)*rt(11)*(60d0*gx(1)*gy(4)*gz(2)                  &
+    -120d0*gx(3)*gy(2)*gz(2)+12d0*gx(5)*gy(0)*gz(2)                     &
+    -5d0*gx(1)*gy(6)*gz(0)+5d0*gx(3)*gy(4)*gz(0)+9d0*gx(5)*gy(2)*gz(0)  &
+    -gx(7)*gy(0)*gz(0))/32d0
+Q76s=Q76s+f*rt(2)*rt(3)*rt(7)*rt(11)*rt(13)*(6d0*gx(1)*gy(5)*gz(1)      &
+    -20d0*gx(3)*gy(3)*gz(1)+6d0*gx(5)*gy(1)*gz(1))/32d0
 Q76c=Q76c+f*rt(2)*rt(3)*rt(7)*rt(11)*rt(13)*(-gx(0)*gy(6)*gz(1)         &
-    +15_dp*gx(2)*gy(4)*gz(1)-15_dp*gx(4)*gy(2)*gz(1)+gx(6)*gy(0)*gz(1))   &
-    /32_dp
+    +15d0*gx(2)*gy(4)*gz(1)-15d0*gx(4)*gy(2)*gz(1)+gx(6)*gy(0)*gz(1))   &
+    /32d0
 Q77s=Q77s+f*rt(3)*rt(11)*rt(13)*(-gx(0)*gy(7)*gz(0)                     &
-    +21_dp*gx(2)*gy(5)*gz(0)-35_dp*gx(4)*gy(3)*gz(0)                      &
-    +7_dp*gx(6)*gy(1)*gz(0))/32_dp
-Q77c=Q77c+f*rt(3)*rt(11)*rt(13)*(-7_dp*gx(1)*gy(6)*gz(0)                 &
-    +35_dp*gx(3)*gy(4)*gz(0)-21_dp*gx(5)*gy(2)*gz(0)+gx(7)*gy(0)*gz(0))   &
-    /32_dp
+    +21d0*gx(2)*gy(5)*gz(0)-35d0*gx(4)*gy(3)*gz(0)                      &
+    +7d0*gx(6)*gy(1)*gz(0))/32d0
+Q77c=Q77c+f*rt(3)*rt(11)*rt(13)*(-7d0*gx(1)*gy(6)*gz(0)                 &
+    +35d0*gx(3)*gy(4)*gz(0)-21d0*gx(5)*gy(2)*gz(0)+gx(7)*gy(0)*gz(0))   &
+    /32d0
 
 106                                                                     &
-Q60=Q60+f*(16_dp*gx(0)*gy(0)*gz(6)-120_dp*gx(0)*gy(2)*gz(4)               &
-    -120_dp*gx(2)*gy(0)*gz(4)+90_dp*gx(0)*gy(4)*gz(2)                     &
-    +180_dp*gx(2)*gy(2)*gz(2)+90_dp*gx(4)*gy(0)*gz(2)                     &
-    -5_dp*gx(0)*gy(6)*gz(0)-15_dp*gx(2)*gy(4)*gz(0)                       &
-    -15_dp*gx(4)*gy(2)*gz(0)-5_dp*gx(6)*gy(0)*gz(0))/16_dp
-Q61s=Q61s+f*rt(3)*rt(7)*(8_dp*gx(0)*gy(1)*gz(5)-20_dp*gx(0)*gy(3)*gz(3)   &
-    -20_dp*gx(2)*gy(1)*gz(3)+5_dp*gx(0)*gy(5)*gz(1)                       &
-    +10_dp*gx(2)*gy(3)*gz(1)+5_dp*gx(4)*gy(1)*gz(1))/8_dp
-Q61c=Q61c+f*rt(3)*rt(7)*(8_dp*gx(1)*gy(0)*gz(5)-20_dp*gx(1)*gy(2)*gz(3)   &
-    -20_dp*gx(3)*gy(0)*gz(3)+5_dp*gx(1)*gy(4)*gz(1)                       &
-    +10_dp*gx(3)*gy(2)*gz(1)+5_dp*gx(5)*gy(0)*gz(1))/8_dp
-Q62s=Q62s+f*rt(2)*rt(3)*rt(5)*rt(7)*(32_dp*gx(1)*gy(1)*gz(4)             &
-    -32_dp*gx(1)*gy(3)*gz(2)-32_dp*gx(3)*gy(1)*gz(2)                      &
-    +2_dp*gx(1)*gy(5)*gz(0)+4_dp*gx(3)*gy(3)*gz(0)+2_dp*gx(5)*gy(1)*gz(0)) &
-    /32_dp
-Q62c=Q62c+f*rt(2)*rt(3)*rt(5)*rt(7)*(-16_dp*gx(0)*gy(2)*gz(4)            &
-    +16_dp*gx(2)*gy(0)*gz(4)+16_dp*gx(0)*gy(4)*gz(2)                      &
-    -16_dp*gx(4)*gy(0)*gz(2)-gx(0)*gy(6)*gz(0)-gx(2)*gy(4)*gz(0)         &
-    +gx(4)*gy(2)*gz(0)+gx(6)*gy(0)*gz(0))/32_dp
-Q63s=Q63s+f*rt(2)*rt(3)*rt(5)*rt(7)*(-8_dp*gx(0)*gy(3)*gz(3)             &
-    +24_dp*gx(2)*gy(1)*gz(3)+3_dp*gx(0)*gy(5)*gz(1)                       &
-    -6_dp*gx(2)*gy(3)*gz(1)-9_dp*gx(4)*gy(1)*gz(1))/16_dp
-Q63c=Q63c+f*rt(2)*rt(3)*rt(5)*rt(7)*(-24_dp*gx(1)*gy(2)*gz(3)            &
-    +8_dp*gx(3)*gy(0)*gz(3)+9_dp*gx(1)*gy(4)*gz(1)+6_dp*gx(3)*gy(2)*gz(1)  &
-    -3_dp*gx(5)*gy(0)*gz(1))/16_dp
-Q64s=Q64s+f*rt(7)*(-120_dp*gx(1)*gy(3)*gz(2)+120_dp*gx(3)*gy(1)*gz(2)     &
-    +12_dp*gx(1)*gy(5)*gz(0)-12_dp*gx(5)*gy(1)*gz(0))/16_dp
-Q64c=Q64c+f*rt(7)*(30_dp*gx(0)*gy(4)*gz(2)-180_dp*gx(2)*gy(2)*gz(2)       &
-    +30_dp*gx(4)*gy(0)*gz(2)-3_dp*gx(0)*gy(6)*gz(0)                       &
-    +15_dp*gx(2)*gy(4)*gz(0)+15_dp*gx(4)*gy(2)*gz(0)                      &
-    -3_dp*gx(6)*gy(0)*gz(0))/16_dp
-Q65s=Q65s+f*rt(2)*rt(7)*rt(11)*(3_dp*gx(0)*gy(5)*gz(1)                   &
-    -30_dp*gx(2)*gy(3)*gz(1)+15_dp*gx(4)*gy(1)*gz(1))/16_dp
-Q65c=Q65c+f*rt(2)*rt(7)*rt(11)*(15_dp*gx(1)*gy(4)*gz(1)                  &
-    -30_dp*gx(3)*gy(2)*gz(1)+3_dp*gx(5)*gy(0)*gz(1))/16_dp
-Q66s=Q66s+f*rt(2)*rt(3)*rt(7)*rt(11)*(6_dp*gx(1)*gy(5)*gz(0)             &
-    -20_dp*gx(3)*gy(3)*gz(0)+6_dp*gx(5)*gy(1)*gz(0))/32_dp
+Q60=Q60+f*(16d0*gx(0)*gy(0)*gz(6)-120d0*gx(0)*gy(2)*gz(4)               &
+    -120d0*gx(2)*gy(0)*gz(4)+90d0*gx(0)*gy(4)*gz(2)                     &
+    +180d0*gx(2)*gy(2)*gz(2)+90d0*gx(4)*gy(0)*gz(2)                     &
+    -5d0*gx(0)*gy(6)*gz(0)-15d0*gx(2)*gy(4)*gz(0)                       &
+    -15d0*gx(4)*gy(2)*gz(0)-5d0*gx(6)*gy(0)*gz(0))/16d0
+Q61s=Q61s+f*rt(3)*rt(7)*(8d0*gx(0)*gy(1)*gz(5)-20d0*gx(0)*gy(3)*gz(3)   &
+    -20d0*gx(2)*gy(1)*gz(3)+5d0*gx(0)*gy(5)*gz(1)                       &
+    +10d0*gx(2)*gy(3)*gz(1)+5d0*gx(4)*gy(1)*gz(1))/8d0
+Q61c=Q61c+f*rt(3)*rt(7)*(8d0*gx(1)*gy(0)*gz(5)-20d0*gx(1)*gy(2)*gz(3)   &
+    -20d0*gx(3)*gy(0)*gz(3)+5d0*gx(1)*gy(4)*gz(1)                       &
+    +10d0*gx(3)*gy(2)*gz(1)+5d0*gx(5)*gy(0)*gz(1))/8d0
+Q62s=Q62s+f*rt(2)*rt(3)*rt(5)*rt(7)*(32d0*gx(1)*gy(1)*gz(4)             &
+    -32d0*gx(1)*gy(3)*gz(2)-32d0*gx(3)*gy(1)*gz(2)                      &
+    +2d0*gx(1)*gy(5)*gz(0)+4d0*gx(3)*gy(3)*gz(0)+2d0*gx(5)*gy(1)*gz(0)) &
+    /32d0
+Q62c=Q62c+f*rt(2)*rt(3)*rt(5)*rt(7)*(-16d0*gx(0)*gy(2)*gz(4)            &
+    +16d0*gx(2)*gy(0)*gz(4)+16d0*gx(0)*gy(4)*gz(2)                      &
+    -16d0*gx(4)*gy(0)*gz(2)-gx(0)*gy(6)*gz(0)-gx(2)*gy(4)*gz(0)         &
+    +gx(4)*gy(2)*gz(0)+gx(6)*gy(0)*gz(0))/32d0
+Q63s=Q63s+f*rt(2)*rt(3)*rt(5)*rt(7)*(-8d0*gx(0)*gy(3)*gz(3)             &
+    +24d0*gx(2)*gy(1)*gz(3)+3d0*gx(0)*gy(5)*gz(1)                       &
+    -6d0*gx(2)*gy(3)*gz(1)-9d0*gx(4)*gy(1)*gz(1))/16d0
+Q63c=Q63c+f*rt(2)*rt(3)*rt(5)*rt(7)*(-24d0*gx(1)*gy(2)*gz(3)            &
+    +8d0*gx(3)*gy(0)*gz(3)+9d0*gx(1)*gy(4)*gz(1)+6d0*gx(3)*gy(2)*gz(1)  &
+    -3d0*gx(5)*gy(0)*gz(1))/16d0
+Q64s=Q64s+f*rt(7)*(-120d0*gx(1)*gy(3)*gz(2)+120d0*gx(3)*gy(1)*gz(2)     &
+    +12d0*gx(1)*gy(5)*gz(0)-12d0*gx(5)*gy(1)*gz(0))/16d0
+Q64c=Q64c+f*rt(7)*(30d0*gx(0)*gy(4)*gz(2)-180d0*gx(2)*gy(2)*gz(2)       &
+    +30d0*gx(4)*gy(0)*gz(2)-3d0*gx(0)*gy(6)*gz(0)                       &
+    +15d0*gx(2)*gy(4)*gz(0)+15d0*gx(4)*gy(2)*gz(0)                      &
+    -3d0*gx(6)*gy(0)*gz(0))/16d0
+Q65s=Q65s+f*rt(2)*rt(7)*rt(11)*(3d0*gx(0)*gy(5)*gz(1)                   &
+    -30d0*gx(2)*gy(3)*gz(1)+15d0*gx(4)*gy(1)*gz(1))/16d0
+Q65c=Q65c+f*rt(2)*rt(7)*rt(11)*(15d0*gx(1)*gy(4)*gz(1)                  &
+    -30d0*gx(3)*gy(2)*gz(1)+3d0*gx(5)*gy(0)*gz(1))/16d0
+Q66s=Q66s+f*rt(2)*rt(3)*rt(7)*rt(11)*(6d0*gx(1)*gy(5)*gz(0)             &
+    -20d0*gx(3)*gy(3)*gz(0)+6d0*gx(5)*gy(1)*gz(0))/32d0
 Q66c=Q66c+f*rt(2)*rt(3)*rt(7)*rt(11)*(-gx(0)*gy(6)*gz(0)                &
-    +15_dp*gx(2)*gy(4)*gz(0)-15_dp*gx(4)*gy(2)*gz(0)+gx(6)*gy(0)*gz(0))   &
-    /32_dp
+    +15d0*gx(2)*gy(4)*gz(0)-15d0*gx(4)*gy(2)*gz(0)+gx(6)*gy(0)*gz(0))   &
+    /32d0
 
 105                                                                     &
-Q50=Q50+f*(8_dp*gx(0)*gy(0)*gz(5)-40_dp*gx(0)*gy(2)*gz(3)                 &
-    -40_dp*gx(2)*gy(0)*gz(3)+15_dp*gx(0)*gy(4)*gz(1)                      &
-    +30_dp*gx(2)*gy(2)*gz(1)+15_dp*gx(4)*gy(0)*gz(1))/8_dp
-Q51s=Q51s+f*rt(3)*rt(5)*(8_dp*gx(0)*gy(1)*gz(4)-12_dp*gx(0)*gy(3)*gz(2)   &
-    -12_dp*gx(2)*gy(1)*gz(2)+gx(0)*gy(5)*gz(0)+2_dp*gx(2)*gy(3)*gz(0)     &
-    +gx(4)*gy(1)*gz(0))/8_dp
-Q51c=Q51c+f*rt(3)*rt(5)*(8_dp*gx(1)*gy(0)*gz(4)-12_dp*gx(1)*gy(2)*gz(2)   &
-    -12_dp*gx(3)*gy(0)*gz(2)+gx(1)*gy(4)*gz(0)+2_dp*gx(3)*gy(2)*gz(0)     &
-    +gx(5)*gy(0)*gz(0))/8_dp
-Q52s=Q52s+f*rt(3)*rt(5)*rt(7)*(4_dp*gx(1)*gy(1)*gz(3)                    &
-    -2_dp*gx(1)*gy(3)*gz(1)-2_dp*gx(3)*gy(1)*gz(1))/4_dp
-Q52c=Q52c+f*rt(3)*rt(5)*rt(7)*(-2_dp*gx(0)*gy(2)*gz(3)                   &
-    +2_dp*gx(2)*gy(0)*gz(3)+gx(0)*gy(4)*gz(1)-gx(4)*gy(0)*gz(1))/4_dp
-Q53s=Q53s+f*rt(2)*rt(5)*rt(7)*(-8_dp*gx(0)*gy(3)*gz(2)                   &
-    +24_dp*gx(2)*gy(1)*gz(2)+gx(0)*gy(5)*gz(0)-2_dp*gx(2)*gy(3)*gz(0)     &
-    -3_dp*gx(4)*gy(1)*gz(0))/16_dp
-Q53c=Q53c+f*rt(2)*rt(5)*rt(7)*(-24_dp*gx(1)*gy(2)*gz(2)                  &
-    +8_dp*gx(3)*gy(0)*gz(2)+3_dp*gx(1)*gy(4)*gz(0)+2_dp*gx(3)*gy(2)*gz(0)  &
-    -gx(5)*gy(0)*gz(0))/16_dp
-Q54s=Q54s+f*rt(5)*rt(7)*(-12_dp*gx(1)*gy(3)*gz(1)                        &
-    +12_dp*gx(3)*gy(1)*gz(1))/8_dp
-Q54c=Q54c+f*rt(5)*rt(7)*(3_dp*gx(0)*gy(4)*gz(1)-18_dp*gx(2)*gy(2)*gz(1)   &
-    +3_dp*gx(4)*gy(0)*gz(1))/8_dp
-Q55s=Q55s+f*rt(2)*rt(7)*(3_dp*gx(0)*gy(5)*gz(0)-30_dp*gx(2)*gy(3)*gz(0)   &
-    +15_dp*gx(4)*gy(1)*gz(0))/16_dp
-Q55c=Q55c+f*rt(2)*rt(7)*(15_dp*gx(1)*gy(4)*gz(0)-30_dp*gx(3)*gy(2)*gz(0)  &
-    +3_dp*gx(5)*gy(0)*gz(0))/16_dp
+Q50=Q50+f*(8d0*gx(0)*gy(0)*gz(5)-40d0*gx(0)*gy(2)*gz(3)                 &
+    -40d0*gx(2)*gy(0)*gz(3)+15d0*gx(0)*gy(4)*gz(1)                      &
+    +30d0*gx(2)*gy(2)*gz(1)+15d0*gx(4)*gy(0)*gz(1))/8d0
+Q51s=Q51s+f*rt(3)*rt(5)*(8d0*gx(0)*gy(1)*gz(4)-12d0*gx(0)*gy(3)*gz(2)   &
+    -12d0*gx(2)*gy(1)*gz(2)+gx(0)*gy(5)*gz(0)+2d0*gx(2)*gy(3)*gz(0)     &
+    +gx(4)*gy(1)*gz(0))/8d0
+Q51c=Q51c+f*rt(3)*rt(5)*(8d0*gx(1)*gy(0)*gz(4)-12d0*gx(1)*gy(2)*gz(2)   &
+    -12d0*gx(3)*gy(0)*gz(2)+gx(1)*gy(4)*gz(0)+2d0*gx(3)*gy(2)*gz(0)     &
+    +gx(5)*gy(0)*gz(0))/8d0
+Q52s=Q52s+f*rt(3)*rt(5)*rt(7)*(4d0*gx(1)*gy(1)*gz(3)                    &
+    -2d0*gx(1)*gy(3)*gz(1)-2d0*gx(3)*gy(1)*gz(1))/4d0
+Q52c=Q52c+f*rt(3)*rt(5)*rt(7)*(-2d0*gx(0)*gy(2)*gz(3)                   &
+    +2d0*gx(2)*gy(0)*gz(3)+gx(0)*gy(4)*gz(1)-gx(4)*gy(0)*gz(1))/4d0
+Q53s=Q53s+f*rt(2)*rt(5)*rt(7)*(-8d0*gx(0)*gy(3)*gz(2)                   &
+    +24d0*gx(2)*gy(1)*gz(2)+gx(0)*gy(5)*gz(0)-2d0*gx(2)*gy(3)*gz(0)     &
+    -3d0*gx(4)*gy(1)*gz(0))/16d0
+Q53c=Q53c+f*rt(2)*rt(5)*rt(7)*(-24d0*gx(1)*gy(2)*gz(2)                  &
+    +8d0*gx(3)*gy(0)*gz(2)+3d0*gx(1)*gy(4)*gz(0)+2d0*gx(3)*gy(2)*gz(0)  &
+    -gx(5)*gy(0)*gz(0))/16d0
+Q54s=Q54s+f*rt(5)*rt(7)*(-12d0*gx(1)*gy(3)*gz(1)                        &
+    +12d0*gx(3)*gy(1)*gz(1))/8d0
+Q54c=Q54c+f*rt(5)*rt(7)*(3d0*gx(0)*gy(4)*gz(1)-18d0*gx(2)*gy(2)*gz(1)   &
+    +3d0*gx(4)*gy(0)*gz(1))/8d0
+Q55s=Q55s+f*rt(2)*rt(7)*(3d0*gx(0)*gy(5)*gz(0)-30d0*gx(2)*gy(3)*gz(0)   &
+    +15d0*gx(4)*gy(1)*gz(0))/16d0
+Q55c=Q55c+f*rt(2)*rt(7)*(15d0*gx(1)*gy(4)*gz(0)-30d0*gx(3)*gy(2)*gz(0)  &
+    +3d0*gx(5)*gy(0)*gz(0))/16d0
 
 !  Hexadecapole terms
 104                                                                     &
-Q40=Q40+f*(8_dp*gx(0)*gy(0)*gz(4)-24_dp*gx(0)*gy(2)*gz(2)                 &
-    -24_dp*gx(2)*gy(0)*gz(2)+3_dp*gx(0)*gy(4)*gz(0)                       &
-    +6_dp*gx(2)*gy(2)*gz(0)+3_dp*gx(4)*gy(0)*gz(0))/8_dp
-Q41s=Q41s+f*rt(2)*rt(5)*(4_dp*gx(0)*gy(1)*gz(3)-3_dp*gx(0)*gy(3)*gz(1)    &
-    -3_dp*gx(2)*gy(1)*gz(1))/4_dp
-Q41c=Q41c+f*rt(2)*rt(5)*(4_dp*gx(1)*gy(0)*gz(3)-3_dp*gx(1)*gy(2)*gz(1)    &
-    -3_dp*gx(3)*gy(0)*gz(1))/4_dp
-Q42s=Q42s+f*rt(5)*(12_dp*gx(1)*gy(1)*gz(2)-2_dp*gx(1)*gy(3)*gz(0)         &
-    -2_dp*gx(3)*gy(1)*gz(0))/4_dp
-Q42c=Q42c+f*rt(5)*(-6_dp*gx(0)*gy(2)*gz(2)+6_dp*gx(2)*gy(0)*gz(2)         &
-    +gx(0)*gy(4)*gz(0)-gx(4)*gy(0)*gz(0))/4_dp
+Q40=Q40+f*(8d0*gx(0)*gy(0)*gz(4)-24d0*gx(0)*gy(2)*gz(2)                 &
+    -24d0*gx(2)*gy(0)*gz(2)+3d0*gx(0)*gy(4)*gz(0)                       &
+    +6d0*gx(2)*gy(2)*gz(0)+3d0*gx(4)*gy(0)*gz(0))/8d0
+Q41s=Q41s+f*rt(2)*rt(5)*(4d0*gx(0)*gy(1)*gz(3)-3d0*gx(0)*gy(3)*gz(1)    &
+    -3d0*gx(2)*gy(1)*gz(1))/4d0
+Q41c=Q41c+f*rt(2)*rt(5)*(4d0*gx(1)*gy(0)*gz(3)-3d0*gx(1)*gy(2)*gz(1)    &
+    -3d0*gx(3)*gy(0)*gz(1))/4d0
+Q42s=Q42s+f*rt(5)*(12d0*gx(1)*gy(1)*gz(2)-2d0*gx(1)*gy(3)*gz(0)         &
+    -2d0*gx(3)*gy(1)*gz(0))/4d0
+Q42c=Q42c+f*rt(5)*(-6d0*gx(0)*gy(2)*gz(2)+6d0*gx(2)*gy(0)*gz(2)         &
+    +gx(0)*gy(4)*gz(0)-gx(4)*gy(0)*gz(0))/4d0
 Q43s=Q43s+f*rt(2)*rt(5)*rt(7)*(-gx(0)*gy(3)*gz(1)                       &
-    +3_dp*gx(2)*gy(1)*gz(1))/4_dp
-Q43c=Q43c+f*rt(2)*rt(5)*rt(7)*(-3_dp*gx(1)*gy(2)*gz(1)                   &
-    +gx(3)*gy(0)*gz(1))/4_dp
-Q44s=Q44s+f*rt(5)*rt(7)*(-4_dp*gx(1)*gy(3)*gz(0)+4_dp*gx(3)*gy(1)*gz(0))  &
-    /8_dp
-Q44c=Q44c+f*rt(5)*rt(7)*(gx(0)*gy(4)*gz(0)-6_dp*gx(2)*gy(2)*gz(0)        &
-    +gx(4)*gy(0)*gz(0))/8_dp
+    +3d0*gx(2)*gy(1)*gz(1))/4d0
+Q43c=Q43c+f*rt(2)*rt(5)*rt(7)*(-3d0*gx(1)*gy(2)*gz(1)                   &
+    +gx(3)*gy(0)*gz(1))/4d0
+Q44s=Q44s+f*rt(5)*rt(7)*(-4d0*gx(1)*gy(3)*gz(0)+4d0*gx(3)*gy(1)*gz(0))  &
+    /8d0
+Q44c=Q44c+f*rt(5)*rt(7)*(gx(0)*gy(4)*gz(0)-6d0*gx(2)*gy(2)*gz(0)        &
+    +gx(4)*gy(0)*gz(0))/8d0
 
 !  Octopole terms
 103                                                                     &
-Q30=Q30+f*(2_dp*gx(0)*gy(0)*gz(3)-3_dp*gx(0)*gy(2)*gz(1)                  &
-    -3_dp*gx(2)*gy(0)*gz(1))/2_dp
-Q31s=Q31s+f*rt(2)*rt(3)*(4_dp*gx(0)*gy(1)*gz(2)-gx(0)*gy(3)*gz(0)        &
-    -gx(2)*gy(1)*gz(0))/4_dp
-Q31c=Q31c+f*rt(2)*rt(3)*(4_dp*gx(1)*gy(0)*gz(2)-gx(1)*gy(2)*gz(0)        &
-    -gx(3)*gy(0)*gz(0))/4_dp
-Q32s=Q32s+f*rt(3)*rt(5)*(2_dp*gx(1)*gy(1)*gz(1))/2_dp
-Q32c=Q32c+f*rt(3)*rt(5)*(-gx(0)*gy(2)*gz(1)+gx(2)*gy(0)*gz(1))/2_dp
-Q33s=Q33s+f*rt(2)*rt(5)*(-gx(0)*gy(3)*gz(0)+3_dp*gx(2)*gy(1)*gz(0))/4_dp
-Q33c=Q33c+f*rt(2)*rt(5)*(-3_dp*gx(1)*gy(2)*gz(0)+gx(3)*gy(0)*gz(0))/4_dp
+Q30=Q30+f*(2d0*gx(0)*gy(0)*gz(3)-3d0*gx(0)*gy(2)*gz(1)                  &
+    -3d0*gx(2)*gy(0)*gz(1))/2d0
+Q31s=Q31s+f*rt(2)*rt(3)*(4d0*gx(0)*gy(1)*gz(2)-gx(0)*gy(3)*gz(0)        &
+    -gx(2)*gy(1)*gz(0))/4d0
+Q31c=Q31c+f*rt(2)*rt(3)*(4d0*gx(1)*gy(0)*gz(2)-gx(1)*gy(2)*gz(0)        &
+    -gx(3)*gy(0)*gz(0))/4d0
+Q32s=Q32s+f*rt(3)*rt(5)*(2d0*gx(1)*gy(1)*gz(1))/2d0
+Q32c=Q32c+f*rt(3)*rt(5)*(-gx(0)*gy(2)*gz(1)+gx(2)*gy(0)*gz(1))/2d0
+Q33s=Q33s+f*rt(2)*rt(5)*(-gx(0)*gy(3)*gz(0)+3d0*gx(2)*gy(1)*gz(0))/4d0
+Q33c=Q33c+f*rt(2)*rt(5)*(-3d0*gx(1)*gy(2)*gz(0)+gx(3)*gy(0)*gz(0))/4d0
 
 !  Quadrupole terms
 102                                                                     &
-Q20=Q20+f*(2_dp*gx(0)*gy(0)*gz(2)-gx(0)*gy(2)*gz(0)-gx(2)*gy(0)*gz(0))/2_dp
+Q20=Q20+f*(2d0*gx(0)*gy(0)*gz(2)-gx(0)*gy(2)*gz(0)-gx(2)*gy(0)*gz(0))/2d0
 Q21s=Q21s+f*rt(3)*(gx(0)*gy(1)*gz(1))
 Q21c=Q21c+f*rt(3)*(gx(1)*gy(0)*gz(1))
-Q22s=Q22s+f*rt(3)*(2_dp*gx(1)*gy(1)*gz(0))/2_dp
-Q22c=Q22c+f*rt(3)*(-gx(0)*gy(2)*gz(0)+gx(2)*gy(0)*gz(0))/2_dp
+Q22s=Q22s+f*rt(3)*(2d0*gx(1)*gy(1)*gz(0))/2d0
+Q22c=Q22c+f*rt(3)*(-gx(0)*gy(2)*gz(0)+gx(2)*gy(0)*gz(0))/2d0
 
 !  Dipole terms
 101   Q10=Q10+f*(gx(0)*gy(0)*gz(1))
@@ -2684,7 +2661,7 @@ REAL(dp), INTENT(INOUT) :: q2(121)
 !  Q00, Q10, Q11c, Q11s, Q20, ...
 !  Complex multipoles and harmonics are in the order
 !  Q00, Q1-1, Q10, Q11, Q2-2, ...
-REAL(dp), PARAMETER :: RTHALF=0.7071067811865475244_DP, EPS=0.0_DP
+REAL(dp), PARAMETER :: RTHALF=0.7071067811865475244D0, EPS=0.0D0
 
 REAL(dp) :: R(121), r2, a, s
 INTEGER :: i, jb, k, k1, kb, km, kmax, l, lb, lm, m, n2,         &
@@ -2701,10 +2678,10 @@ IF (L1 .GT. M1 .OR. L1 .GT. M2) RETURN
 !  If EPS is zero, this procedure is bypassed.
 n2=m2
 k1=max0(1,l1)
-if (eps .ne. 0.0_dp .and. m2 .gt. 0) then
-  r2=4.0_dp*(x**2+y**2+z**2)
+if (eps .ne. 0.0d0 .and. m2 .gt. 0) then
+  r2=4.0d0*(x**2+y**2+z**2)
   n2=0
-  a=0.0_dp
+  a=0.0d0
   if (l1 .eq. 0) a=q1(1)**2
   do k=k1,m2
     a=a*r2
@@ -2722,12 +2699,12 @@ end if
 call solidh (x,y,z, n2, r,121)
 !  Construct complex solid harmonics RC
 rc(1,1)=r(1)
-rc(1,2)=0.0_dp
+rc(1,2)=0.0d0
 do k=1,n2
   kb=k**2+k+1
   km=k**2+1
   rc(kb,1)=r(km)
-  rc(kb,2)=0.0_dp
+  rc(kb,2)=0.0d0
   km=km+1
   s=rthalf
   do m=1,k
@@ -2743,14 +2720,14 @@ end do
 !  real multipoles Q1
 if (l1 .eq. 0) then
   qc(1,1)=q1(1)
-  qc(1,2)=0.0_dp
+  qc(1,2)=0.0d0
 endif
 if (m1 .gt. 0) then
   do k=k1,m1
     kb=k**2+k+1
     km=k**2+1
     qc(kb,1)=q1(km)
-    qc(kb,2)=0.0_dp
+    qc(kb,2)=0.0d0
     km=km+1
     s=rthalf
     do m=1,k
@@ -2774,8 +2751,8 @@ do l=k1,n2
   lm=lb
   m=0
   do while (m .le. l)
-    qz(lm,1)=0.0_dp
-    qz(lm,2)=0.0_dp
+    qz(lm,1)=0.0d0
+    qz(lm,2)=0.0d0
     if (l1 .eq. 0) then
       qz(lm,1)=qc(1,1)*rc(lm,1)-qc(1,2)*rc(lm,2)
       qz(lm,2)=qc(1,1)*rc(lm,2)+qc(1,2)*rc(lm,1)
@@ -2802,7 +2779,7 @@ do k=k1,n2
   kb=k**2+k+1
   km=k**2+1
   q2(km)=q2(km)+qz(kb,1)
-  s=1.0_dp/rthalf
+  s=1.0d0/rthalf
   km=km+1
   do m=1,k
     s=-s
@@ -2853,7 +2830,7 @@ do
   if (rr(k) .le. 1d-6) then
     do i=t1,t2
       q(i,k)=q(i,k)+qt(i)
-      qt(i)=0.0_dp
+      qt(i)=0.0d0
     end do
     if (limit(k) .ge. lmax) return
   else
@@ -2866,7 +2843,7 @@ do
       m(n)=i
     end do
     if (n .gt. 1) then
-      an=1.0_dp/dble(n)
+      an=1.0d0/dble(n)
       do k=t1,t2
         qt(k)=an*qt(k)
       end do
@@ -2877,7 +2854,7 @@ do
           x-xs(1,k),y-xs(2,k),z-xs(3,k))
     end do
     do i=t1,t2
-      qt(i)=0.0_dp
+      qt(i)=0.0d0
     end do
     if (limit(k) .ge. lmax) return
     t1=t2+1
@@ -2886,7 +2863,7 @@ do
       call shiftq(q(1:,k),limit(k)+1,lmax, qt,lmax,                    &
           xs(1,k)-x,xs(2,k)-y,xs(3,k)-z)
       do l=t1,lp1sq
-        q(l,k)=0.0_dp
+        q(l,k)=0.0d0
       end do
     end do
   end if
@@ -2932,7 +2909,7 @@ endif
 rr=x**2+y**2+z**2
 if (j .ge. 0) then
 !  Regular
-  r(1)=1.0_dp
+  r(1)=1.0d0
   r(2)=z
   r(3)=x
   r(4)=y
@@ -2941,7 +2918,7 @@ if (j .ge. 0) then
   rfy=y
 else
 !  Irregular
-  rr=1.0_dp/rr
+  rr=1.0d0/rr
   rfx=x*rr
   rfy=y*rr
   rfz=z*rr
@@ -3031,7 +3008,7 @@ ELSE
     qf=Qfactor(l)
     ll1=l+l+1
     n=0
-    qsq=0_dp
+    qsq=0d0
     do i=1,ll1
       qsq=qsq+q(k+i)**2
       if (abs(q(k+i)) .ge. 5d-7) then
@@ -3074,12 +3051,12 @@ IMPLICIT NONE
 REAL(dp) :: xsq, ysq, zsq, xsum, ysum, zsum
 INTEGER :: is
 
-xsq=0_dp
-xsum=0_dp
-ysq=0_dp
-ysum=0_dp
-zsq=0_dp
-zsum=0_dp
+xsq=0d0
+xsum=0d0
+ysq=0d0
+ysum=0d0
+zsq=0d0
+zsum=0d0
 do is=1,ns
   xsum=xsum+xs(1,is)
   xsq=xsq+xs(1,is)**2

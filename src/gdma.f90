@@ -19,7 +19,6 @@ PROGRAM gdma
 !  the Free Software Foundation, Inc., 51 Franklin Street,
 !  Fifth Floor, Boston, MA 02110-1301, USA.
 
-use iso_fortran_env, only: real128, real64
 USE input
 USE version
 USE dma
@@ -28,7 +27,6 @@ USE timing, ONLY: start_timer, timer, time_and_date
 IMPLICIT NONE
 
 INTEGER, PARAMETER :: dp=kind(1d0)
-INTEGER, PARAMETER :: qp=real64
 
 CHARACTER(LEN=100) :: file
 CHARACTER(LEN=80) :: buffer
@@ -43,8 +41,7 @@ INTEGER, ALLOCATABLE :: shell_type(:)
 INTEGER :: i, j, k, kp=0
 LOGICAL :: eof, fchk, first, ok=.false.
 
-REAL(dp), ALLOCATABLE :: densty(:,:)
-REAL(qp), ALLOCATABLE :: dtri(:)
+REAL(dp), ALLOCATABLE :: densty(:,:), dtri(:)
 INTEGER :: ir=5 ! Input stream
 
 LOGICAL :: verbose=.false., debug(0:2)=.false.
@@ -193,7 +190,7 @@ LOGICAL, INTENT(OUT) :: ok
 
 INTEGER :: atom, i, j, k, n, nn, aok
 REAL(dp) :: e, rt3v2, td(5,6), tf(7,10), tg(9,15), th(11,21)
-REAL(dp) :: factor
+
 REAL(dp), ALLOCATABLE :: temp(:,:)
 LOGICAL eof
 CHARACTER :: text*40, buffer*80, ww*2, density_header*24, type*1
@@ -208,8 +205,9 @@ CHARACTER(LEN=2), DIMENSION(54) :: element=(/"H ", "He",               &
     "Ag", "Cd", "In", "Sn", "Sb", "Te", "I ", "Xe"/)
 REAL(dp), PARAMETER :: rt2=1.4142135623731d0,                          &
     rt3=1.73205080756888d0, rt5=2.23606797749979d0, rt7=2.64575131106459d0
-REAL(dp), PARAMETER :: rt10=rt2*rt5, rt14=rt2*rt7, rt15=rt3*rt5,       &
-    rt21=rt3*rt7, rt35=rt5*rt7, rt70=rt2*rt5*rt7, rt105=rt3*rt5*rt7
+REAL(dp), PARAMETER :: rt6 = rt2*rt3, rt10=rt2*rt5, rt14=rt2*rt7,      &
+    rt15=rt3*rt5, rt21=rt3*rt7, rt35=rt5*rt7, rt70=rt2*rt5*rt7,        &
+    rt105=rt3*rt5*rt7
 INTEGER, PARAMETER :: v400=1, v040=2, v004=3, v310=4, v301=5,          &
     v130=6, v031=7, v103=8, v013=9, v220=10, v202=11, v022=12,         &
     v211=13, v121=14, v112=15
@@ -282,39 +280,41 @@ tg(9,v310)=rt5/2d0; tg(9,v130)=-rt5/2d0
 !   v023=15, v311=16, v131=17, v113=18, v221=19, v212=20, v122=21
 th = 0d0
 !  50
-th(1,v401) = 15d0/8d0; th(1,v221) = 15d0/4d0; th(1,v041) = 15d0/8d0
-th(1,v203) = -5d0; th(1,v023) = -5d0; th(1,v005) = 1d0
+th(1,v401) = 5d0/8d0; th(1,v221) = rt15/(4d0*rt7); th(1,v041) = 5d0/8d0
+th(1,v203) = -5d0/rt21; th(1,v023) = -5d0/rt21; th(1,v005) = 1d0
 !  51c
-th(2,v500) = 1d0; th(2,v320) = 2d0; th(2,v140) = 1d0; th(2,v302) = -12d0
-th(2,v122) = -12d0; th(2,v104) = 8d0
-th(2,:) = th(2,:)*rt15/8d0
+th(2,v500) = rt15/8d0; th(2,v320) = rt5/(4d0*rt7)
+th(2,v140) = rt5/(8d0*rt3); th(2,v302) = -3d0*rt5/(2d0*rt7)
+th(2,v122) = -3d0/(2d0*rt7); th(2,v104) = rt5/rt3
 !  51s
-th(3,v050) = 1d0; th(3,v230) = 2d0; th(3,v410) = 1d0; th(3,v032) = -12d0
-th(3,v212) = -12d0; th(3,v014) = 8d0
-th(3,:) = th(3,:)*rt15/8d0
+th(3,v050) = rt15/8d0; th(3,v230) = rt5/(4d0*rt7)
+th(3,v410) = rt5/(8d0*rt3); th(3,v032) = -3d0*rt5/(2d0*rt7)
+th(3,v212) = -3d0/(2d0*rt7); th(3,v014) = rt5/rt3
 !  52c
-th(4,v401) = -1d0; th(4,v041) = 1d0; th(4,v203) = 2d0; th(4,v023) = -2d0
-th(4,:) = th(4,:) * rt105/4d0
+th(4,v401) = -rt35/(4d0*rt3); th(4,v041) = rt35/(4d0*rt3)
+th(4,v203) = rt5/2d0; th(4,v023) = -rt5/2d0
 !  52s
-th(5,v311) = -0.5d0*rt105; th(5,v131) = -0.5d0*rt105; th(5,v113) = rt105
+th(5,v311) = -rt5/(2d0*rt3); th(5,v131) = -rt5/(2d0*rt3)
+th(5,v113) = rt5/rt3
 !  53c
-th(6,v500) = -1d0; th(6,v320) = 2d0; th(6,v140) = 3d0; th(6,v302) = 8d0
-th(6,v122) = -24d0
-th(6,:) = th(6,:) * rt70/16d0
+th(6,v500) = -rt70/16d0; th(6,v320) = rt10/(8d0*rt3)
+th(6,v140) = rt70/16d0; th(6,v302) = rt10/(2d0*rt3)
+th(6,v122) = -rt6/2d0
 !  53s
-th(7,v410) = -3d0; th(7,v230) = -2d0; th(7,v050) = 1d0; th(7,v212) = 24d0
-th(7,v032) = -8d0
-th(7,:) = th(7,:) * rt70/16d0
+th(7,v050) = rt70/16d0; th(7,v230) = -rt10/(8d0*rt3)
+th(7,v410) = -rt70/16d0; th(7,v032) = -rt10/(2d0*rt3)
+th(7,v212) = rt6/2d0
 !  54c
-th(8,v401) = 3d0*rt35/8d0; th(8,v221) = -9*rt35/4d0; th(8,v041) = 3d0*rt35/8d0
+th(8,v401) = rt35/8d0; th(8,v221) = -3d0*rt3/4d0
+th(8,v041) = rt35/8d0
 !  54s
-th(9,v311) = 1.5d0*rt35; th(9,v131) = -1.5d0*rt35
+th(9,v311) = rt5/2d0; th(9,v131) = -rt5/2d0
 !  55c
-th(10,v500) = 3d0*rt14/16d0; th(10,v320) = -15d0*rt14/8d0;
-th(10,v140) = 15d0*rt14/16d0
+th(10,v500) = 3d0*rt14/16d0; th(10,v320) = -5d0*rt6/8d0
+th(10,v140) = 5d0*rt14/16d0
 ! 55s
-th(11,v410) = 15d0*rt14/16d0; th(11,v230) = -15d0*rt14/8d0;
-th(11,v050) = 3d0*rt14/16d0
+th(11,v050) = 3d0*rt14/16d0; th(11,v230) = -5d0*rt6/8d0
+th(11,v410) = 5d0*rt14/16d0
 
 
 ! select case(whichg)
@@ -554,9 +554,6 @@ do
         do j=1,i
           call getf(densty(i,j)); densty(j,i)=densty(i,j)
         end do
-        ! if (i < 7) then
-        !   print "(6f10.6)", (densty(i,j), j=1,i)
-        ! end if
       end do
       ok=.true.
     else
@@ -615,21 +612,15 @@ do i = 1,nshell
     case(3) ! f shell
       cs(j) = cs(j)*4d0*e*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/15d0)
     case(4) ! g shell
-      factor = (4d0*e)**2*sqrt(sqrt((2d0*e/pi)**3)/105d0)
-      print "(2(a,e12.4))", "g shell  e = ", e, " factor = ", factor
       cs(j) = cs(j)*(4d0*e)**2*sqrt(sqrt((2d0*e/pi)**3)/105d0)
     case(5) ! h shell
-      factor = (4d0*e)**2*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/945d0)
-      print "(2(a,e12.4))", "h shell  e = ", e, " factor = ", factor
-      cs(j) = cs(j)*factor
+      cs(j) = cs(j)*(4d0*e)**2*sqrt(4d0*e*sqrt((2d0*e/pi)**3)/945d0)
     end select
   end do
 end do
 
 if (.not. ok) return
 !     call matwrtt(densty,1,num,1,num,format='5F10.5', cols=5)
-
-
 
 !  Deal with shell types, transforming from spherical to cartesian
 !  basis if necessary. The number of basis functions is num at the
