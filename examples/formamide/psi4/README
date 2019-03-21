@@ -1,0 +1,4 @@
+The script HCONH2.psi4 and its output HCONH2-av5z-dma.out are included
+for information. The script was used to generate the HCONH2-av5z.fchk
+file. It is not necessary to run it for the purpose of the tests, but
+it may be helpful as a template for further calculations.

@@ -1,0 +1,13 @@
+Title "formamide aug-cc-pV5Z  Psi4 fchk file"
+File HCONH2-av5z.fchk
+
+Angstrom
+Multipoles
+  switch 4
+  Limit 4
+  Limit 1 H
+  Radius H 0.35
+  Punch HCONH2-dma4.punch
+Start
+
+Finish

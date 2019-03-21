@@ -1864,30 +1864,30 @@ do i=1,nat
 
 !  Vectors A and B are the positions of atoms I and J relative to the
 !  centre P of the overlap distribution.
-            p=aj/aa
-            xa=p*xji
-            ya=p*yji
-            za=p*zji
-            xb=xa-xji
-            yb=ya-yji
-            zb=za-zji
-            xp=xi-xa
-            yp=yi-ya
-            zp=zi-za
-            t=sqrt(1.0d0/aa)
-            if (iand(kr,2) .ne. 0) print ("(3(i5,i4), 3x, 3f10.5)"),      &
-                i,j, ii,jj, ig,jg, xp,yp,zp
+              p=aj/aa
+              xa=p*xji
+              ya=p*yji
+              za=p*zji
+              xb=xa-xji
+              yb=ya-yji
+              zb=za-zji
+              xp=xi-xa
+              yp=yi-ya
+              zp=zi-za
+              t=sqrt(1.0d0/aa)
+              if (iand(kr,2) .ne. 0) print ("(3(i5,i4), 3x, 3f10.5)"),      &
+                  i,j, ii,jj, ig,jg, xp,yp,zp
 !  LQ is the maximum rank of multipole to which these functions
 !  contribute. The integrals involve polynomials up to order 2LQ,
 !  for which NQ = LQ+1 quadrature points are required.
-            lq=la+lb
-            nq=lq+1
-            k1=mink(nq)
-            k2=maxk(nq)
-            !  Clear integral arrays
-            gx=0.0d0
-            gy=0.0d0
-            gz=0.0d0
+              lq=la+lb
+              nq=lq+1
+              k1=mink(nq)
+              k2=maxk(nq)
+              !  Clear integral arrays
+              gx=0.0d0
+              gy=0.0d0
+              gz=0.0d0
 
 !  The following loop runs through the integration points, accumulating
 !  in gx(iq,ia,ib) the quantity            
@@ -1895,84 +1895,66 @@ do i=1,nat
 !  where gk=w(k)/sqrt(aa) and xk=h(k)/sqrt(aa).
 !  Similar expressions for y and z integrals are formed in gy and gz.
 
-!!  in GX(LL1*L1*(IA-1)+L1*(IB-1)+IQ) the quantity
-!!       sum(k) gk * (xk-xA)**(IA-1) * (xk-xB)**(IB-1) * xk**(IQ-1)
-
-!  where gk=w(k)/sqrt(AA) and xk=h(k)/sqrt(AA), and L1=L+1 and
-!  LL1=2L+1, where L is the maximum angular momentum to be handled,
-!  i.e. 5 at present.
-!  Similar expressions for y and z integrals are formed in GY and GZ.
-            do k=k1,k2
-              s=h(k)*t
-              g=w(k)*t
-              xas=s-xa
-              yas=s-ya
-              zas=s-za
-              xbs=s-xb
-              ybs=s-yb
-              zbs=s-zb
-              ! ma=0
-              pax=g
-              pay=g
-              paz=g
-              do ia=0,la
-                ! mb=ma
-                px=pax
-                py=pay
-                pz=paz
-                do ib=0,lb
-                  pq=1.0d0
-                  do iq=0,nq
-                    gx(iq,ia,ib)=gx(iq,ia,ib)+px*pq
-                    gy(iq,ia,ib)=gy(iq,ia,ib)+py*pq
-                    gz(iq,ia,ib)=gz(iq,ia,ib)+pz*pq
-                    pq=pq*s
+              do k=k1,k2
+                s=h(k)*t
+                g=w(k)*t
+                xas=s-xa
+                yas=s-ya
+                zas=s-za
+                xbs=s-xb
+                ybs=s-yb
+                zbs=s-zb
+                pax=g
+                pay=g
+                paz=g
+                do ia=0,la
+                  px=pax
+                  py=pay
+                  pz=paz
+                  do ib=0,lb
+                    pq=1.0d0
+                    do iq=0,nq
+                      gx(iq,ia,ib) = gx(iq,ia,ib) + px*pq
+                      gy(iq,ia,ib) = gy(iq,ia,ib) + py*pq
+                      gz(iq,ia,ib) = gz(iq,ia,ib) + pz*pq
+                      pq=pq*s
+                    end do
+                    px=px*xbs
+                    py=py*ybs
+                    pz=pz*zbs
                   end do
-                  ! mb=mb+ll1
-                  px=px*xbs
-                  py=py*ybs
-                  pz=pz*zbs
+                  pax=pax*xas
+                  pay=pay*yas
+                  paz=paz*zas
                 end do
-                ! ma=ma+l1*ll1
-                pax=pax*xas
-                pay=pay*yas
-                paz=paz*zas
               end do
-            end do
 !  Now these basic integrals are used to construct the multipole moments
 !  for the overlap density corresponding to each pair of basis functions
 !  in the pair of shells.
-            qt=0.0d0
-            ci=cs(ig)
-            do ia=mini,maxi
-              if (ia > 1 .and. la == 1) ci=cp(ig)
-              cj=cs(jg)
-              do jb=minj,maxj
-                if (jb > 1 .and. lb == 1) cj=cp(jg)
-                if (abs(d(ia,jb)) > 1d-12) then 
-                  f = -fac*ci*cj*d(ia,jb)
+              qt=0.0d0
+              ci=cs(ig)
+              do ia=mini,maxi
+                if (ia > 1 .and. la == 1) ci=cp(ig)
+                cj=cs(jg)
+                do jb=minj,maxj
+                  if (jb > 1 .and. lb == 1) cj=cp(jg)
+                  if (abs(d(ia,jb)) > 1d-12) then 
+                    f = -fac*ci*cj*d(ia,jb)
 !  Now the integral of (x**i)*(y**j)*(z**k) over the current pair of
 !  atomic primitive orbitals is 
 !  f * gx(i,ix(ia),ix(jb)) * gy(j,iy(ia),iy(jb)) * gz(k,iz(ia),iz(jb))
-                  ! if (iand(kr,4) .ne. 0) then
-                  !   ch = f * gx(0,ix(ia),ix(jb)) * gy(0,iy(ia),iy(jb))  &
-                  !       * gz(0,iz(ia),iz(jb))
-                  !   if (abs(ch) > 1d-10 .and. (la == 5 .or. lb == 5))   &
-                  !       print "(2a4,2i3,2x, 2i3, f12.8)",                &
-                  !       name(i), name(j), la, lb, ib, jb, ch
-                  ! end if
-                  call addqlm(lq, f, gx(:,ix(ia),ix(jb)),               &
-                      gy(:,iy(ia),iy(jb)),gz(:,iz(ia),iz(jb)))
-                end if
-                !  End of loop over basis functions
+                    call addqlm(lq, f, gx(:,ix(ia),ix(jb)),               &
+                        gy(:,iy(ia),iy(jb)),gz(:,iz(ia),iz(jb)))
+                  end if
+                  !  End of loop over basis functions
+                end do
               end do
-            end do
 
-            if (iand(kr,1) .ne. 0) print "(f10.6: / 3f10.6: / 5f10.6: / 7f10.6: / 9f10.6: /&
-                & 11f10.6: / 13f10.6: / 15f10.6: / 17f10.6: / 19f10.6: / 21f10.6)", &
-                qt(1:(nq+1)**2)
+              if (iand(kr,1) .ne. 0) print "(f10.6: / 3f10.6: / 5f10.6: / 7f10.6: / 9f10.6: /&
+                  & 11f10.6: / 13f10.6: / 15f10.6: / 17f10.6: / 19f10.6: / 21f10.6)", &
+                  qt(1:(nq+1)**2)
 !  Move multipoles to expansion centre nearest to overlap centre P.
-            call moveq(xp,yp,zp)
+              call moveq(xp,yp,zp)
 
             else
 !  General case. Use integration over grid to assign multipole moments

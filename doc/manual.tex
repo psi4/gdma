@@ -42,24 +42,28 @@
 
 \begin{center}
 \textbf{Distributed Multipole Analysis of Gaussian wavefunctions\\[3pt]
-GDMA version 2.2.10\\[4 pt]
+GDMA version 2.3.0\\[4 pt]
 Anthony J. Stone}
 \end{center}
 
 \section{Introduction}
 
 The GDMA program carries out Distributed Multipole Analysis of
-wavefunctions expressed in terms of Gaussian atomic orbitals,
-calculated using either the Gaussian system of
-programs\cite{Gaussian03}, using the formatted checkpoint file produced by
-Gaussian, or the {\sc CamCASP} package\cite{CamCASP}.
+wavefunctions expressed in terms of Gaussian atomic orbitals.
+The calculation can be carried out directly in the CamCASP
+program\cite{CamCASP5.9}, or
+by using as input the formatted checkpoint (``.fchk'') file
+that can be generated using the Psi4 quantum chemistry code\cite{psi4} or the
+Gaussian system of programs\cite{Gaussian16}
+.
 If you find any bugs, please send email to Anthony
 Stone, ajs1@cam.ac.uk. Comments and corrections would also be welcome.
-Instructions given here refer to the use of the program with Gaussian.
+Instructions given here refer to the use of the program with a .fchk file.
 Most of the information also applies to the {\sc CamCASP} package; for
-the differences, see the {\sc CamCASP} documentation.
+the differences, see the {\sc CamCASP} documentation. CamCASP does not
+as yet provide for basis sets that include $h$ basis functions.
 
-The recommended procedure for using the program with Gaussian is to
+The recommended procedure for using the program is to
 construct a small data file of the following form:\\
 \hspace*{2 em}\verb/FILE/ \emph{checkpointfile} %
 \verb/[DENSITY/ \emph{density-type}\verb/]/\\
@@ -82,7 +86,9 @@ specified; if the name contains spaces it must be enclosed in single
 or double quotes. The \verb/NAMES/
 command is optional, but may be needed for some DMA options. If it is
 provided, the atom names should be listed, separated by spaces, in the
-order that the atoms appear in the checkpoint file. If the
+order that the atoms appear in the checkpoint file. (At this point the
+program knows how many atoms there are, but the checkpoint file
+doesn't include their names.) If the
 \verb/NAMES/ command is omitted, each atom is given a name which is
 the chemical symbol corresponding to its atomic number. The
 \verb/MULTIPOLES/ command may be repeated to obtain DMAs with
@@ -98,11 +104,12 @@ print information about the data read from the checkpoint file. It is
 primarily for debugging purposes and should not normally be needed.
 
 \hspace*{2 em}\verb/ANGSTROM/\\
-If needed, this should follow the \verb+FILE+ command unless the atom coordinates in
-the formatted checkpoint file are in Angstrom instead of atomic units.
-Any coordinates given in subsequent \verb+MULTIPOLES+ sections of the data
-(see below) will then be taken to be in Angstrom, and coordinates printed
-by the program will be given in Angstrom also, instead of atomic units.
+If needed, this should follow the \verb+FILE+ command unless the atom
+coordinates in 
+the formatted checkpoint file are in {\aa}ngstrom instead of atomic units.
+Any length values given in subsequent \verb+MULTIPOLES+ sections of the data
+(see below) will then be taken to be in {\aa}ngstrom, and coordinates printed
+by the program will be given in {\aa}ngstrom also, instead of atomic units.
 
 % \pagebreak
 \hspace*{2 em}\verb/BOHR/\\
@@ -129,6 +136,15 @@ which causes Gaussian to produce a binary checkpoint file called
 \emph{chkfile}. There is a Gaussian utility \verb+formchk+ which
 converts this into the formatted checkpoint file used by GDMA.
 
+For Psi4, see the Psi4 documentation. In brief, if running under
+psithon, use something like\\[6pt]
+\hspace{1em}\begin{minipage}[c]{100mm}
+\begin{verbatim}
+energy, wfn = psi4.energy("PBE0", return\_wfn=True)
+psi4.fchk(wfn,"pbe0.fchk")
+\end{verbatim}
+  \end{minipage}
+
 \section {Distributed Multipole Analysis}
 
 Distributed Multipole Analysis or DMA is a technique for describing a
@@ -138,8 +154,8 @@ much more accurate representation of the charge density than a
 single-point multipole expansion, even for small molecules. For
 details see \S\ref{multipoles} below. Note that the accuracy of the
 description depends on the inclusion of site dipoles, quadrupoles and
-possibly higher moments. If you need a point-charge model, the charges from the
-distributed multipole analysis are not suitable, but see
+possibly higher moments. If you need a point-charge model, the charges
+from the distributed multipole analysis are not suitable, but see
 \S\ref{subsec:ptcharge} for suggestions. The sites
 are usually the nuclei, but existing sites can be omitted and
 new sites added. The multipoles are the charges,
@@ -163,7 +179,7 @@ an explanation of the \verb+SWITCH+ and \verb+RADIUS+ commands.)\\
 When used with the output file from a B3LYP calculation on water,
 using the aug-cc-pVTZ basis set, the
 output is as shown %in Figure~\ref{fig:H2O}.
-on the next page.  On the oxygen one gets the
+below.  On the oxygen one gets the
 charge (Q00), the components of the dipole (Q1), the quadrupole (Q2),
 octopole (Q3) and hexadecapole (Q4) moments, while on the hydrogen one
 gets only the charge and dipole moment. The components are expressed 
@@ -204,6 +220,7 @@ referred to origin at x =   0.000000,  y =    0.000000,  z =    0.000000
 \end{verbatim}
 % \end{figure}
 
+\clearpage
 \normalsize
 \subsection{Definitions of multipole moments}
 \label{multipoles}
@@ -437,7 +454,7 @@ and $\chi_j$ is less than a switch value $Z$, the grid-based analysis
 is used, and otherwise the original DMA method is used. If $Z=0.0$,
 the original DMA algorithm is used throughout. However the default
 value is $Z=4.0$, and this is recommended for normal use, especially
-with basis sets contgaining very diffuse functions. The parameters for
+with basis sets containing very diffuse functions. The parameters for
 the grid-based quadrature can also be specified, but the default
 values should be satisfactory in most cases.
 
@@ -690,7 +707,7 @@ hexadecapoles.) Fig.~\ref{fig:formamide}(c) illustrates the improvement
 that can be obtained in this way; the r.m.s. error is 0.041V. 
 Fig.~\ref{fig:formamide}(d) was obtained using the charges from an
 iterated stockholder atom (ISA) description\cite{MisquittaSF14}, calculated
-using the {\sc CamCASP} program of Misquitta \& Stone\cite{CamCASP},
+using the {\sc CamCASP} program of Misquitta \& Stone\cite{CamCASP5.9},
 and Fig.~\ref{fig:formamide}(e) was obtained using CHELPG charges,
 calculated using Gaussian03. The r.m.s. differences for these cases
 are 0.044V and 0.034V respectively. Note that the ISA method yields a
@@ -707,7 +724,7 @@ A number of examples are provided in the \verb/examples/ directory and
 its subdirectories, together with output files. The script
 \verb/run.tests/ in the \verb/examples/ directory runs these
 calculations automatically and compares the results with the output
-files provided.
+files provided. 
 
 \section{Program limits}
 
@@ -726,6 +743,11 @@ to the program.
 
 
 \section{Revision notes}
+
+\textbf{Version 2.3.0} allows for basis sets that include $h$
+functions. Both Gaussian and Psi4 can produce the necessary fchk
+files. An unnecessary limit of 16 on contraction depth has been
+removed.
 
 \textbf{Version 2.2.02} uses dynamic allocation of arrays, so that
 there are no arbitrary limits on the size of the molecule or the basis

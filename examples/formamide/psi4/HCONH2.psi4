@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+#  -*-  coding:  utf-8  -*-
+
+import os, sys
+import psi4
+import numpy as np
+
+formamide = psi4.geometry("""
+  no_reorient
+  no_com
+  symmetry C1
+     C       0.73690219    -0.29016270     0.00000000
+     O      -0.41965533    -2.26421099     0.00000000
+     N      -0.33761508     2.03824113     0.00000000
+     H1      2.82092994    -0.20596490     0.00000000
+     H2     -2.23332780     2.19617606     0.00000000
+     H3      0.72278745     3.61139057     0.00000000
+""")
+
+
+
+psi4.set_options({
+  'basis': 'aug-cc-pv5z',
+  'reference': 'rhf',
+  'ints_tolerance': 1.0E-10
+})
+
+energy, wfn = psi4.energy('PBE0', return_wfn=True)
+
+psi4.fchk(wfn,'HCONH2-av5z.fchk')
+

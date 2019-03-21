@@ -1,38 +1,49 @@
 \newcommand{\SortNoOp}[1]{}
-\begin{thebibliography}{16}
+\begin{thebibliography}{17}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
-\bibitem[Frisch \emph{et~al.}(2004)Frisch, Trucks, Schlegel, Scuseria, Robb,
-  Cheeseman, Montgomery, Vreven, Kudin, Burant, Millam, Iyengar, Tomasi,
-  Barone, Mennucci, Cossi, Scalmani, Rega, Petersson, Nakatsuji, Hada, Ehara,
-  Toyota, Fukuda, Hasegawa, Ishida, Nakajima, Honda, Kitao, Nakai, Klene, Li,
-  Knox, Hratchian, Cross, Bakken, Adamo, Jaramillo, Gomperts, Stratmann,
-  Yazyev, Austin, Cammi, Pomelli, Ochterski, Ayala, Morokuma, Voth, Salvador,
-  Dannenberg, Zakrzewski, Dapprich, Daniels, Strain, Farkas, Malick, Rabuck,
-  Raghavachari, Foresman, Ortiz, Cui, Baboul, Clifford, Cioslowski, Stefanov,
-  Liu, Liashenko, Piskorz, Komaromi, Martin, Fox, Keith, Al-Laham, Peng,
-  Nanayakkara, Challacombe, Gill, Johnson, Chen, Wong, Gonzalez and
-  Pople]{Gaussian03}
-M.~J. Frisch, G.~W. Trucks, H.~B. Schlegel, G.~E. Scuseria, M.~A. Robb, J.~R.
-  Cheeseman, J.~A. Montgomery, Jr., T.~Vreven, K.~N. Kudin, J.~C. Burant, J.~M.
-  Millam, S.~S. Iyengar, J.~Tomasi, V.~Barone, B.~Mennucci, M.~Cossi,
-  G.~Scalmani, N.~Rega, G.~A. Petersson, H.~Nakatsuji, M.~Hada, M.~Ehara,
-  K.~Toyota, R.~Fukuda, J.~Hasegawa, M.~Ishida, T.~Nakajima, Y.~Honda,
-  O.~Kitao, H.~Nakai, M.~Klene, X.~Li, J.~E. Knox, H.~P. Hratchian, J.~B.
-  Cross, V.~Bakken, C.~Adamo, J.~Jaramillo, R.~Gomperts, R.~E. Stratmann,
-  O.~Yazyev, A.~J. Austin, R.~Cammi, C.~Pomelli, J.~W. Ochterski, P.~Y. Ayala,
-  K.~Morokuma, G.~A. Voth, P.~Salvador, J.~J. Dannenberg, V.~G. Zakrzewski,
-  S.~Dapprich, A.~D. Daniels, M.~C. Strain, O.~Farkas, D.~K. Malick, A.~D.
-  Rabuck, K.~Raghavachari, J.~B. Foresman, J.~V. Ortiz, Q.~Cui, A.~G. Baboul,
-  S.~Clifford, J.~Cioslowski, B.~B. Stefanov, G.~Liu, A.~Liashenko, P.~Piskorz,
-  I.~Komaromi, R.~L. Martin, D.~J. Fox, T.~Keith, M.~A. Al-Laham, C.~Y. Peng,
-  A.~Nanayakkara, M.~Challacombe, P.~M.~W. Gill, B.~G. Johnson, W.~Chen, M.~W.
-  Wong, C.~Gonzalez and J.~A. Pople, Gaussian 03, Gaussian, {Inc.},
-  Wallingford, CT,  (2004).
-
-\bibitem[Misquitta and Stone(2011)]{CamCASP}
-A.~J. Misquitta and A.~J. Stone,  (2011), in preparation. See also
+\bibitem[Misquitta and Stone(2016)]{CamCASP5.9}
+A.~J. Misquitta and A.~J. Stone, {CamCASP}: a program for studying
+  intermolecular interactions and for the calculation of molecular properties
+  in distributed form, University of Cambridge,  (2016), Enquiries to
+  a.j.misquitta@qmul.ac.uk. See also
   {\url{www-stone.ch.cam.ac.uk/programs.html}}.
+
+\bibitem[Parrish \emph{et~al.}(2017)Parrish, Burns, Smith, Simmonett, III,
+  Hohenstein, Bozkaya, Sokolov, Remigio, Richard, Gonthier, James, McAlexander,
+  Kumar, Saitow, Wang, Pritchard, Verma, III, Patkowski, King, Valeev,
+  Evangelista, Turney, Crawford and Sherrill]{psi4}
+R.~M. Parrish, L.~A. Burns, D.~G.~A. Smith, A.~C. Simmonett, A.~E.~D. III,
+  E.~G. Hohenstein, U.~Bozkaya, A.~Y. Sokolov, R.~D. Remigio, R.~M. Richard,
+  J.~F. Gonthier, A.~M. James, H.~R. McAlexander, A.~Kumar, M.~Saitow, X.~Wang,
+  B.~P. Pritchard, P.~Verma, H.~F.~S. III, K.~Patkowski, R.~A. King, E.~F.
+  Valeev, F.~A. Evangelista, J.~M. Turney, T.~D. Crawford and C.~D. Sherrill,
+  J.~Chem. Theory Comput. 13 (2017) 3185.
+
+\bibitem[Frisch \emph{et~al.}(2016)Frisch, Trucks, Schlegel, Scuseria, Robb,
+  Cheeseman, Scalmani, Barone, Petersson, Nakatsuji, Li, Caricato, Marenich,
+  Bloino, Janesko, Gomperts, Mennucci, Hratchian, Ortiz, Izmaylov, Sonnenberg,
+  Williams-Young, Ding, Lipparini, Egidi, Goings, Peng, Petrone, Henderson,
+  Ranasinghe, Zakrzewski, Gao, Rega, Zheng, Liang, Hada, Ehara, Toyota, Fukuda,
+  Hasegawa, Ishida, Nakajima, Honda, Kitao, Nakai, Vreven, Throssell,
+  Montgomery, Peralta, Ogliaro, Bearpark, Heyd, Brothers, Kudin, Staroverov,
+  Keith, Kobayashi, Normand, Raghavachari, Rendell, Burant, Iyengar, Tomasi,
+  Cossi, Millam, Klene, Adamo, Cammi, Ochterski, Martin, Morokuma, Farkas,
+  Foresman and Fox]{Gaussian16}
+M.~J. Frisch, G.~W. Trucks, H.~B. Schlegel, G.~E. Scuseria, M.~A. Robb, J.~R.
+  Cheeseman, G.~Scalmani, V.~Barone, G.~A. Petersson, H.~Nakatsuji, X.~Li,
+  M.~Caricato, A.~V. Marenich, J.~Bloino, B.~G. Janesko, R.~Gomperts,
+  B.~Mennucci, H.~P. Hratchian, J.~V. Ortiz, A.~F. Izmaylov, J.~L. Sonnenberg,
+  D.~Williams-Young, F.~Ding, F.~Lipparini, F.~Egidi, J.~Goings, B.~Peng,
+  A.~Petrone, T.~Henderson, D.~Ranasinghe, V.~G. Zakrzewski, J.~Gao, N.~Rega,
+  G.~Zheng, W.~Liang, M.~Hada, M.~Ehara, K.~Toyota, R.~Fukuda, J.~Hasegawa,
+  M.~Ishida, T.~Nakajima, Y.~Honda, O.~Kitao, H.~Nakai, T.~Vreven,
+  K.~Throssell, J.~A. Montgomery, {Jr.}, J.~E. Peralta, F.~Ogliaro, M.~J.
+  Bearpark, J.~J. Heyd, E.~N. Brothers, K.~N. Kudin, V.~N. Staroverov, T.~A.
+  Keith, R.~Kobayashi, J.~Normand, K.~Raghavachari, A.~P. Rendell, J.~C.
+  Burant, S.~S. Iyengar, J.~Tomasi, M.~Cossi, J.~M. Millam, M.~Klene, C.~Adamo,
+  R.~Cammi, J.~W. Ochterski, R.~L. Martin, K.~Morokuma, O.~Farkas, J.~B.
+  Foresman and D.~J. Fox  (2016), Gaussian Inc. Wallingford CT.
 
 \bibitem[Stone(1981)]{Stone81a}
 A.~J. Stone, Chem. Phys. Lett. 83 (1981) 233.

@@ -2,7 +2,7 @@
 
 set diff = $cwd/diff.py
 set program = $cwd/../bin/gdma
-set tests = ( CO/G03 H2O C2H4/G03 formamide )
+set tests = ( CO/G03 H2O C2H4/G03 formamide/G03 formamide/psi4 )
 if ( $#argv > 0 ) then
   switch($1)
   case -h:
