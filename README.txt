@@ -1,4 +1,4 @@
-                   GDMA version 2.2
+                   GDMA version 2.3
 
 The GDMA program carries out distributed multipole analysis of
 wavefunctions calculated by the Gaussian system of programs, using the
