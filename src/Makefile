@@ -1,4 +1,3 @@
-FC    := gfortran
 
 gdma: gdma.o dma.o atom_grids.o input.o timing.o version.o
 	${FC} ${FFLAGS} $^ -o gdma
