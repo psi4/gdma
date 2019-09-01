@@ -21,7 +21,7 @@ Obtaining the program
 ---------------------
 
 In a suitable directory, run the command
-  git clone https://git.uis.cam.ac.uk/x/ch-stone/u/ajs1/gdma.git
+  git clone git@gitlab.com:anthonyjs/gdma.git
 This will construct a clone of the program files in the subdirectory
 gdma.
 

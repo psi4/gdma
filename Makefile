@@ -1,6 +1,8 @@
 INSTALL_DIR := /usr/local/bin
 
-COMPILER := gfortran
+ifndef COMPILER
+  COMPILER := gfortran
+endif
 
 FFLAGS := -O2
 FC     := ${COMPILER}
