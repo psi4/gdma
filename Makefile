@@ -9,6 +9,7 @@ FC     := ${COMPILER}
 
 gdma:
 	cd src; ${MAKE} FFLAGS="${FFLAGS}" FC=${FC}
+	mkdir -p bin
 	rm -f bin/gdma
 	ln src/gdma bin
 

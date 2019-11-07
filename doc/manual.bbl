@@ -2,10 +2,10 @@
 \begin{thebibliography}{17}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
-\bibitem[Misquitta and Stone(2016)]{CamCASP5.9}
+\bibitem[Misquitta and Stone(2019)]{CamCASP6.0}
 A.~J. Misquitta and A.~J. Stone, {CamCASP}: a program for studying
   intermolecular interactions and for the calculation of molecular properties
-  in distributed form, University of Cambridge,  (2016), Enquiries to
+  in distributed form, University of Cambridge,  (2019), Enquiries to
   a.j.misquitta@qmul.ac.uk. See also
   {\url{www-stone.ch.cam.ac.uk/programs.html}}.
 

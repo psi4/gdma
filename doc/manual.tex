@@ -42,7 +42,7 @@
 
 \begin{center}
 \textbf{Distributed Multipole Analysis of Gaussian wavefunctions\\[3pt]
-GDMA version 2.3.0\\[4 pt]
+GDMA version 2.3\\[4 pt]
 Anthony J. Stone}
 \end{center}
 
@@ -51,7 +51,7 @@ Anthony J. Stone}
 The GDMA program carries out Distributed Multipole Analysis of
 wavefunctions expressed in terms of Gaussian atomic orbitals.
 The calculation can be carried out directly in the CamCASP
-program\cite{CamCASP5.9}, or
+program\cite{CamCASP6.0}, or
 by using as input the formatted checkpoint (``.fchk'') file
 that can be generated using the Psi4 quantum chemistry code\cite{psi4} or the
 Gaussian system of programs\cite{Gaussian16}
@@ -60,8 +60,7 @@ If you find any bugs, please send email to Anthony
 Stone, ajs1@cam.ac.uk. Comments and corrections would also be welcome.
 Instructions given here refer to the use of the program with a .fchk file.
 Most of the information also applies to the {\sc CamCASP} package; for
-the differences, see the {\sc CamCASP} documentation. CamCASP does not
-as yet provide for basis sets that include $h$ basis functions.
+the differences, see the {\sc CamCASP} documentation.
 
 The recommended procedure for using the program is to
 construct a small data file of the following form:\\
@@ -140,7 +139,7 @@ For Psi4, see the Psi4 documentation. In brief, if running under
 psithon, use something like\\[6pt]
 \hspace{1em}\begin{minipage}[c]{100mm}
 \begin{verbatim}
-energy, wfn = psi4.energy("PBE0", return\_wfn=True)
+energy, wfn = psi4.energy("PBE0", return_wfn=True)
 psi4.fchk(wfn,"pbe0.fchk")
 \end{verbatim}
   \end{minipage}
@@ -179,10 +178,11 @@ an explanation of the \verb+SWITCH+ and \verb+RADIUS+ commands.)\\
 When used with the output file from a B3LYP calculation on water,
 using the aug-cc-pVTZ basis set, the
 output is as shown %in Figure~\ref{fig:H2O}.
-below.  On the oxygen one gets the
-charge (Q00), the components of the dipole (Q1), the quadrupole (Q2),
-octopole (Q3) and hexadecapole (Q4) moments, while on the hydrogen one
-gets only the charge and dipole moment. The components are expressed 
+below.  On the oxygen we see the
+charge (Q00) and the components of the dipole (Q1), the quadrupole (Q2),
+octopole (Q3) and hexadecapole (Q4) moments, while on the hydrogen we
+see only the charge and dipole moment, as specified by the
+\verb+LIMIT 1 H+ data line. The components are expressed 
 in terms of spherical harmonic definitions (see below). Only the
 non-zero moments are printed.
 % \pagebreak
@@ -707,7 +707,7 @@ hexadecapoles.) Fig.~\ref{fig:formamide}(c) illustrates the improvement
 that can be obtained in this way; the r.m.s. error is 0.041V. 
 Fig.~\ref{fig:formamide}(d) was obtained using the charges from an
 iterated stockholder atom (ISA) description\cite{MisquittaSF14}, calculated
-using the {\sc CamCASP} program of Misquitta \& Stone\cite{CamCASP5.9},
+using the {\sc CamCASP} program of Misquitta \& Stone\cite{CamCASP6.0},
 and Fig.~\ref{fig:formamide}(e) was obtained using CHELPG charges,
 calculated using Gaussian03. The r.m.s. differences for these cases
 are 0.044V and 0.034V respectively. Note that the ISA method yields a
@@ -744,7 +744,7 @@ to the program.
 
 \section{Revision notes}
 
-\textbf{Version 2.3.0} allows for basis sets that include $h$
+\textbf{Version 2.3} allows for basis sets that include $h$
 functions. Both Gaussian and Psi4 can produce the necessary fchk
 files. An unnecessary limit of 16 on contraction depth has been
 removed.
