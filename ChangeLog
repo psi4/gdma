@@ -1,0 +1,6 @@
+2020-03-09  Anthony Stone  <ajs1@cam.ac.uk>
+
+	* dma.f90 (addql0,addqlm): Code rewritten to avoid the obsolete
+	computed go-to statement.
+
+
