@@ -13,8 +13,8 @@ gdma:
 	rm -f bin/gdma
 	ln src/gdma bin
 
-test:
-	cd examples; ./run.tests
+test, tests:
+	cd examples; ./gdma_tests.py
 
 install:
 	cp -p bin/gdma ${INSTALL_DIR}
