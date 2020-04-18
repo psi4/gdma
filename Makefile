@@ -13,7 +13,7 @@ gdma:
 	rm -f bin/gdma
 	ln src/gdma bin
 
-test, tests:
+test tests:
 	cd examples; ./gdma_tests.py
 
 install:
