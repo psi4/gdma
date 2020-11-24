@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #  -*-  coding:  utf-8  -*-
 
 """Construct the version.f90 file that contains version details.
@@ -33,19 +33,20 @@ with open(args.vfile) as IN:
   patchlevel = re.sub("PATCHLEVEL +:= +", "", line)
 
 now = datetime.today().strftime('%d %B %Y at %H:%M:%S')
-log = subprocess.check_output("git log -n 1 --oneline", shell=True)
+log = subprocess.check_output("git log -n 1 --oneline", shell=True,
+                              universal_newlines=True)
 commit = log.split()[0]
 
 with open(args.v90,"w") as OUT:
-  OUT.write("""MODULE version
+  OUT.write(f"""MODULE version
 
 !  version.f90 is generated automatically by version.py
 !  GDMA version and build date
-CHARACTER(*), PARAMETER :: gdma_version = "{}.{}"
-""".format(version,patchlevel))
+CHARACTER(*), PARAMETER :: gdma_version = "{version}.{patchlevel}"
+""")
 
-  OUT.write('CHARACTER(*), PARAMETER :: commit="{}"\n'.format(commit))
-  OUT.write('CHARACTER(*), PARAMETER :: compiler="{}"\n'.format(args.compiler))
-  OUT.write('CHARACTER(*), PARAMETER :: compiled="{}"\n'.format(now))
+  OUT.write(f'CHARACTER(*), PARAMETER :: commit="{commit}"\n')
+  OUT.write(f'CHARACTER(*), PARAMETER :: compiler="{args.compiler}"\n')
+  OUT.write(f'CHARACTER(*), PARAMETER :: compiled="{now}"\n')
 
   OUT.write('\nEND MODULE version\n')
