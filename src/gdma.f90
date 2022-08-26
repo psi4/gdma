@@ -25,6 +25,9 @@ module gdma
 USE input
 use iso_c_binding
 
+use iso_fortran_env, only : std_out=>output_unit
+ 
+
 USE dma
 USE atom_grids, ONLY: debug_grid => debug
 USE timing, ONLY: start_timer, timer, time_and_date
@@ -92,12 +95,16 @@ if ( open_status /= 0 ) then
     'unit = ', infile
     stop
 endif
-open (unit=outfile, file=outfilename, status='old', &
-    iostat=open_status, action='write', position='append')
-if ( open_status /= 0 ) then
-    write(outfile, *) 'Could not open psi4 output for writing.', &
-    'unit = ', infile
-    stop
+if(outfilename=='stdout') then
+  outfile=std_out
+else
+  open (unit=outfile, file=outfilename, status='old', &
+      iostat=open_status, action='write', position='append')
+  if ( open_status /= 0 ) then
+      write(outfile, *) 'Could not open psi4 output for writing.', &
+      'unit = ', infile
+      stop
+  endif
 endif
 !!!
 write(outfile, "(15x,a/)")                                             &
