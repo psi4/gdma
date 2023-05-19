@@ -51,9 +51,9 @@ Anthony J. Stone}
 The GDMA program carries out Distributed Multipole Analysis of
 wavefunctions expressed in terms of Gaussian atomic orbitals.
 The calculation can be carried out directly in the CamCASP
-program\cite{CamCASP6.0}, or
+program\cite{CamCASP7.0}, or
 by using as input the formatted checkpoint (``.fchk'') file
-that can be generated using the Psi4 quantum chemistry code\cite{psi4} or the
+that can be generated using the Psi4 quantum chemistry code\cite{Psi4-1.4} or the
 Gaussian system of programs\cite{Gaussian16}
 .
 If you find any bugs, please send email to Anthony
@@ -135,8 +135,8 @@ which causes Gaussian to produce a binary checkpoint file called
 \emph{chkfile}. There is a Gaussian utility \verb+formchk+ which
 converts this into the formatted checkpoint file used by GDMA.
 
-For Psi4, see the Psi4 documentation. In brief, if running under
-psithon, use something like\\[6pt]
+For Psi4, see the Psi4 documentation\cite{Psi4-1.4}. In brief, if
+running under psithon, use something like\\[6pt]
 \hspace{1em}\begin{minipage}[c]{100mm}
 \begin{verbatim}
 energy, wfn = psi4.energy("PBE0", return_wfn=True)
@@ -603,9 +603,24 @@ values than
 the default of $0.65\angstrom$, especially where hydrogen-bonding is
 involved, \textbf{and this is now the default for hydrogen}.
 That is, any atom site with nuclear charge 1 is initially assigned a
-radius of 0.325\angstrom. Some experimentation may be needed for other
-atoms; for example, a radius of 1.11\angstrom\ has been found suitable
-for Cl in methyl chloride.
+radius of 0.325\angstrom.
+
+The atom radii control the allocation of multipoles as follows.
+For any multipole that is to be moved to one of the
+specified multipole sites, the distance to each site is evaluated and
+divided by the radius for that site. The multipole is then moved to
+the site with the smallest resulting scaled value.
+
+Generally speaking, it is best to move multipoles as short a distance as
+possible, so the multipoles as initially calculated, either by the
+Gauss-Hermite quadrature or as contributions to a grid-based treatment,
+are generally best moved to the nearest multipole site. This is
+achieved if the atom radii are all the same. However, in the case of
+hydrogen, results that are more in line with chemical intuition are
+obtained with the smaller radius. If in other cases the results don't
+seem to agree with chemical intuition, some adjustment of other radii
+may give more intuitive results. For example, a radius of
+1.11\angstrom\ has been found suitable for Cl in methyl chloride.
 
 The command\\
 \hspace*{2 em}\verb/PUNCH [APPEND] [RANK p] /[\emph{punch-file}]\\
@@ -707,7 +722,7 @@ hexadecapoles.) Fig.~\ref{fig:formamide}(c) illustrates the improvement
 that can be obtained in this way; the r.m.s. error is 0.041V. 
 Fig.~\ref{fig:formamide}(d) was obtained using the charges from an
 iterated stockholder atom (ISA) description\cite{MisquittaSF14}, calculated
-using the {\sc CamCASP} program of Misquitta \& Stone\cite{CamCASP6.0},
+using the {\sc CamCASP} program of Misquitta \& Stone\cite{CamCASP7.0},
 and Fig.~\ref{fig:formamide}(e) was obtained using CHELPG charges,
 calculated using Gaussian03. The r.m.s. differences for these cases
 are 0.044V and 0.034V respectively. Note that the ISA method yields a

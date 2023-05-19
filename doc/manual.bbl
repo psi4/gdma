@@ -2,23 +2,16 @@
 \begin{thebibliography}{17}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
-\bibitem[Misquitta and Stone(2019)]{CamCASP6.0}
+\bibitem[Misquitta and Stone(2023)]{CamCASP7.0}
 A.~J. Misquitta and A.~J. Stone, {CamCASP}: a program for studying
   intermolecular interactions and for the calculation of molecular properties
-  in distributed form, University of Cambridge,  (2019), Enquiries to
-  a.j.misquitta@qmul.ac.uk. See also
-  {\url{www-stone.ch.cam.ac.uk/programs.html}}.
+  in distributed form, University of Cambridge,  (2023),
+  https://github.com/ajmisquitta/camcasp-bin.
 
-\bibitem[Parrish \emph{et~al.}(2017)Parrish, Burns, Smith, Simmonett, III,
-  Hohenstein, Bozkaya, Sokolov, Remigio, Richard, Gonthier, James, McAlexander,
-  Kumar, Saitow, Wang, Pritchard, Verma, III, Patkowski, King, Valeev,
-  Evangelista, Turney, Crawford and Sherrill]{psi4}
-R.~M. Parrish, L.~A. Burns, D.~G.~A. Smith, A.~C. Simmonett, A.~E.~D. III,
-  E.~G. Hohenstein, U.~Bozkaya, A.~Y. Sokolov, R.~D. Remigio, R.~M. Richard,
-  J.~F. Gonthier, A.~M. James, H.~R. McAlexander, A.~Kumar, M.~Saitow, X.~Wang,
-  B.~P. Pritchard, P.~Verma, H.~F.~S. III, K.~Patkowski, R.~A. King, E.~F.
-  Valeev, F.~A. Evangelista, J.~M. Turney, T.~D. Crawford and C.~D. Sherrill,
-  J.~Chem. Theory Comput. 13 (2017) 3185.
+\bibitem[Smith \emph{et~al.}(2020)Smith, Burns, Simmonett
+  \emph{et~al.}]{Psi4-1.4}
+D.~G.~A. Smith, L.~A. Burns, A.~C. Simmonett \emph{et~al.}, J.~Chem. Phys. 152
+  (2020) 184108.
 
 \bibitem[Frisch \emph{et~al.}(2016)Frisch, Trucks, Schlegel, Scuseria, Robb,
   Cheeseman, Scalmani, Barone, Petersson, Nakatsuji, Li, Caricato, Marenich,
@@ -77,8 +70,8 @@ J.~C. Slater, J.~Chem. Phys. 41 (1964) 3199.
   Hodges, Meredith, Nutt, Popelier and Wales]{Orient5.0}
 A.~J. Stone, A.~Dullweber, O.~Engkvist, E.~Fraschini, M.~P. Hodges, A.~W.
   Meredith, D.~R. Nutt, P.~L.~A. Popelier and D.~J. Wales, ORIENT: a program
-  for studying interactions between molecules, version 5.0, University of
-  Cambridge,  (2018), http://www-stone.ch.cam.ac.uk/programs.html\#Orient.
+  for studying interactions between molecules, version 5.0,  (2018),
+  https://gitlab.com/anthonyjs/orient.git.
 
 \bibitem[Stone \emph{et~al.}(2012)Stone, Dullweber, Engkvist, Fraschini,
   Hodges, Meredith, Nutt, Popelier and Wales]{Orient4.8}

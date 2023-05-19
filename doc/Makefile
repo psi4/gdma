@@ -1,14 +1,23 @@
+SHELL := /bin/bash
+SHOW  := evince
+
 vpath %.bib /home/ajs1/bibtex/bib
 
 preview: manual.pdf force
-	evince $< &
+#	evince $< &
 
 manual.pdf: manual.tex manual.bbl pictures/point-charge-models.pdf ${FRC}
-	pdflatex manual
+	latexmk -pdf manual.tex
+#	${SHOW} $*.pdf &
+
+# manual.pdf: manual.tex manual.bbl pictures/point-charge-models.pdf ${FRC}
+#	pdflatex manual
 
 manual.bbl: manual.aux
-	bibtex manual
+	bibtex manual 
 
+%.aux:
+	[[ ! -e $@ ]] && touch $@
 
 manual.ps: manual.tex ${FRC}
 	make -f ~/tex/Makefiles/Makefile.normal NAME=manual BIB=~/tex/bibtex/bib/all.bib ${FRC}
