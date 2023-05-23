@@ -1,0 +1,18 @@
+#include <pybind11/pybind11.h>
+
+extern "C" void run_gdma(const char* outfilename, const char* datfilename);
+extern "C" int get_nsites();
+extern "C" int get_order(int site);
+extern "C" double get_dma_value(int site, int addr);
+extern "C" double get_tot_value(int addr);
+
+PYBIND11_MODULE(gdma, m) {
+    
+    m.def("run_gdma", &run_gdma, "docstring");
+    m.def("get_nsites", &get_nsites, "docstring");
+    m.def("get_order", &get_order, "docstring");
+    m.def("get_dma_value", &get_dma_value, "docstring");
+    m.def("get_tot_value", &get_tot_value, "docstring");
+    m.attr("__version__") = "@pygdma_VERSION@";
+}
+
