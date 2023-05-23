@@ -8,11 +8,12 @@ extern "C" double get_tot_value(int addr);
 
 PYBIND11_MODULE(gdma, m) {
     
-    m.def("run_gdma", &run_gdma, "docstring");
-    m.def("get_nsites", &get_nsites, "docstring");
-    m.def("get_order", &get_order, "docstring");
-    m.def("get_dma_value", &get_dma_value, "docstring");
-    m.def("get_tot_value", &get_tot_value, "docstring");
+    m.def("run_gdma", &run_gdma,
+          "Execute the GDMA analysis with input directives from the file named in the second argument (FCHK file specified therein) and direct output to the file named in the first argument.");
+    m.def("get_nsites", &get_nsites, "Return count of sites at which multipoles are placed in DMA analysis.");
+    m.def("get_order", &get_order, "Return multipole order for site in first argument (1-indexed).");
+    m.def("get_dma_value", &get_dma_value, "Return the spherical harmonic DMA for the site in the first argument for component in the second argument (both 1-indexed).");
+    m.def("get_tot_value", &get_tot_value, "Return the total multipoles translated to the origin for component in first argument (1-indexed).");
     m.attr("__version__") = "@pygdma_VERSION@";
 }
 

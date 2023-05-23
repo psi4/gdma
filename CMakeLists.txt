@@ -64,8 +64,9 @@ add_custom_command(
 # STATIC/SHARED on below governed by BUILD_SHARED_LIBS
 add_library(gdma ${sources_list} ${CMAKE_CURRENT_BINARY_DIR}/version.f90)
 add_library(gdma::gdma ALIAS gdma)
-#add_executable(gdmaexe ${sources_list})
-set_target_properties(gdma PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_FPIC})
+if (NOT ${BUILD_SHARED_LIBS})
+    set_target_properties(gdma PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_FPIC})
+endif()
 if(${BUILD_SHARED_LIBS})
     target_link_libraries(gdma PRIVATE ${LIBC_INTERJECT})
 
@@ -73,6 +74,16 @@ if(${BUILD_SHARED_LIBS})
         set_target_properties(gdma PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
     endif()
 endif()
+
+add_executable(gdmaexe src/exe.f90)
+add_executable(gdma::exe ALIAS gdmaexe)
+target_link_libraries(gdmaexe gdma)
+set_target_properties(gdmaexe
+  PROPERTIES
+    INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
+    EXPORT_NAME "exe"
+    OUTPUT_NAME "gdma"
+  )
 
 # Python directory
 if (gdma_ENABLE_PYTHON)
@@ -86,6 +97,7 @@ install(FILES ${CMAKE_BINARY_DIR}/GDMA_MANGLE.h
 install(
   TARGETS
     gdma
+    gdmaexe
   EXPORT
     library_interface
   RUNTIME DESTINATION
