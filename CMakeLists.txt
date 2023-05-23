@@ -2,7 +2,7 @@ cmake_policy(SET CMP0048 NEW)  # project_VERSION* variables populated from proje
 cmake_minimum_required(VERSION 3.0)
 project(gdma
         VERSION 2.3.3
-        LANGUAGES Fortran C)
+        LANGUAGES C Fortran)
 set(gdma_AUTHORS      "Anthony J. Stone")
 set(gdma_DESCRIPTION  "Gaussian Distributed Multipole Analysis")
 set(gdma_URL          "http://www-stone.ch.cam.ac.uk/programs.html")
@@ -63,7 +63,7 @@ add_custom_command(
 # STATIC/SHARED on below governed by BUILD_SHARED_LIBS
 add_library(gdma ${sources_list} ${CMAKE_CURRENT_BINARY_DIR}/version.f90)
 add_library(gdma::gdma ALIAS gdma)
-add_executable(gdmaexe ${sources_list})
+#add_executable(gdmaexe ${sources_list})
 set_target_properties(gdma PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_FPIC})
 if(${BUILD_SHARED_LIBS})
     target_link_libraries(gdma PRIVATE ${LIBC_INTERJECT})
