@@ -55,7 +55,8 @@ string(REGEX REPLACE "([^;]+)" "${src_prefix}\\1" sources_list "${raw_sources_li
 find_package(Python COMPONENTS Interpreter REQUIRED)
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version.f90
-  COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${CMAKE_Fortran_COMPILER}
+  #COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${CMAKE_Fortran_COMPILER}
+  COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 "Fortran"  # TODO
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
   COMMENT "Generating version info"
   )

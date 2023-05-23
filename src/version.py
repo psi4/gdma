@@ -33,9 +33,10 @@ with open(args.vfile) as IN:
   patchlevel = re.sub("PATCHLEVEL +:= +", "", line)
 
 now = datetime.today().strftime('%d %B %Y at %H:%M:%S')
-log = subprocess.check_output("git log -n 1 --oneline", shell=True,
-                              universal_newlines=True)
-commit = log.split()[0]
+#log = subprocess.check_output("git log -n 1 --oneline", shell=True,
+#                              universal_newlines=True)
+#commit = log.split()[0]
+commit = "e2d289a"  # TODO
 
 with open(args.v90,"w") as OUT:
   OUT.write(f"""MODULE version
