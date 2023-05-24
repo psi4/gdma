@@ -57,7 +57,8 @@ find_package(Python COMPONENTS Interpreter REQUIRED)
 get_filename_component(_compiler_name ${CMAKE_Fortran_COMPILER} NAME)
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version.f90
-  COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${_compiler_name}
+  #COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${_compiler_name}
+  COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${_compiler_name} --commit a40356c  # TODO
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
   COMMENT "Generating version info"
   )
