@@ -20,6 +20,7 @@ MODULE DMA
 !  Fifth Floor, Boston, MA 02110-1301, USA.
 
 
+use iso_c_binding
 USE atom_grids, ONLY : grid, ng, make_grid, Lebedev,                   &
     n_a, n_r, k_mu, start
 IMPLICIT NONE
@@ -75,11 +76,11 @@ DATA IZ(36:56) /0,0,5,0,1,0,1,4,4,0,2,0,2,3,3,1,1,3,1,2,2/
 INTEGER, ALLOCATABLE :: limit(:)
 REAL(dp), ALLOCATABLE :: xs(:,:), radius(:), q(:,:)
 REAL(dp) :: rt(0:20), binom(0:20,0:20), rtbinom(0:20,0:20),         &
-    d(56,56)
+    d(56,56), qt(0:121)
 
 LOGICAL:: slice, linear, planar, general
 INTEGER :: ns, lmax, perp, mindc, maxdc
-REAL(dp) :: tol
+REAL(dp) :: tol, spread
 
 !  Charge density at grid points
 REAL(dp), ALLOCATABLE :: rho(:)
@@ -325,10 +326,29 @@ DATA W(191:210) /                                          &
     4.39934099227335D-10, 2.22939364553444D-13/
 
 CONTAINS
+!-------------------------------------------------------------
+! Some getter functions to access the DMA information from C
+INTEGER(C_INT) FUNCTION get_nsites() BIND(c, name='get_nsites')
+    get_nsites = ns
+END FUNCTION get_nsites
 
+INTEGER(C_INT) FUNCTION get_order(site) BIND(c, name='get_order')
+    INTEGER(C_INT), VALUE, INTENT(IN) :: site
+    get_order = limit(site)
+END FUNCTION get_order
+
+REAL(C_DOUBLE) FUNCTION get_dma_value(site, addr) BIND(c, name='get_dma_value')
+    INTEGER(C_INT), VALUE, INTENT(IN) :: site, addr
+    get_dma_value = q(addr,site)
+END FUNCTION get_dma_value
+
+REAL(C_DOUBLE) FUNCTION get_tot_value(addr) BIND(c, name='get_tot_value')
+    INTEGER(C_INT), VALUE, INTENT(IN) :: addr
+    get_tot_value = qt(addr)
+END FUNCTION get_tot_value
 !-----------------------------------------------------------------   DMA
 
-SUBROUTINE dma_main(w,kp)
+SUBROUTINE dma_main(w,kp,infile,outfile)
 USE input
 IMPLICIT NONE
 !-----------------------------------------------------
@@ -337,7 +357,7 @@ IMPLICIT NONE
 !     Version for Cadpac5 , R D Amos, June 1990
 !-----------------------------------------------------
 REAL(dp) :: w(*)
-INTEGER :: kp, prank=5
+INTEGER :: kp, prank=5, infile, outfile
 
 !                      Distributed Multipole Analysis
 
@@ -365,9 +385,9 @@ CHARACTER(LEN=16) :: wa, wb, wc
 
 LOGICAL :: check
 
-INTEGER :: kr=0, nerror=0, itol, zs(MAXS)
+INTEGER :: iw=6, kr=0, kw=0, nerror=0, itol, zs(MAXS)
 INTEGER :: i, j, k, l, m, ok
-REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
+REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0!, qt(0:121)
 
 !  Directive syntax:
 !   MULTIPOLES
@@ -464,7 +484,9 @@ REAL(dp) :: r, ox=0d0, oy=0d0, oz=0d0, qt(0:121)
 !          linear molecules this procedure is always used.
 
 lmax=20
+iw=outfile
 kr=0
+kw=0
 linear=.false.
 planar=.false.
 general=.false.
@@ -472,6 +494,7 @@ perp=0
 itol=18
 nuclei=.true.
 slice=.false.
+spread=1.0d0
 bigexp=bigexp_default
 lebedev=.true.
 nerror=0
@@ -495,10 +518,10 @@ call atom_sites
 !  Read input keywords
 do
   if (nerror .eq. 1) then
-    print '(a)', 'Syntax checking only from this point.'
+    write(outfile, '(a)') 'Syntax checking only from this point.'
     nerror=nerror+1
   endif
-  call read_line(eof)
+  call read_line(eof, infile)
   call readu(wa)
   select case(wa)
   case('ATOMS')  !  Default choice of sites
@@ -508,7 +531,7 @@ do
   case('START')
     exit
   case('LINEAR')
-    PRINT '(/A)', 'The LINEAR option is no longer needed'
+    write(outfile, '(/A)') 'The LINEAR option is no longer needed'
   case('PLANAR')
     call readu(wb)
     select case(wb)
@@ -539,6 +562,10 @@ do
     linear=.false.
     planar=.false.
     perp=0
+
+  case('SPREAD')
+    call readf(spread,rfact)
+    if (spread .eq. 0.0d0) spread=1.0d0
 
   case("GRID")
     do while (item < nitems)
@@ -760,13 +787,13 @@ do
   case("BIGEXP","SWITCH")
     call readf(bigexp)
     if (bigexp < 0d0) then
-      print "(a)", "Switch value must not be negative"
+      write(outfile, "(a)") "Switch value must not be negative"
       nerror=nerror+1
     end if
     if (bigexp > 0d0) general=.true.
 
   case default
-    print '(a,a)', 'Unrecognised DMA keyword ', wa
+    write(outfile, '(a,a)') 'Unrecognised DMA keyword ', wa
     nerror=nerror+1
   end select
 end do
@@ -809,20 +836,20 @@ write (iw,"(/25x,a/)") "Distributed Multipole Analysis"
 Q=0.0d0
 
 if (bigexp > 0d0) then
-  print "(a,a,f0.5)", "Standard DMA for products of primitives",  &
+  write(outfile, "(a,a,f0.5)") "Standard DMA for products of primitives",  &
       " with exponent greater than ", bigexp
   general=.true.
-  call make_grid(ns, zs, xs, radius)
+  call make_grid(ns, zs, xs, radius, outfile)
   if (allocated(rho)) then
     deallocate(rho)
   end if
   allocate(rho(ng), stat=ok)
   if (ok>0) then
-    print "(a)", "Allocation of density grid failed"
+    write(outfile, "(a)") "Allocation of density grid failed"
     stop
   end if
 else
-  print "(a)", "Standard DMA"
+  write(outfile, "(a)") "Standard DMA"
 end if
 
 if (general) then
@@ -832,18 +859,20 @@ if (general) then
   perp=0
 end if
 
-print "(/2a)", "Positions and radii in ", trim(runit)
+write(outfile, "(/2a)") "Positions and radii in ", trim(runit)
 
 if (Qfactor(0) .ne. 1d0) then
-  print "(/a)", "Multipole moments are in SI units, multiplied by 10^(10k+20) for rank k"
+  write(outfile, "(/a)") "Multipole moments are in SI units, multiplied by 10^(10k+20) for rank k"
 else
-  print "(a)", "Multipole moments in atomic units, ea_0^k for rank k"
+  write(outfile, "(a)") "Multipole moments in atomic units, ea_0^k for rank k"
 end if
 
 if (linear) then
-  call dmaql0(w,kr)
+  !call dmaql0(w,kr)
+  call dmaql0(w,kw)
 else
-  call dmaqlm(w,kr)
+  !call dmaqlm(w,kr)
+  call dmaqlm(w,kw)
 endif
 
 qt=0.0d0
@@ -929,7 +958,7 @@ END SUBROUTINE dma_main
 
 !---------------------------------------------------------------  DMAQL0
 
-SUBROUTINE dmaql0(densty,kr)
+SUBROUTINE dmaql0(densty,iw)
 IMPLICIT NONE
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983
@@ -937,7 +966,7 @@ IMPLICIT NONE
 !     Version for Cadpac5 , R D Amos, June 1990
 !-----------------------------------------------------
 REAL(dp), INTENT(IN) :: densty(*)
-INTEGER, INTENT(IN) :: kr
+INTEGER, INTENT(IN) :: iw
 
 
 !  Calculate multipole moments, and shift them to the nearest site. In
@@ -1013,7 +1042,8 @@ do i=1,nat
   zi=c(3,i)
   if (nuclei .and. i .ge. mindc .and. i .le. maxdc) then
     qt(0)=zan(i)
-    call movez(qt, zi, kr)
+    !call movez(qt, zi, kr)
+    call movez(qt, zi, iw)
   endif
   !  Find shells for atom i
   ii1=0
@@ -1150,7 +1180,7 @@ do i=1,nat
             zp=zi-p*zji
             za=zi-zp
             zb=zj-zp
-            if (iand(kr,2) .ne. 0) write (iw,"(3(i5,i4), f11.4)")              &
+            if (iw .gt. 0) write (iw,"(3(i5,i4), f11.4)")              &
                 i,j, ii,jj, ig,jg, zp
 !  Use numerical integration to evaluate the multipole integrals
 !  over x and y (they are the same).
@@ -1215,7 +1245,7 @@ do i=1,nat
 !  End of loop over basis functions
                   end do
                 end do
-                if (iand(kr,1) .ne. 0) write (iw,"(a,i3, 11f11.7)")            &
+                if (iw .gt. 0) write (iw,"(a,i3, 11f11.7)")            &
                     "slice", is, (qt(iq), iq=0,min(lmax,10))
 !  Move multipoles to expansion site contained in this slice.
 !  Note that they are currently referred to the overlap centre P.
@@ -1275,22 +1305,22 @@ do i=1,nat
                   if (mod(mx,2) .eq. 0 .and. mod(my,2) .eq. 0)         &
                       call addql0 (qt, min(nq,lmax), -fac*ci*cj*d(ia,jb), &
                       gx(mx),gx(my),gz(0,iz(ia),iz(jb)))
-                  if (iand(kr,2) .ne. 0) write (iw,"(1p,3e10.2,2i3,1p,4e10.2)") &
+                  if (iw .gt. 0) write (iw,"(1p,3e10.2,2i3,1p,4e10.2)") &
                       fac, ci, cj, ia, jb, d(ia,jb),                   &
                       gx(mx), gx(my), gz(0,iz(ia),iz(jb))
 !  End of loop over basis functions
                 end do
               end do
-              if (iand(kr,1) .ne. 0) write (iw,"(3(i5,i4), f11.4, 3x, 11f12.8)") &
+              if (iw .gt. 0) write (iw,"(3(i5,i4), f11.4, 3x, 11f12.8)") &
                   i,j, ii,jj, ig,jg, zp, (qt(iq), iq=0,10)
 !  Move multipoles to nearest site.
-              call movez(qt, zp, kr)
+              call movez(qt, zp, iw)
             endif
 !  End of loop over primitives
           end do
         end do
-        if (iand(kr,1) .ne. 0) write (iw,"(/(5f15.8))") (q(0:4,ia), ia=1,ns)
-        if (iand(kr,1) .ne. 0) write (iw,"(1x)")
+        if (iw .gt. 0) write (iw,"(/(5f15.8))") (q(0:4,ia), ia=1,ns)
+        if (iw .gt. 0) write (iw,"(1x)")
 !  End of loop over shells
       end do
     end do
@@ -1428,7 +1458,7 @@ END SUBROUTINE shiftz
 
 !----------------------------------------------------------------- MOVEZ
 
-SUBROUTINE movez (qp, p, kr)
+SUBROUTINE movez (qp, p, iw)
 IMPLICIT NONE
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983
@@ -1439,7 +1469,7 @@ IMPLICIT NONE
 !  to the nearest site.
 REAL(dp), INTENT(INOUT) :: qp(0:)
 REAL(dp), INTENT(IN) :: p
-INTEGER, INTENT(IN) :: kr
+INTEGER, INTENT(IN) :: iw
 
 REAL(dp) :: r(maxs)
 REAL(dp), PARAMETER :: eps=1d-8
@@ -1467,7 +1497,7 @@ do
     m(2)=i
   end do
 !  Multipoles of ranks LOW to LIMIT(K) are to be moved at this stage
-  if (iand(kr,2) .ne. 0) write (6,1001) p, low, limit(k),                   &
+  if (IW .gt. 0) write (6,1001) p, low, limit(k),                   &
       (m(i), xs(3,m(i)), i=1,n)
 1001  format (' From', F7.3, ': ranks', I3, ' to', I3,                  &
           ' to be moved to site ', I1, ' at', F7.3:                     &
@@ -1620,10 +1650,10 @@ END SUBROUTINE dmaerf
 
 !-----------------------------------------------------------------DMAQLM
 
-SUBROUTINE dmaqlm(densty,kr)
+SUBROUTINE dmaqlm(densty,iw)
 IMPLICIT NONE
 REAL(dp), INTENT(IN) :: densty(*)
-INTEGER, INTENT(IN) :: kr
+INTEGER, INTENT(IN) :: iw
 
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983
@@ -1691,7 +1721,7 @@ REAL(dp) :: aa, ai, arri, aj, ci, cj, ch, dum, e, fac, f, g,           &
 
 do_quadrature=.false.
 
-if (iand(kr,1) .ne. 0) print "(a/a)",                                           &
+if (iw .gt. 0) write(iw, "(a/a)")                                      &
     '    Atoms   Shells Primitives            Position',               &
     '     Multipole contributions ...'
 katom(nshell+1)=0
@@ -1782,7 +1812,7 @@ do i=1,nat
           end if
         end do
 
-        if (iand(kr,8) .ne. 0 .and. la == 5) then
+        if (iw .gt. 0 .and. la == 5) then
           !  Print out temporary density matrix
           print "(4i4)", i, j, la, lb
           do mi = mini,maxi
@@ -1872,7 +1902,7 @@ do i=1,nat
               yp=yi-ya
               zp=zi-za
               t=sqrt(1.0d0/aa)
-              if (iand(kr,2) .ne. 0) print ("(3(i5,i4), 3x, 3f10.5)"),      &
+              if (iw .gt. 0) write(iw, "(3(i5,i4), 3x, 3f10.5)")      &
                   i,j, ii,jj, ig,jg, xp,yp,zp
 !  LQ is the maximum rank of multipole to which these functions
 !  contribute. The integrals involve polynomials up to order 2LQ,
@@ -1947,7 +1977,7 @@ do i=1,nat
                 end do
               end do
 
-              if (iand(kr,1) .ne. 0) print "(f10.6: / 3f10.6: / 5f10.6: / 7f10.6: / 9f10.6: /&
+              if (iw .gt. 0) print "(f10.6: / 3f10.6: / 5f10.6: / 7f10.6: / 9f10.6: /&
                   & 11f10.6: / 13f10.6: / 15f10.6: / 17f10.6: / 19f10.6: / 21f10.6)", &
                   qt(1:(nq+1)**2)
 !  Move multipoles to expansion centre nearest to overlap centre P.
@@ -1967,7 +1997,7 @@ do i=1,nat
               xp=xi-p*xji
               yp=yi-p*yji
               zp=zi-p*zji
-              if (iand(kr,2) .ne. 0) print "(2i5, 3f20.15)", ig, jg, xp, yp, zp
+              if (iw > 0) write(iw, "(2i5, 3f20.15)") ig, jg, xp, yp, zp
               do k=1,ng
                 xk=grid(1,k)
                 yk=grid(2,k)
@@ -2889,7 +2919,7 @@ REAL(dp) :: a2kp1, rr, rfx, rfy, rfz, s
 
 l=iabs(j)
 if ((l+1)**2 .gt. max) then
-  print '(a,i3)', 'Insufficient array space for harmonics up to rank',L
+  write(6,'(a,i3)') 'Insufficient array space for harmonics up to rank',L
   call die('Consult authors')
 endif
 rr=x**2+y**2+z**2
