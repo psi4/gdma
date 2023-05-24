@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 #  -*-  coding:  utf-8  -*-
 
 """Construct the version.f90 file that contains version details.
@@ -23,6 +23,7 @@ description="""Construct the version.f90 file that contains version details.
 parser.add_argument("vfile", help="VERSION file path")
 parser.add_argument("v90", help="version.f90 file path")
 parser.add_argument("compiler", help="Compiler")
+parser.add_argument("--commit", help="commit to avoid git", default="use_git")
 
 args = parser.parse_args()
 
@@ -33,9 +34,12 @@ with open(args.vfile) as IN:
   patchlevel = re.sub("PATCHLEVEL +:= +", "", line)
 
 now = datetime.today().strftime('%d %B %Y at %H:%M:%S')
-log = subprocess.check_output("git log -n 1 --oneline", shell=True,
-                              universal_newlines=True)
-commit = log.split()[0]
+if args.commit == "use_git":
+    log = subprocess.check_output("git log -n 1 --oneline", shell=True,
+                                  universal_newlines=True)
+    commit = log.split()[0]
+else:
+    commit = args.commit
 
 with open(args.v90,"w") as OUT:
   OUT.write(f"""MODULE version

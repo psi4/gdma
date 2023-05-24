@@ -1,0 +1,134 @@
+# gdmaConfig.cmake
+# -----------------
+#
+# gdma cmake module.
+# This module sets the following variables in your project::
+#
+#   gdma_FOUND - true if gdma and all required components found on the system
+#   gdma_VERSION - gdma version in format Major.Minor.Release. Prefer target variable.
+#   gdma_INCLUDE_DIRS - Directory where gdma/tensor.h header is located and dependent headers. Prefer targets.
+#   gdma_INCLUDE_DIR - same as DIRS. Prefer targets.
+#   gdma_DEFINITIONS - Definitions necessary to use gdma, namely USING_gdma. Prefer targets.
+#   gdma_LIBRARIES - gdma library to link against plus any dependent libraries. Prefer targets.
+#   gdma_LIBRARY - gdma library to link against. Prefer targets
+#   gdma_PYMOD - path to pygdma python module (suitable for appending PYTHONPATH). Only present
+#                 with Python component. Prefer pygdma target variable.
+#
+#
+# Target variables::
+#
+# It is preferred to use properties set on the base target rather than using the above variables. ::
+#
+#   gdma_VERSION - gdma version in format Major.Minor.Release
+#   gdma_PYMOD - path to gdma python module (suitable for appending PYTHONPATH). Only on pygdma target.
+#
+#   get_property(_ver TARGET gdma::gdma PROPERTY gdma_VERSION)
+#
+#
+# Available components: shared static Python ::
+#
+#   shared - search for only shared library
+#   static - search for only static library
+#   Python - search for Python bindings library
+#
+#
+# Exported targets::
+#
+# If gdma is found, this module defines at least the first following
+# :prop_tgt:`IMPORTED` target. Depending on components available, it may define::
+#
+#   gdma::gdma - the main gdma library with header & defs attached.
+#   gdma::exe - the usual gdma executable.
+#   gdma::pygdma - the Python pybind11 library.
+#
+#
+# Suggested usage::
+#
+#   find_package(gdma)
+#   find_package(gdma 2.2.3 CONFIG REQUIRED COMPONENTS shared)
+#
+#
+# The following variables can be set to guide the search for this package::
+#
+#   gdma_DIR - CMake variable, set to directory containing this Config file
+#   CMAKE_PREFIX_PATH - CMake variable, set to root directory of this package
+#   PATH - environment variable, set to bin directory of this package
+#   CMAKE_DISABLE_FIND_PACKAGE_gdma - CMake variable, disables
+#       find_package(gdma) perhaps to force internal build
+
+@PACKAGE_INIT@
+
+set(gdma gdma)  # NameSpace
+
+# check library style component
+if (@BUILD_SHARED_LIBS@)  # BUILD_SHARED_LIBS
+    set(${gdma}_shared_FOUND 1)
+else()
+    set(${gdma}_static_FOUND 1)
+endif()
+list(FIND ${gdma}_FIND_COMPONENTS "shared" _seek_shared)
+list(FIND ${gdma}_FIND_COMPONENTS "static" _seek_static)
+
+# check Python interface component
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/${gdma}Targets-Python.cmake")
+    set(${gdma}_Python_FOUND 1)
+endif()
+list(FIND ${gdma}_FIND_COMPONENTS "Python" _seek_Python)
+
+# make detectable the FindTarget*.cmake modules
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+# Check all required components are available before trying to load any
+check_required_components(${gdma})
+
+#-----------------------------------------------------------------------------
+# Don't include targets if this file is being picked up by another
+# project which has already built this as a subproject
+#-----------------------------------------------------------------------------
+if(NOT TARGET ${gdma}::gdma)
+    include("${CMAKE_CURRENT_LIST_DIR}/${gdma}Targets-lib.cmake")
+
+    get_property(_loc TARGET ${gdma}::gdma PROPERTY LOCATION)
+    get_property(_ill TARGET ${gdma}::gdma PROPERTY INTERFACE_LINK_LIBRARIES)
+    get_property(_iid TARGET ${gdma}::gdma PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+    get_property(_icd TARGET ${gdma}::gdma PROPERTY INTERFACE_COMPILE_DEFINITIONS)
+    set(${gdma}_LIBRARY ${_loc})
+    set(${gdma}_LIBRARIES ${_loc};${_ill})
+    set(${gdma}_INCLUDE_DIR ${_iid})
+    set(${gdma}_INCLUDE_DIRS ${_iid})
+    set(${gdma}_DEFINITIONS ${_icd})
+
+    if(${gdma}_Python_FOUND)
+        include("${CMAKE_CURRENT_LIST_DIR}/${gdma}Targets-Python.cmake")
+        get_property(${gdma}_PYMOD TARGET ${gdma}::pygdma PROPERTY gdma_PYMOD)
+    endif()
+
+    if (CMAKE_VERSION VERSION_GREATER 3.15)
+        message(VERBOSE "gdma::gdma")
+
+        get_property(_ver TARGET ${gdma}::gdma PROPERTY gdma_VERSION)
+        message(VERBOSE "${gdma}::gdma.${gdma}_VERSION   ${_ver}")
+
+        message(VERBOSE "${gdma}_FOUND                  ${${gdma}_FOUND}")
+        message(VERBOSE "${gdma}_VERSION                ${${gdma}_VERSION}")
+        message(VERBOSE "${gdma}_DEFINITIONS            ${${gdma}_DEFINITIONS}")
+
+        message(VERBOSE "${gdma}_LIBRARY                ${${gdma}_LIBRARY}")
+        message(VERBOSE "${gdma}_LIBRARIES              ${${gdma}_LIBRARIES}")
+        message(VERBOSE "${gdma}_INCLUDE_DIR            ${${gdma}_INCLUDE_DIR}")
+        message(VERBOSE "${gdma}_INCLUDE_DIRS           ${${gdma}_INCLUDE_DIRS}")
+
+        if (TARGET ${gdma}::pygdma)
+            message(VERBOSE "gdma::pygdma")
+
+            get_property(_ver TARGET ${gdma}::pygdma PROPERTY gdma_VERSION)
+            get_property(_pym TARGET ${gdma}::pygdma PROPERTY gdma_PYMOD)
+            message(VERBOSE "${gdma}::pygdma.${gdma}_VERSION ${_ver}")
+            message(VERBOSE "${gdma}::pygdma.${gdma}_PYMOD   ${_pym}")
+
+            message(VERBOSE "${gdma}_VERSION                ${${gdma}_VERSION}")
+            message(VERBOSE "${gdma}_PYMOD                  ${${gdma}_PYMOD}")
+        endif()
+    endif()
+
+endif()
