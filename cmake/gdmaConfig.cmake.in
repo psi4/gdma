@@ -38,6 +38,7 @@
 # :prop_tgt:`IMPORTED` target. Depending on components available, it may define::
 #
 #   gdma::gdma - the main gdma library with header & defs attached.
+#   gdma::exe - the usual gdma executable.
 #   gdma::pygdma - the Python pybind11 library.
 #
 #
@@ -99,7 +100,7 @@ if(NOT TARGET ${gdma}::gdma)
 
     if(${gdma}_Python_FOUND)
         include("${CMAKE_CURRENT_LIST_DIR}/${gdma}Targets-Python.cmake")
-#        get_property(${gdma}_PYMOD TARGET ${gdma}::pygdma PROPERTY gdma_PYMOD)
+        get_property(${gdma}_PYMOD TARGET ${gdma}::pygdma PROPERTY gdma_PYMOD)
     endif()
 
     if (CMAKE_VERSION VERSION_GREATER 3.15)

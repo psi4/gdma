@@ -11,8 +11,8 @@ project(
   )
 set(pygdma_AUTHORS      "Anthony J. Stone")
 set(pygdma_DESCRIPTION  "Gaussian Distributed Multipole Analysis")
-set(pygdma_URL          "http://www-stone.ch.cam.ac.uk/programs.html")
-set(pygdma_LICENSE      "GNU General Public License, version 2 or later")
+set(pygdma_URL          "https://www-stone.ch.cam.ac.uk/pub/gdma/")
+set(pygdma_LICENSE      "GNU General Public License, version 3")
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake)
 
@@ -40,11 +40,11 @@ if (APPLE)
 else()
     set(base "$ORIGIN")
 endif()
-file(RELATIVE_PATH relDir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/gdma
+file(RELATIVE_PATH relDir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}
                           ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_RPATH ${base} ${base}/${relDir})
 
-message(STATUS "gdma rpath: ${CMAKE_INSTALL_RPATH}")
+message(STATUS "pygdma rpath: ${CMAKE_INSTALL_RPATH}")
 
 configure_file(bindings.cc.cmake.in bindings.cc @ONLY)  # bake in version string
 pybind11_add_module(pygdma MODULE bindings.cc)
@@ -56,47 +56,37 @@ if(NOT TARGET gdma::gdma)
 endif()
 target_link_libraries(pygdma PRIVATE gdma::gdma)
 
-#if(MSVC)
-#    target_compile_definitions(pygdma PUBLIC _USE_MATH_DEFINES)
-#    target_compile_options(pygdma PUBLIC "/EHsc")
-#    set_target_properties(
-#      pygdma
-#      PROPERTIES
-#        WINDOWS_EXPORT_ALL_SYMBOLS ON
-#      )
-#endif()
+if(MSVC)
+    target_compile_definitions(pygdma PUBLIC _USE_MATH_DEFINES)
+    target_compile_options(pygdma PUBLIC "/EHsc")
+    set_target_properties(
+      pygdma
+      PROPERTIES
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
+      )
+endif()
 
-#set(export_properties
-#  "gdma_VERSION"
-#  "gdma_PYMOD"
-#  )
+set(export_properties
+  "gdma_VERSION"
+  "gdma_PYMOD"
+  )
 
 set_target_properties(
   pygdma
   PROPERTIES
     OUTPUT_NAME gdma
-    EXPORT_NAME gdma
-#    INSTALL_RPATH "${CMAKE_INSTALL_RPATH}"
-#    # below two are covered by pb11. Use pybind11_add_module(... NO_EXTRAS) to experiment here.
-#    # CXX_VISIBILITY_PRESET "hidden"
-#    # VISIBILITY_INLINES_HIDDEN 1
-#    gdma_VERSION ${pygdma_VERSION}
-#    gdma_PYMOD "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}"
-#    EXPORT_PROPERTIES "${export_properties}"
+    EXPORT_NAME pygdma
+    INSTALL_RPATH "${CMAKE_INSTALL_RPATH}"
+    # below two are covered by pb11. Use pybind11_add_module(... NO_EXTRAS) to experiment here.
+    # CXX_VISIBILITY_PRESET "hidden"
+    # VISIBILITY_INLINES_HIDDEN 1
+    gdma_VERSION ${pygdma_VERSION}
+    gdma_PYMOD "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}"
+    EXPORT_PROPERTIES "${export_properties}"
   )
 
-# Should Python bindings get a <project>Config.cmake file for detecting them?
-# * They form a python module, which has its own detection conventions, so maybe not.
-# * They are a compiled CMake product, so maybe so.
-# * Some have linkable symbols (e.g., Psi4) if the default hidden properties conferred by pb11 are countervened, so maybe so.
-# * If one detects the C/C++ lib with CMake, it's nice to use the same scheme with the bindings, so maybe so.
-# Should the Python bindings Config.cmake get a whole new project like <py_project>Config.cmake?
-# * If pb11 module linked against static (or object) C/C++ lib (creating two fat largely duplicate libs), Py bindings are entirely indep, so maybe so.
-# * If pb11 module linked against shared C/C++ lib (creating one fat, one lean lib), Py bindings are closely assoc. w/C/C++ project, so maybe not.
-# The setup below answers the queries as "yes" and "no", respectively.
-# * The bindings subproject installs "Targets-Python" exports detectable with `find_project(ambit COMPONENTS Python)`
-# * Separating the C/C++ lib main project and bindings subproject is mainly for packagers looking to minimize build time for multiple Pythons.
-# * Anyone not building C/C++ and Python together and who cares about install layout and ambit *consumption* should examine and test the find_package() circs.
+# It's not clear whether Python bindings should get a Config.cmake file and/or a separate project().
+#   See https://github.com/jturney/ambit/blob/master/pyambit/CMakeLists.txt#L88 for discussion, esp. for packagers.
 
 install(
   TARGETS
@@ -117,20 +107,4 @@ install(
   DESTINATION
     ${CMAKECONFIG_INSTALL_DIR}
   )
-
-#install(
-#  FILES
-#    __init__.py
-#  DESTINATION
-#    ${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/gdma/
-#  )
-#
-#install(
-#  FILES
-#    np_test.py
-#    test_blocks.py
-#    test_operators.py
-#  DESTINATION
-#    ${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/gdma/tests
-#  )
 

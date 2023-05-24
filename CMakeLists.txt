@@ -1,12 +1,12 @@
-cmake_policy(SET CMP0048 NEW)  # project_VERSION* variables populated from project(... VERSION x.x.x) string
-cmake_minimum_required(VERSION 3.0)
+cmake_policy(SET CMP0048 NEW)
+cmake_minimum_required(VERSION 3.16)
 project(gdma
         VERSION 2.3.3
         LANGUAGES C Fortran)
 set(gdma_AUTHORS      "Anthony J. Stone")
 set(gdma_DESCRIPTION  "Gaussian Distributed Multipole Analysis")
-set(gdma_URL          "http://www-stone.ch.cam.ac.uk/programs.html")
-set(gdma_LICENSE      "GNU General Public License, version 2 or later")
+set(gdma_URL          "https://www-stone.ch.cam.ac.uk/pub/gdma/")
+set(gdma_LICENSE      "GNU General Public License, version 3")
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -22,7 +22,7 @@ option_with_print(ENABLE_GENERIC "Enable mostly static linking in shared library
 option_with_flags(ENABLE_XHOST "Enable processor-specific optimization" ON
                     "-xHost" "-march=native")
 option_with_default(ENABLE_GENERIC "Enables mostly static linking of system and math libraries for shared library" OFF)
-option_with_default(gdma_INSTALL_CMAKEDIR "Directory to which ambit CMake config files installed." share/cmake/gdma)
+option_with_default(gdma_INSTALL_CMAKEDIR "Directory to which gdma CMake config files installed." share/cmake/gdma)
 option_with_print(gdma_ENABLE_PYTHON "Build Python bindings (requires Python and Pybind11)" OFF)
 
 ######################### Process & Validate Options ###########################
@@ -53,10 +53,11 @@ set(src_prefix "src/")
 string(REGEX REPLACE "([^;]+)" "${src_prefix}\\1" sources_list "${raw_sources_list}")
 
 find_package(Python COMPONENTS Interpreter REQUIRED)
+# avoid overlong compiler names in Fortran src file. sometimes balks on line length.
+get_filename_component(_compiler_name ${CMAKE_Fortran_COMPILER} NAME)
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version.f90
-  #COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${CMAKE_Fortran_COMPILER}
-  COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 "Fortran"  # TODO
+  COMMAND ${Python_EXECUTABLE} version.py ../VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.f90 ${_compiler_name}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
   COMMENT "Generating version info"
   )
@@ -75,6 +76,12 @@ if(${BUILD_SHARED_LIBS})
     endif()
 endif()
 
+set(export_properties
+  "gdma_VERSION"
+  )
+set_target_properties(gdma PROPERTIES gdma_VERSION ${gdma_VERSION})
+set_property(TARGET gdma APPEND PROPERTY EXPORT_PROPERTIES "${export_properties}")
+
 add_executable(gdmaexe src/exe.f90)
 add_executable(gdma::exe ALIAS gdmaexe)
 target_link_libraries(gdmaexe gdma)
@@ -92,7 +99,7 @@ endif()
 
 # <<<  Install  >>>
 
-install(FILES ${CMAKE_BINARY_DIR}/GDMA_MANGLE.h
+install(FILES ${PROJECT_BINARY_DIR}/GDMA_MANGLE.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GDMA)
 install(
   TARGETS
