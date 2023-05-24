@@ -329,7 +329,7 @@ CONTAINS
 !-----------------------------------------------------------------   DMA
 
 SUBROUTINE dma_main(w,kp)
-USE common_routines
+USE input
 IMPLICIT NONE
 !-----------------------------------------------------
 !     Copyright A J Stone University of Cambridge 1983

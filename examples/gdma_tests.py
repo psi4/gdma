@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 #  -*-  coding:  utf-8  -*-
 
 """Run the gdma tests.
@@ -47,7 +47,7 @@ for test in tests:
     for f in ["out", "punch"]:
         if os.path.exists(f): os.remove(f)
     with open("data") as D, open("out","w") as OUT:
-        rc = subprocess.call([program], stdin=D, stdout=OUT, stderr=subprocess.STDOUT)
+        rc = subprocess.call([args.p], stdin=D, stdout=OUT, stderr=subprocess.STDOUT)
     if rc != 0:
         print(f"GDMA failed with return code {rc:1d}")
     else:
