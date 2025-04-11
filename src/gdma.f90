@@ -23,6 +23,12 @@ module libgdma
 !  This version has been modified by Andy Simmonett (03/16) to link
 !  into Psi4, rather than serve as a standalone executable.
 
+#if defined(_WIN32)
+#define GDMA_API __declspec(dllexport)
+#else
+#define GDMA_API
+#endif
+
 USE input
 use iso_c_binding
 use iso_fortran_env, only : std_out=>output_unit
@@ -38,7 +44,7 @@ CHARACTER(LEN=100) :: file
 CHARACTER(LEN=80) :: buffer
 CHARACTER(LEN=20) :: key
 CHARACTER(LEN=8) :: whichd="SCF"
-CHARACTER(LEN=24) :: datestring
+GDMA_API CHARACTER(LEN=24) :: datestring
 
 !  Maximum number of sites is number of atoms + nextra
 INTEGER :: nextra=16
