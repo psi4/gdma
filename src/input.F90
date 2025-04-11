@@ -644,8 +644,8 @@ SUBROUTINE read_quad(A,factor)
 !  If the optional argument factor is present, the value read should be
 !  divided by it. (External value = factor*internal value)
 
-REAL(KIND=real128), INTENT(INOUT) :: a
-REAL(KIND=real128), INTENT(IN), OPTIONAL :: factor
+REAL(KIND=real64), INTENT(INOUT) :: a
+REAL(KIND=real64), INTENT(IN), OPTIONAL :: factor
 
 CHARACTER(LEN=50) :: string
 
@@ -849,8 +849,8 @@ SUBROUTINE get_quad(A,factor)
 !  If the optional argument factor is present, the value read should be
 !  divided by it. (External value = factor*internal value)
 
-REAL(real128), INTENT(INOUT) :: A
-REAL(real128), INTENT(IN), OPTIONAL :: factor
+REAL(real64), INTENT(INOUT) :: A
+REAL(real64), INTENT(IN), OPTIONAL :: factor
 
 LOGICAL :: eof
 
