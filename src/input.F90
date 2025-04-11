@@ -56,11 +56,11 @@ INTEGER, SAVE :: lc=3
 INTEGER, PARAMETER :: sp=kind(1.0), dp=kind(1d0)!, qp=selected_real_kind(30)
 
 INTERFACE readf
-  MODULE PROCEDURE read_single, read_double, readv_double, read_quad
+  MODULE PROCEDURE read_single, read_double, readv_double !, read_quad
 END INTERFACE readf
 
 INTERFACE getf
-  MODULE PROCEDURE get_double, get_quad
+  MODULE PROCEDURE get_double !, get_quad
 END INTERFACE getf
 
 PRIVATE
